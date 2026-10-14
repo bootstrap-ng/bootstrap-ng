@@ -21,6 +21,7 @@ describe('BsCalendar', () => {
         locale="en-US"
         [selectionMode]="mode()"
         [monthsCount]="months()"
+        [colorMode]="colorMode()"
         min="2026-06-03"
         [formControl]="date"
         (selectionComplete)="completed.set($event)"></div>
@@ -29,6 +30,7 @@ describe('BsCalendar', () => {
   class Host {
     readonly mode = signal<BsDateSelectionMode>('single');
     readonly months = signal(1);
+    readonly colorMode = signal<'light' | 'dark' | null>(null);
     date = new FormControl<BsDateValue>('2026-06-10');
     readonly completed = signal<BsDateValue>(null);
   }
@@ -60,6 +62,16 @@ describe('BsCalendar', () => {
     expect(button('2026-06-10').tabIndex).toBe(0);
     expect(button('2026-06-11').tabIndex).toBe(-1);
     expect(button('2026-06-10').getAttribute('aria-label')).toBe('Wednesday, June 10, 2026');
+  });
+
+  it('inherits the color mode unless colorMode forces one', async () => {
+    const { fixture, host, component } = await setup();
+    expect(host.style.colorScheme).toBe('inherit');
+    expect(host.hasAttribute('data-bs-theme')).toBe(false);
+    component.colorMode.set('dark');
+    await fixture.whenStable();
+    expect(host.style.colorScheme).toBe('');
+    expect(host.getAttribute('data-bs-theme')).toBe('dark');
   });
 
   it('selects a date and ignores disabled ones', async () => {

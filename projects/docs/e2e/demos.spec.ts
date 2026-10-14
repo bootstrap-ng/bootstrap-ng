@@ -153,6 +153,18 @@ test('an async typeahead renders custom items', async ({ page }) => {
   await expect(demo).toContainText('Picked: Django');
 });
 
+test('a datepicker follows the page color mode, not the system one', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.addInitScript(() => {
+    localStorage.setItem('docs-color-mode', 'light');
+  });
+  await page.goto('forms/datepicker/');
+  await example(page, 'overview').getByRole('combobox').click();
+  const calendar = page.getByRole('dialog', { name: 'Choose date' });
+  await expect(calendar).toHaveCSS('color-scheme', 'light');
+  await expect(calendar).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+});
+
 test('a menu opens with the keyboard and moves focus between items', async ({ page }) => {
   await page.goto('components/menu/');
   const demo = example(page, 'basic');

@@ -195,6 +195,9 @@ export function selectedDates(value: BsDateValue): string[] {
   host: {
     'data-vc': 'calendar',
     '[attr.data-bs-theme]': 'colorMode()',
+    // Bootstrap's datepicker CSS sets `color-scheme: light dark`, which follows the OS
+    // color mode instead of the page's `data-bs-theme`; inherit the page's instead.
+    '[style.color-scheme]': 'colorMode() ? null : "inherit"',
     '(focusout)': 'onFocusout($event)',
   },
 })
