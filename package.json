@@ -67,7 +67,7 @@
     "pagefind": "^1.5.2",
     "parse5": "^8.0.1",
     "playwright": "^1.64.0",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "shiki": "^4.5.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.1",
