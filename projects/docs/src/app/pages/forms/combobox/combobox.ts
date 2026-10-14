@@ -34,7 +34,7 @@ import submissionHtml from './examples/submission.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Combobox',
   lead: 'A select-like button with rich options, search and multiple selection, built on the menu.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/combobox/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/combobox/',
   sections: [
     {
       id: 'example',

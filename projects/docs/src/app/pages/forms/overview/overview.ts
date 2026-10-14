@@ -14,7 +14,7 @@ import disabledHtml from './examples/disabled.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Forms',
   lead: 'Form controls, layout and validation that work with Angular forms.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/overview/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/overview/',
   sections: [
     {
       id: 'example',

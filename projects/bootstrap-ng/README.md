@@ -1,6 +1,6 @@
 # bootstrap-ng
 
-Angular components for [Bootstrap 6](https://v6-dev--twbs-bootstrap.netlify.app/), built for modern Angular.
+Angular components for [Bootstrap 6](https://bootstrap-ng.com/), built for modern Angular.
 
 - **Angular 22+**: standalone, signal inputs and outputs, OnPush, zoneless.
 - **Real Bootstrap markup**: attribute selectors such as `<div bsAlert>` keep the DOM exactly as Bootstrap's CSS expects.

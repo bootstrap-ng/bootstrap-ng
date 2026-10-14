@@ -28,7 +28,7 @@ import validationTs from './examples/validation.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Field',
   lead: 'A layout wrapper that places a control’s label, description and validation feedback.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/field/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/field/',
   sections: [
     {
       id: 'example',

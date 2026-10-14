@@ -10,7 +10,7 @@ import optionsHtml from './examples/options.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Tooltip',
   lead: 'Tooltips positioned with Floating UI, shown on hover and keyboard focus and dismissed with Escape.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/tooltip/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/tooltip/',
   sections: [
     {
       id: 'basic',

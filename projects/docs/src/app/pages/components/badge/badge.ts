@@ -12,7 +12,7 @@ import buttonHtml from './examples/button.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Badge',
   lead: 'Small components for counts and labels.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/badge/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/badge/',
   sections: [
     {
       id: 'variants',

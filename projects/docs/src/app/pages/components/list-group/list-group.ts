@@ -14,7 +14,7 @@ import horizontalHtml from './examples/horizontal.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'List group',
   lead: 'Lists of items, links or buttons, with active, disabled and theme states.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/list-group/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/list-group/',
   sections: [
     {
       id: 'basic',

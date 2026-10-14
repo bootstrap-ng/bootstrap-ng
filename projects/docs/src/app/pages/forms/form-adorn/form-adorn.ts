@@ -16,7 +16,7 @@ import sizingHtml from './examples/sizing.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Form adorn',
   lead: 'Icons and text inside a form control, next to the input.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-adorn/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/form-adorn/',
   sections: [
     {
       id: 'example',

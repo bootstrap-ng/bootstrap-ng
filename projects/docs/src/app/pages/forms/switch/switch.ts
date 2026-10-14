@@ -20,7 +20,7 @@ import custom_widthHtml from './examples/custom-width.html' with { loader: 'text
 const PAGE: DocsPageData = {
   title: 'Switch',
   lead: 'A toggle switch built on a native checkbox.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/switch/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/switch/',
   sections: [
     {
       id: 'example',

@@ -20,7 +20,7 @@ import criteriaTs from './examples/criteria.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Password strength',
   lead: 'Feedback on password strength, with a segmented meter or a bar that updates as people type.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/password-strength/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/password-strength/',
   sections: [
     {
       id: 'segmented',

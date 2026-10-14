@@ -10,7 +10,7 @@ import sizesHtml from './examples/sizes.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Button group',
   lead: 'Group a series of buttons on one line, stack them in a column, or combine groups in a toolbar.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/button-group/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/button-group/',
   sections: [
     {
       id: 'basic',

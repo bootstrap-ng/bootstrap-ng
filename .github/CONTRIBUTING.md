@@ -18,7 +18,7 @@ npm start
 
 `npm start` serves the docs site at <http://localhost:4200>.
 
-`package.json` pins an exact Bootstrap 6 pre-release from npm. The docs site loads the same version's CSS from jsDelivr in `projects/docs/src/index.html`, with an SRI hash, so bump both together. When checking markup or class names, look in `node_modules/bootstrap` or the [Bootstrap 6 docs](https://v6-dev--twbs-bootstrap.netlify.app/) rather than relying on Bootstrap 5. Version 6 uses `.btn-solid`, `.btn-outline` and `.btn-subtle` with `.theme-*` classes, a native `<dialog class="dialog">`, and `<details>` accordions.
+`package.json` pins an exact Bootstrap 6 pre-release from npm. The docs site loads the same version's CSS from jsDelivr in `projects/docs/src/index.html`, with an SRI hash, so bump both together. When checking markup or class names, look in `node_modules/bootstrap` or the [Bootstrap 6 docs](https://getbootstrap.com/docs/6.0/) rather than relying on Bootstrap 5. Version 6 uses `.btn-solid`, `.btn-outline` and `.btn-subtle` with `.theme-*` classes, a native `<dialog class="dialog">`, and `<details>` accordions.
 
 The unit and end-to-end tests run in Chromium through Playwright. If you don't already have it, install it once with:
 

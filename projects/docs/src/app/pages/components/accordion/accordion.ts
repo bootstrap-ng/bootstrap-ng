@@ -14,7 +14,7 @@ import modelTs from './examples/model.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Accordion',
   lead: 'Vertically collapsing sections built on native <details> and <summary> elements.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/accordion/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/accordion/',
   sections: [
     {
       id: 'basic',

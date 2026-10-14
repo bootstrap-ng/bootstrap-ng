@@ -8,7 +8,7 @@ import buttonHtml from './examples/button.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Spinner',
   lead: 'Loading indicators built with HTML and CSS.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/spinner/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/spinner/',
   sections: [
     {
       id: 'types',

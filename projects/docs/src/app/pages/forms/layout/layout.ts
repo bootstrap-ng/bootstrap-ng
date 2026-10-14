@@ -16,7 +16,7 @@ import inlineHtml from './examples/inline.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Layout',
   lead: 'Stacked, grid, horizontal and inline form layouts.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/layout/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/layout/',
   sections: [
     {
       id: 'forms',

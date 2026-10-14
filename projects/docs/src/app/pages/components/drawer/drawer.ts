@@ -20,7 +20,7 @@ import responsiveHtml from './examples/responsive.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Drawer',
   lead: 'A panel that slides in from an edge of the screen, built on the native dialog element. Bootstrap 6\u2019s replacement for offcanvas.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/drawer/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/drawer/',
   sections: [
     {
       id: 'basic',

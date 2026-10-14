@@ -6,7 +6,7 @@ import basicHtml from './examples/basic.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Close button',
   lead: 'A generic close button for dialogs, alerts and more.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/close-button/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/close-button/',
   sections: [
     {
       id: 'basic',

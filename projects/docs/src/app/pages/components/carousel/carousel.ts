@@ -16,7 +16,7 @@ import endsHtml from './examples/ends.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Carousel',
   lead: 'A slideshow built on CSS scroll snapping: the browser handles sliding, swiping and momentum, and bootstrap-ng handles the active slide, controls, keyboard and autoplay.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/carousel/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/carousel/',
   sections: [
     {
       id: 'basic',

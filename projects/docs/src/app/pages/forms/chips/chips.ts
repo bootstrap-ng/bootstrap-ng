@@ -38,7 +38,7 @@ import keyboardTs from './examples/keyboard.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Chips',
   lead: 'Small interactive elements for people, places, tags or values, and a chip input for multi-value fields like skills, categories or email recipients.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/chips/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/chips/',
   sections: [
     {
       id: 'chips',

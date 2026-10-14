@@ -12,7 +12,7 @@ import asyncTs from './examples/async.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Typeahead',
   lead: 'A text input that suggests values while the user types. The user can pick a suggestion or keep their own text.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/form-control/',
   sections: [
     {
       id: 'example',

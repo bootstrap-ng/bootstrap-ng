@@ -14,7 +14,7 @@ import templateTs from './examples/template.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Popover',
   lead: 'Popovers with an optional header, opened by clicking their trigger and positioned with Floating UI.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/popover/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/popover/',
   sections: [
     {
       id: 'basic',

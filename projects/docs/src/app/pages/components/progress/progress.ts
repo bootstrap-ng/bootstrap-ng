@@ -14,7 +14,7 @@ import stackedHtml from './examples/stacked.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Progress',
   lead: 'Progress bars with labels, themes, stripes and stacking.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/progress/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/progress/',
   sections: [
     {
       id: 'basic',

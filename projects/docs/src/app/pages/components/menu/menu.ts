@@ -12,7 +12,7 @@ import submenusHtml from './examples/submenus.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Menu',
   lead: 'Menus of actions and links, Bootstrap 6\u2019s replacement for dropdowns, positioned with Floating UI.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/menu/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/menu/',
   sections: [
     {
       id: 'basic',

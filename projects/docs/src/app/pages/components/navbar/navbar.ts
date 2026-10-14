@@ -8,7 +8,7 @@ import menuHtml from './examples/menu.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Navbar',
   lead: 'A responsive navigation header. Below its breakpoint the navigation collapses into a drawer opened by the toggler.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/navbar/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/navbar/',
   sections: [
     {
       id: 'basic',
