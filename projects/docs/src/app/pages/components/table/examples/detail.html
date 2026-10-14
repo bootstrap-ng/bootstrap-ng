@@ -1,0 +1,13 @@
+<table bsTable [data]="employees" [(columns)]="columns" [(expanded)]="expanded" class="mb-0">
+  <caption>
+    Employees with details
+  </caption>
+  <ng-template bsTableDetail [bsTableDetailOf]="employees" let-row>
+    <dl class="row mb-0">
+      <dt class="col-sm-3">Email</dt>
+      <dd class="col-sm-9">{{ row.email }}</dd>
+      <dt class="col-sm-3">Started</dt>
+      <dd class="col-sm-9 mb-0">{{ row.started }}</dd>
+    </dl>
+  </ng-template>
+</table>

@@ -1,0 +1,23 @@
+<table bsTable [data]="employees" [(columns)]="columns" class="align-middle">
+  <caption>
+    Employees with custom cells
+  </caption>
+  <ng-template bsTableCell="name" [bsTableCellOf]="employees" let-row>
+    <div class="fw-semibold">{{ row.name }}</div>
+    <div class="fs-sm fg-3">{{ row.email }}</div>
+  </ng-template>
+  <ng-template bsTableCell="status" [bsTableCellOf]="employees" let-row>
+    <span bsBadge variant="subtle" [theme]="theme(row.status)">{{ row.status }}</span>
+  </ng-template>
+  <ng-template bsTableCell="actions" [bsTableCellOf]="employees" let-row>
+    <button
+      type="button"
+      bsButton="outline"
+      theme="primary"
+      size="sm"
+      (click)="message.set(`Editing ${row.name}`)">
+      Edit <span class="visually-hidden">{{ row.name }}</span>
+    </button>
+  </ng-template>
+</table>
+<p class="mb-0" aria-live="polite">{{ message() }}</p>

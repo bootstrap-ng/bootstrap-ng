@@ -137,6 +137,11 @@ export default [
     loadComponent: () => import('./tab/tab'),
   },
   {
+    path: 'table',
+    title: 'Table · bootstrap-ng',
+    loadComponent: () => import('./table/table'),
+  },
+  {
     path: 'toasts',
     title: 'Toasts · bootstrap-ng',
     loadComponent: () => import('./toasts/toasts'),

@@ -1,0 +1,33 @@
+<div class="d-flex gap-5 mb-5" role="radiogroup" aria-label="Selection mode">
+  <div bsFormField>
+    <input
+      type="radio"
+      bsRadio
+      name="selection-mode"
+      [checked]="mode() === 'multiple'"
+      (change)="setMode('multiple')" />
+    <label bsLabel>Multiple</label>
+  </div>
+  <div bsFormField>
+    <input
+      type="radio"
+      bsRadio
+      name="selection-mode"
+      [checked]="mode() === 'single'"
+      (change)="setMode('single')" />
+    <label bsLabel>Single</label>
+  </div>
+</div>
+<table
+  bsTable
+  [data]="employees"
+  [(columns)]="columns"
+  [selection]="mode()"
+  [(selected)]="selected"
+  [rowKey]="rowKey"
+  hover>
+  <caption>
+    Selectable employees
+  </caption>
+</table>
+<p class="mb-0" aria-live="polite">Selected: {{ names() || 'nobody' }}</p>

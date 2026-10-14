@@ -1,0 +1,47 @@
+<ul class="list-unstyled d-flex flex-wrap gap-4 mb-5" aria-label="Columns">
+  @for (column of columns(); track column.key) {
+    <li class="d-flex align-items-center gap-2 border rounded px-3 py-1">
+      <input
+        #visible
+        type="checkbox"
+        bsCheck
+        [checked]="!column.hidden"
+        [attr.aria-label]="`Show ${column.header}`"
+        (change)="toggle(column.key, visible.checked)" />
+      <span>{{ column.header }}</span>
+      <button
+        type="button"
+        bsButton="text"
+        size="xs"
+        [disabled]="$first"
+        [attr.aria-label]="`Move ${column.header} left`"
+        (click)="table.moveColumn(column.key, $index - 1)">
+        ←
+      </button>
+      <button
+        type="button"
+        bsButton="text"
+        size="xs"
+        [disabled]="$last"
+        [attr.aria-label]="`Move ${column.header} right`"
+        (click)="table.moveColumn(column.key, $index + 1)">
+        →
+      </button>
+    </li>
+  }
+</ul>
+<div class="table-responsive">
+  <table
+    bsTable
+    #table="bsTable"
+    [data]="employees"
+    [(columns)]="columns"
+    resizable
+    reorderable
+    bordered
+    class="mb-0">
+    <caption>
+      Employees with configurable columns
+    </caption>
+  </table>
+</div>

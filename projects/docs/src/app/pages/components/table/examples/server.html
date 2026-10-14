@@ -1,0 +1,20 @@
+<table
+  bsTable
+  #table="bsTable"
+  manual
+  [data]="rows()"
+  [total]="total()"
+  [pageSize]="pageSize"
+  [loading]="result.isLoading()"
+  [(columns)]="columns"
+  [(sort)]="sort"
+  [(page)]="page">
+  <caption>
+    Employees loaded page by page
+  </caption>
+</table>
+<nav
+  bsPagination
+  aria-label="Server-side employee pages"
+  [(page)]="page"
+  [pageCount]="table.pageCount()"></nav>

@@ -1,0 +1,26 @@
+<div class="d-flex gap-5 mb-5">
+  <div bsFormField>
+    <input #l type="checkbox" bsCheck [checked]="loading()" (change)="loading.set(l.checked)" />
+    <label bsLabel>Loading</label>
+  </div>
+  <div bsFormField>
+    <input #e type="checkbox" bsCheck [checked]="empty()" (change)="empty.set(e.checked)" />
+    <label bsLabel>No data</label>
+  </div>
+</div>
+<table
+  bsTable
+  [data]="empty() ? [] : employees"
+  [(columns)]="columns"
+  [loading]="loading()"
+  class="mb-0">
+  <caption>
+    Employees, loading and empty states
+  </caption>
+  <ng-template bsTableEmpty>
+    <p class="mb-2">No employees yet.</p>
+    <button type="button" bsButton theme="primary" size="sm" (click)="empty.set(false)">
+      Load sample data
+    </button>
+  </ng-template>
+</table>

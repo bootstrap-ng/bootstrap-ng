@@ -1,0 +1,19 @@
+<div
+  class="overflow-auto border rounded"
+  style="max-height: 18rem"
+  tabindex="0"
+  role="region"
+  aria-label="Employees, scrollable">
+  <table
+    bsTable
+    [data]="employees"
+    [(columns)]="columns"
+    stickyHeader
+    striped
+    size="sm"
+    class="mb-0">
+    <caption class="visually-hidden">
+      Employees with a sticky header
+    </caption>
+  </table>
+</div>

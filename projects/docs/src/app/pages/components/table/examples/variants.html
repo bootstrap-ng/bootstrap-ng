@@ -1,0 +1,45 @@
+<div class="d-flex flex-wrap gap-5 mb-5">
+  <div bsFormField>
+    <input #s type="checkbox" bsCheck [checked]="striped()" (change)="striped.set(s.checked)" />
+    <label bsLabel>Striped</label>
+  </div>
+  <div bsFormField>
+    <input #h type="checkbox" bsCheck [checked]="hover()" (change)="hover.set(h.checked)" />
+    <label bsLabel>Hover</label>
+  </div>
+  <div bsFormField>
+    <input #b type="checkbox" bsCheck [checked]="bordered()" (change)="bordered.set(b.checked)" />
+    <label bsLabel>Bordered</label>
+  </div>
+  <div bsFormField>
+    <input
+      #bl
+      type="checkbox"
+      bsCheck
+      [checked]="borderless()"
+      (change)="borderless.set(bl.checked)" />
+    <label bsLabel>Borderless</label>
+  </div>
+  <div bsFormField>
+    <input #sm type="checkbox" bsCheck [checked]="small()" (change)="small.set(sm.checked)" />
+    <label bsLabel>Small</label>
+  </div>
+</div>
+<table
+  bsTable
+  [data]="employees"
+  [(columns)]="columns"
+  [striped]="striped()"
+  [hover]="hover()"
+  [bordered]="bordered()"
+  [borderless]="borderless()"
+  [size]="small() ? 'sm' : 'md'">
+  <caption>
+    Table styles
+  </caption>
+</table>
+<table bsTable [data]="employees" [(columns)]="columns" theme="primary" class="mb-0">
+  <caption>
+    Primary theme
+  </caption>
+</table>
