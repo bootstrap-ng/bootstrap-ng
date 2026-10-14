@@ -34,6 +34,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build:lib
+      - name: Update npm for trusted publishing
+        run: npm install --global npm@11.21.0 # trusted publishing needs npm 11.5.1+, Node 22 bundles npm 10
       - name: Publish to npm
         working-directory: dist/bootstrap-ng
         run: |
