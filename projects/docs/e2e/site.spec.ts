@@ -128,3 +128,17 @@ test.describe('on small screens', () => {
     await expect(menu).toHaveAttribute('aria-expanded', 'false');
   });
 });
+
+test.describe('after a redeploy', () => {
+  test('loads the page in full when its code chunk is gone', async ({ page }) => {
+    await page.goto('components/alert/');
+    await page.evaluate(() => Object.assign(window, { staleTab: true }));
+    // A tab opened before a deploy asks for chunk file names the new deploy no longer has.
+    await page.route('**/chunk-*.js', (route) => route.fulfill({ status: 404 }), { times: 1 });
+
+    await page.locator('.docs-sidebar').getByRole('link', { name: 'Badge' }).click();
+    await expect(page.locator('h1')).toHaveText('Badge');
+    await expect(page).toHaveURL(/components\/badge\/$/);
+    expect(await page.evaluate(() => 'staleTab' in window)).toBe(false);
+  });
+});
