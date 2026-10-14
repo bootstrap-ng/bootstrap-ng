@@ -1,0 +1,42 @@
+<div
+  bsFileDropzone
+  #dropzone="bsFileDropzone"
+  multiple
+  size="lg"
+  aria-label="Project files"
+  [fileList]="false"
+  [(value)]="files">
+  <span class="fs-xl fw-semibold">
+    {{ dropzone.isDragging() ? 'Let go to upload' : 'Upload project files' }}
+  </span>
+  <span class="fg-3">Drop them here, or click to pick them from your device.</span>
+</div>
+@if (files().length) {
+  <table class="table mt-3 mb-0">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Type</th>
+        <th scope="col"><span class="visually-hidden">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (file of files(); track file) {
+        <tr>
+          <td>{{ file.name }}</td>
+          <td>{{ file.type || 'Unknown' }}</td>
+          <td class="text-end">
+            <button
+              type="button"
+              bsButton="subtle"
+              theme="danger"
+              size="sm"
+              (click)="dropzone.remove(file)">
+              Remove <span class="visually-hidden">{{ file.name }}</span>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

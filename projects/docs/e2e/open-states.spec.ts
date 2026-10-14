@@ -110,6 +110,25 @@ const STATES: {
       await expect(page.getByRole('grid').first()).toBeVisible();
     },
   },
+  {
+    name: 'a file dropzone with files and a rejection',
+    path: 'forms/file-dropzone',
+    include: ['[bsFileDropzone]'],
+    open: async (page) => {
+      // A tiny valid PNG, so its preview loads.
+      const png = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        'base64',
+      );
+      await example(page, 'limits')
+        .getByLabel('Photos')
+        .setInputFiles([
+          { name: 'photo.png', mimeType: 'image/png', buffer: png },
+          { name: 'report.pdf', mimeType: 'application/pdf', buffer: Buffer.from('pdf') },
+        ]);
+      await expect(example(page, 'limits').locator('img')).toBeVisible();
+    },
+  },
 ];
 
 for (const state of STATES) {

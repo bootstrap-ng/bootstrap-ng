@@ -46,6 +46,7 @@ import { BsDatepicker, BsDatepickerDisplay } from './forms/datepicker';
 import { BsOtp, BsOtpInput } from './forms/otp-input';
 import { BsStrength, BsStrengthText } from './forms/strength';
 import { BsRating, BsRatingStar } from './forms/rating';
+import { BsFileDropzone } from './forms/file-dropzone';
 import { BsFormControl } from './forms/form-control';
 import { BsFormFloating } from './forms/floating';
 import { BsInputGroup, BsInputGroupText } from './forms/input-group';
@@ -126,6 +127,7 @@ export const BS_FORMS = [
   BsStrengthText,
   BsRating,
   BsRatingStar,
+  BsFileDropzone,
 ] as const;
 export const BS_BUTTON_GROUP = [BsButtonGroup, BsButtonToolbar] as const;
 export const BS_LIST_GROUP = [BsListGroup, BsListGroupItem] as const;

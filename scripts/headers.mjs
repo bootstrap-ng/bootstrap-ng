@@ -40,7 +40,7 @@ const csp = (scriptHashes) => ({
   // Angular adds component styles in <style> elements, and Shiki and Floating UI set style attributes.
   'style-src': ["'self'", "'unsafe-inline'", JSDELIVR, 'https://fonts.googleapis.com'],
   'font-src': ["'self'", 'https://fonts.gstatic.com'],
-  'img-src': ["'self'", 'data:'],
+  'img-src': ["'self'", 'data:', 'blob:'],
   // bs-icon fetches its SVGs from jsDelivr.
   'connect-src': ["'self'", JSDELIVR, 'https://cloudflareinsights.com'],
   'object-src': ["'none'"],

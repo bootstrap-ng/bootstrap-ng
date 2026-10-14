@@ -1,0 +1,11 @@
+<div
+  bsFileDropzone
+  multiple
+  aria-label="Photos"
+  accept="image/*"
+  [maxFiles]="3"
+  [maxFileSize]="2_000_000"
+  [maxNameLength]="40"
+  [(value)]="photos"
+  (rejected)="rejectedCount.set($event.length)"></div>
+<p class="mt-3 mb-0 fg-3">Up to 3 images of 2 MB each. Last rejected: {{ rejectedCount() }}</p>

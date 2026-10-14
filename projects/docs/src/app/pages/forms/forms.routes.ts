@@ -87,6 +87,11 @@ export default [
     loadComponent: () => import('./rating/rating'),
   },
   {
+    path: 'file-dropzone',
+    title: 'File dropzone · bootstrap-ng',
+    loadComponent: () => import('./file-dropzone/file-dropzone'),
+  },
+  {
     path: 'layout',
     title: 'Layout · bootstrap-ng',
     loadComponent: () => import('./layout/layout'),
