@@ -7,7 +7,7 @@ import { BsDialogContext, BsDialogRef, BsDialogService } from './dialog-service'
   imports: [BsDialogClose],
   template: `
     <div class="dialog-header">
-      <h1 class="dialog-title">Delete {{ name() }}?</h1>
+      <h2 class="dialog-title">Delete {{ name() }}?</h2>
       <button type="button" class="dismiss" bsDialogClose>Cancel</button>
     </div>
     <div class="dialog-body">
