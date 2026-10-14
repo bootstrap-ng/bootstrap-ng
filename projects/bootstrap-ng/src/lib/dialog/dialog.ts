@@ -11,7 +11,7 @@ export { BsDialogClose } from './dialog-base';
  * <button bsButton (click)="dialog.show()">Open</button>
  * <dialog bsDialog #dialog="bsDialog" aria-labelledby="dialog-title">
  *   <div class="dialog-header">
- *     <h1 class="dialog-title" id="dialog-title">Title</h1>
+ *     <h2 class="dialog-title" id="dialog-title">Title</h2>
  *     <button bsCloseButton bsDialogClose></button>
  *   </div>
  *   <div class="dialog-body">…</div>
