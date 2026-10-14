@@ -62,4 +62,5 @@ export * from './lib/forms/datepicker';
 export * from './lib/forms/otp-input';
 export * from './lib/forms/strength';
 export * from './lib/forms/rating';
+export * from './lib/forms/file-dropzone';
 export * from './lib/bootstrap-ng';

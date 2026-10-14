@@ -60,6 +60,7 @@ export const FORM_PAGES: DocsNavItem[] = [
   { title: 'OTP input', path: 'forms/otp-input' },
   { title: 'Password strength', path: 'forms/password-strength' },
   { title: 'Rating', path: 'forms/rating' },
+  { title: 'File dropzone', path: 'forms/file-dropzone' },
   { title: 'Layout', path: 'forms/layout' },
   { title: 'Validation', path: 'forms/validation' },
 ];

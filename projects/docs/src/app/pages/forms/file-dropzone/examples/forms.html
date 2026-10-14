@@ -1,0 +1,14 @@
+<form (submit)="send($event)">
+  <div bsFormField>
+    <label bsFormLabel>Attachments</label>
+    <div bsFileDropzone multiple [maxFiles]="5" [formControl]="attachments"></div>
+    <div bsInvalidFeedback>Attach at least one file.</div>
+    <small bsFormText>Up to 5 files.</small>
+  </div>
+  <button type="submit" bsButton theme="primary" class="mt-3" [disabled]="attachments.invalid">
+    Send
+  </button>
+</form>
+@if (submitted()) {
+  <p class="mt-3 mb-0 fg-3">Sent {{ attachments.value.length }} files.</p>
+}

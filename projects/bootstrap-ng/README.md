@@ -18,7 +18,7 @@ Accordion, Alert, Avatar, Badge, Breadcrumb, Button, Button group, Card, Carouse
 
 ## Forms
 
-Field, Form control, Checkbox, Radio, Switch, Range, Input group, Floating labels, Form adorn, Chips, Combobox, Typeahead, Calendar, Datepicker, OTP input, Password strength, Rating, Layout and Validation, integrated with Reactive Forms, `ngModel` and Signal Forms.
+Field, Form control, Checkbox, Radio, Switch, Range, Input group, Floating labels, Form adorn, Chips, Combobox, Typeahead, Calendar, Datepicker, OTP input, Password strength, Rating, File dropzone, Layout and Validation, integrated with Reactive Forms, `ngModel` and Signal Forms.
 
 ## Usage
 

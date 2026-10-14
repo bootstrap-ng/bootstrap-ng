@@ -201,6 +201,29 @@ test('filled rating stars line up with the empty ones', async ({ page }) => {
   expect(filled?.y).toBeCloseTo(empty?.y ?? Number.NaN, 1);
 });
 
+test('a file dropzone lists picked files and rejects ones over its limits', async ({ page }) => {
+  await page.goto('forms/file-dropzone/');
+  const basic = example(page, 'how-it-works');
+  await basic.getByLabel('Files').setInputFiles([
+    { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') },
+    { name: 'photo.png', mimeType: 'image/png', buffer: Buffer.from('png') },
+  ]);
+  const list = basic.getByRole('list', { name: 'Selected files' });
+  await expect(list.getByRole('listitem')).toHaveCount(2);
+  await expect(basic.getByText('Selected: 2')).toBeVisible();
+  await list.getByRole('button', { name: 'Remove notes.txt' }).click();
+  await expect(list.getByRole('listitem')).toHaveCount(1);
+
+  const limits = example(page, 'limits');
+  await limits
+    .getByLabel('Photos')
+    .setInputFiles([
+      { name: 'report.pdf', mimeType: 'application/pdf', buffer: Buffer.from('pdf') },
+    ]);
+  await expect(limits.getByText('report.pdf isn’t an accepted file type.')).toBeVisible();
+  await expect(limits.getByText('Last rejected: 1')).toBeVisible();
+});
+
 test('placeholder links in examples stay on the page', async ({ page }) => {
   await page.goto('components/nav-overflow/');
   const url = page.url();
