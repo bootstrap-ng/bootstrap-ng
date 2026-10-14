@@ -126,11 +126,12 @@ Keep each pull request focused on one change. Smaller pull requests are easier t
 
 ## Releasing
 
-Maintainers publish to npm by publishing a GitHub release. The [Publish workflow](workflows/publish.yml) then lints, tests and builds the library and publishes `dist/bootstrap-ng` with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) and provenance.
+Maintainers publish to npm from the [Publish workflow](workflows/publish.yml), which lints, tests and builds the library and publishes `dist/bootstrap-ng` with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) and provenance.
 
 1. Set `version` in `projects/bootstrap-ng/package.json` and merge it to `main`.
-2. Create a GitHub release from `main` with a tag of `v` plus that version, such as `v6.0.0-alpha.1`. The workflow fails if they don't match.
-3. Tick **Set as a pre-release** for alpha, beta and release candidate versions. Prereleases publish to the `next` dist-tag, and other versions to `latest`.
+2. On the **Actions** tab, open **Publish**, choose **Run workflow** and run it on `main`.
+
+Prerelease versions such as `6.0.0-alpha.2` publish to the `next` dist-tag, and other versions to `latest`. A version that is already on npm fails to publish, so bump it first.
 
 ## License
 
