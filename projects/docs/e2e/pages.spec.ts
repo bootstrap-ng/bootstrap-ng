@@ -138,3 +138,20 @@ test('page URLs end in a slash', async ({ page, request }) => {
     page.getByRole('navigation', { name: 'On this page' }).getByRole('link').first(),
   ).toHaveAttribute('href', /^\/components\/alert\/#/);
 });
+
+test('every page has its own description, matched by its OpenGraph tags', async ({ request }) => {
+  const descriptions = new Map<string, string>();
+  for (const page of PAGES) {
+    const path = page.path ? `${page.path}/` : '';
+    const html = await (await request.get(path)).text();
+    const meta = (attribute: string) =>
+      new RegExp(`<meta ${attribute} content="([^"]*)"`).exec(html)?.[1];
+    const description = meta('name="description"') ?? '';
+    expect(description, `/${path}`).not.toBe('');
+    expect(descriptions.get(description), `/${path} repeats a description`).toBeUndefined();
+    descriptions.set(description, path);
+    expect(meta('property="og:description"'), `/${path}`).toBe(description);
+    expect(meta('property="og:title"'), `/${path}`).toBe(/<title>([^<]*)<\/title>/.exec(html)?.[1]);
+    expect(meta('property="og:url"'), `/${path}`).toBe(`https://bootstrap-ng.com/${path}`);
+  }
+});
