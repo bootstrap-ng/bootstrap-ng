@@ -19,7 +19,7 @@ jobs:
     environment: npm
     permissions:
       contents: read
-      id-token: write # to authenticate with npm trusted publishing and sign provenance
+      id-token: write # to authenticate with npm trusted publishing
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -41,4 +41,7 @@ jobs:
         run: |
           version="$(node -p "require('./package.json').version")"
           case "${version}" in *-*) dist_tag=next ;; *) dist_tag=latest ;; esac
-          npm publish --provenance --access public --tag "${dist_tag}" --loglevel verbose
+          npm publish --access public --tag "${dist_tag}"
+        env:
+          # npm only accepts provenance from public repositories. Turn it on once this repository is public.
+          NPM_CONFIG_PROVENANCE: false
