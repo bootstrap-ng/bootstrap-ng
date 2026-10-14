@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
     ),
     // Page URLs end in "/", matching the folders prerendering writes (`alert/index.html`), so
-    // GitHub Pages serves them without a redirect.
+    // Cloudflare Pages serves them without a redirect.
     { provide: LocationStrategy, useClass: TrailingSlashPathLocationStrategy },
   ],
 };

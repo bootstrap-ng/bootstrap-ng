@@ -1,7 +1,6 @@
 # bootstrap-ng
 
 [![CI](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/ci.yml/badge.svg)](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/ci.yml)
-[![Docs](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/docs.yml/badge.svg)](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/docs.yml)
 [![Super Linter](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/super-linter.yml/badge.svg)](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/super-linter.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -71,4 +70,4 @@ npm run e2e                        # end-to-end and axe tests against the built 
 
 The docs app imports `bootstrap-ng` from `projects/bootstrap-ng/src` through a `tsconfig.json` path, so library changes show up in the docs without a rebuild. Each docs example is a small component whose template file is also imported as text, so the code shown is the code that runs.
 
-The docs site deploys to GitHub Pages from `main` through `.github/workflows/docs.yml`. `npm run build:docs` prerenders every page to static HTML, builds a [Pagefind](https://pagefind.app) search index from it, and writes an [llms.txt](https://llmstxt.org) to the site root, generated from the docs navigation by `scripts/llms-txt.mjs`. `scripts/llms-full-txt.mjs` converts every prerendered page, with its example code and API tables, to Markdown in `llms-full.txt`. `scripts/sitemap.mjs` writes a `sitemap.xml` of every page from the same navigation and links it from `robots.txt`. Search needs the index, so it works on the built site but not in `npm start`.
+The docs site deploys to Cloudflare Pages from `main`, with `npm run build` as the build command and `dist/docs/browser` as the build output directory. `npm run build:docs` prerenders every page to static HTML, builds a [Pagefind](https://pagefind.app) search index from it, and writes an [llms.txt](https://llmstxt.org) to the site root, generated from the docs navigation by `scripts/llms-txt.mjs`. `scripts/llms-full-txt.mjs` converts every prerendered page, with its example code and API tables, to Markdown in `llms-full.txt`. `scripts/sitemap.mjs` writes a `sitemap.xml` of every page from the same navigation and links it from `robots.txt`. It also copies the client-rendered app to `404.html`, so unknown paths load the app with a 404 status. Search needs the index, so it works on the built site but not in `npm start`.
