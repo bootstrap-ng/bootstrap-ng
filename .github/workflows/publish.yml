@@ -2,7 +2,7 @@
 name: Publish
 
 # Publishes the library to npm when a GitHub release is published.
-# The release tag must match the version in projects/bootstrap-ng/package.json (e.g. v6.0.0-alpha0).
+# The release tag must match the version in projects/bootstrap-ng/package.json (e.g. v6.0.0-alpha.1).
 # Prereleases go to the `next` dist-tag, stable versions to `latest`.
 # Authenticates with npm trusted publishing (OIDC), so no npm token is stored in the repository.
 

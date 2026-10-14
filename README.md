@@ -18,11 +18,11 @@ Angular components for [Bootstrap 6](https://bootstrap-ng.com/), built for moder
 
 ## Components
 
-Accordion, Alert, Avatar, Badge, Breadcrumb, Button, Button group, Card, Carousel, Close button, Collapse, Dialog, Drawer, List group, Menu (with submenus), Nav, Nav overflow, Navbar, Pagination, Placeholder, Popover, Progress, Scrollspy, Spinner, Stepper, Tab, Toasts (with a service for showing toasts from code), Toggler, Tooltip.
+Accordion, Alert, Avatar, Badge, Breadcrumb, Button, Button group, Card, Carousel, Close button, Collapse, Dialog (with a service for opening dialogs from code), Drawer, Icon, List group, Menu (with submenus), Nav, Nav overflow, Navbar, Pagination, Placeholder, Popover, Progress, Scrollspy, Spinner, Stepper, Tab, Toasts (with a service for showing toasts from code), Toggler, Tooltip.
 
 ## Forms
 
-Field, Form control, Checkbox, Radio, Switch, Range, Input group, Floating labels, Form adorn, Chips, Combobox, Datepicker, OTP input, Password strength, Rating, Layout and Validation, integrated with Reactive Forms, `ngModel` and Signal Forms.
+Field, Form control, Checkbox, Radio, Switch, Range, Input group, Floating labels, Form adorn, Chips, Combobox, Typeahead, Calendar, Datepicker, OTP input, Password strength, Rating, Layout and Validation, integrated with Reactive Forms, `ngModel` and Signal Forms.
 
 ## Usage
 
