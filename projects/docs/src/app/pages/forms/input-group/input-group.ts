@@ -22,7 +22,7 @@ import sizingHtml from './examples/sizing.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Input group',
   lead: 'Text, buttons and menus attached to either side of a form control.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/input-group/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/input-group/',
   sections: [
     {
       id: 'example',

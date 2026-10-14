@@ -22,7 +22,7 @@ import ticksHtml from './examples/ticks.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Range',
   lead: 'Range inputs with a filled track, a value bubble and tick marks.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/range/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/range/',
   sections: [
     {
       id: 'example',

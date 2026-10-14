@@ -8,7 +8,7 @@ import basicTs from './examples/basic.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Scrollspy',
   lead: 'Highlights the navigation link of the section scrolled into view.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/scrollspy/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/scrollspy/',
   sections: [
     {
       id: 'basic',

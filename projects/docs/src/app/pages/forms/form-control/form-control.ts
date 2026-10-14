@@ -30,7 +30,7 @@ import ghostHtml from './examples/ghost.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Form control',
   lead: 'Text inputs, textareas and selects with sizes, states and validation styles.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/form-control/',
   sections: [
     {
       id: 'example',

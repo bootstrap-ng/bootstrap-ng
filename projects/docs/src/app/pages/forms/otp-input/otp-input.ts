@@ -28,7 +28,7 @@ import fieldTs from './examples/field.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'OTP input',
   lead: 'One-time passwords, PIN codes and verification codes, in a single accessible input drawn as separate slots.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/otp-input/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/otp-input/',
   sections: [
     {
       id: 'how-it-works',

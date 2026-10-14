@@ -10,7 +10,7 @@ import themesHtml from './examples/themes.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Card',
   lead: 'A flexible content container with a header, footer, images and theme variants. Cards are plain markup, so there is no directive.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/card/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/card/',
   sections: [
     {
       id: 'basic',

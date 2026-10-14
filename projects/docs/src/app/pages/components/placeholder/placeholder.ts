@@ -10,7 +10,7 @@ import sizesHtml from './examples/sizes.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Placeholder',
   lead: 'Loading placeholders, or skeletons, that show where content will appear.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/placeholder/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/placeholder/',
   sections: [
     {
       id: 'basic',

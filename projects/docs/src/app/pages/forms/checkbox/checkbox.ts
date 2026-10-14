@@ -24,7 +24,7 @@ import sizesHtml from './examples/sizes.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Checkbox',
   lead: 'Native checkboxes with theme colors, sizes and an indeterminate state.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/checkbox/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/checkbox/',
   sections: [
     {
       id: 'example',

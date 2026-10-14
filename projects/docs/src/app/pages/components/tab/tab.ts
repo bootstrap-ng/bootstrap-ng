@@ -12,7 +12,7 @@ import modelTs from './examples/model.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Tab',
   lead: 'Tabbed interfaces built on Bootstrap\u2019s nav styles, with the WAI-ARIA tabs keyboard pattern.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/tab/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/tab/',
   sections: [
     {
       id: 'basic',

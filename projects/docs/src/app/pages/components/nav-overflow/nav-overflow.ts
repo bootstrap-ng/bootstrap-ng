@@ -10,7 +10,7 @@ import optionsHtml from './examples/options.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Nav overflow',
   lead: 'Moves navigation links that do not fit into a \u201cMore\u201d menu, also known as the Priority+ pattern.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/nav-overflow/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/nav-overflow/',
   sections: [
     {
       id: 'basic',

@@ -16,7 +16,7 @@ import contentHtml from './examples/content.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Alert',
   lead: 'Contextual feedback messages for typical user actions.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/alert/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/alert/',
   sections: [
     {
       id: 'basic',

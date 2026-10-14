@@ -12,7 +12,7 @@ import horizontalHtml from './examples/horizontal.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Collapse',
   lead: 'Show and hide content. Bootstrap 6 animates the size in CSS, so there is no JavaScript animation code.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/collapse/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/collapse/',
   sections: [
     {
       id: 'basic',

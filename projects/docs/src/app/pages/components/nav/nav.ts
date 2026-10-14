@@ -10,7 +10,7 @@ import layoutHtml from './examples/layout.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Nav',
   lead: 'Navigation lists styled as plain links, tabs, pills or underlines. To switch panels, use tabs instead.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/nav/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/nav/',
   sections: [
     {
       id: 'basic',

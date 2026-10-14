@@ -8,7 +8,7 @@ bootstrap-ng is an Angular 22+ component library for Bootstrap 6. See `README.md
 
 - `projects/bootstrap-ng`: the library, published to npm as `bootstrap-ng`. The selector prefix is `bs` and class names start with `Bs` (e.g. `BsAlert`). Every public symbol is exported from `src/public-api.ts`.
 - `projects/docs`: the documentation site, an Angular app. It imports `bootstrap-ng` from the library source through a `tsconfig.json` path, so library changes need no rebuild.
-- Bootstrap 6 is pinned to an exact pre-release from npm (`bootstrap@6.0.0-alpha.1`, published under the `next` tag) in `package.json`. The docs site loads the same version's CSS from jsDelivr in `projects/docs/src/index.html` with an SRI hash; bump both together. Check Bootstrap 6 markup and class names in `node_modules/bootstrap` or the [v6 docs](https://v6-dev--twbs-bootstrap.netlify.app/), not from Bootstrap 5 knowledge: v6 uses `.btn-solid`/`.btn-outline`/`.btn-subtle` with `.theme-*`, native `<dialog class="dialog">`, and `<details>` accordions.
+- Bootstrap 6 is pinned to an exact pre-release from npm (`bootstrap@6.0.0-alpha.1`, published under the `next` tag) in `package.json`. The docs site loads the same version's CSS from jsDelivr in `projects/docs/src/index.html` with an SRI hash; bump both together. Check Bootstrap 6 markup and class names in `node_modules/bootstrap` or the [v6 docs](https://getbootstrap.com/docs/6.0/), not from Bootstrap 5 knowledge: v6 uses `.btn-solid`/`.btn-outline`/`.btn-subtle` with `.theme-*`, native `<dialog class="dialog">`, and `<details>` accordions.
 
 ### Commands
 

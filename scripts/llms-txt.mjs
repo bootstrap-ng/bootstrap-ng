@@ -34,7 +34,7 @@ ${sections.join('\n\n')}
 
 - [Full documentation](${baseUrl}llms-full.txt): every page of these docs, with example code and API tables, in one Markdown file
 - [Source code](https://github.com/bootstrap-ng/bootstrap-ng): the library and this docs site
-- [Bootstrap 6 docs](https://v6-dev--twbs-bootstrap.netlify.app/): the CSS, markup and theming that bootstrap-ng builds on
+- [Bootstrap 6 docs](https://getbootstrap.com/docs/6.0/): the CSS, markup and theming that bootstrap-ng builds on
 `;
 
 writeFileSync(join(values.out, 'llms.txt'), llmsTxt);

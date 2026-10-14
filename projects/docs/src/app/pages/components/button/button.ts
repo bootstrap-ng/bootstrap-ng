@@ -14,7 +14,7 @@ import styledHtml from './examples/styled.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Button',
   lead: 'Bootstrap button styles for <button>, <a> and <input> elements.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/button/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/button/',
   sections: [
     {
       id: 'variants',

@@ -18,7 +18,7 @@ import nonmodalHtml from './examples/nonmodal.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Dialog',
   lead: 'Dialogs built on the native <dialog> element, which replaces Bootstrap’s old modal.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/dialog/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/dialog/',
   sections: [
     {
       id: 'basic',

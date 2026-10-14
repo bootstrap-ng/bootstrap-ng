@@ -20,7 +20,7 @@ import tooltipsTs from './examples/tooltips.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Validation',
   lead: 'Validation styles that follow Angular form state, native constraints or the server.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/validation/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/validation/',
   sections: [
     {
       id: 'how-it-works',

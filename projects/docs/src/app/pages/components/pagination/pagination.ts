@@ -16,7 +16,7 @@ import variantsHtml from './examples/variants.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Pagination',
   lead: 'Page navigation for long lists and search results, with previous and next buttons and ellipses when there are many pages.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/pagination/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/pagination/',
   sections: [
     {
       id: 'basic',

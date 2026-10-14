@@ -10,7 +10,7 @@ import attributeHtml from './examples/attribute.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Toggler',
   lead: 'Toggles a class or attribute on click, for small interactions that would otherwise need a one-off handler.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/toggler/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/toggler/',
   sections: [
     {
       id: 'basic',

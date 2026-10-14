@@ -12,7 +12,7 @@ import stackHtml from './examples/stack.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Avatar',
   lead: 'Users or entities shown as an image or initials, with sizes, status indicators and stacks.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/avatar/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/avatar/',
   sections: [
     {
       id: 'basic',

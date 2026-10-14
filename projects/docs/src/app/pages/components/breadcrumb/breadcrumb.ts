@@ -12,7 +12,7 @@ import routerTs from './examples/router.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Breadcrumb',
   lead: 'Shows the current page\u2019s location within the site\u2019s hierarchy.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/breadcrumb/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/breadcrumb/',
   sections: [
     {
       id: 'basic',

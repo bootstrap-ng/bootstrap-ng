@@ -20,7 +20,7 @@ import sizesHtml from './examples/sizes.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Radio',
   lead: 'Native radios for choosing one option from many.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/radio/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/radio/',
   sections: [
     {
       id: 'example',

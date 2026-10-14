@@ -40,7 +40,7 @@ import keyboardHtml from './examples/keyboard.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Datepicker',
   lead: 'A calendar and date picker popup, opened from an input or a button, with range selection, multiple months and more.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/datepicker/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/datepicker/',
   sections: [
     {
       id: 'overview',

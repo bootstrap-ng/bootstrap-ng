@@ -16,7 +16,7 @@ import serviceTs from './examples/service.ts' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Toasts',
   lead: 'Lightweight notifications that hide on their own, pausing while the pointer or focus is inside them.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/toasts/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/toasts/',
   sections: [
     {
       id: 'basic',

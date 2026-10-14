@@ -4,7 +4,7 @@
 [![Super Linter](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/super-linter.yml/badge.svg)](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/super-linter.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Angular components for [Bootstrap 6](https://v6-dev--twbs-bootstrap.netlify.app/), built for modern Angular.
+Angular components for [Bootstrap 6](https://bootstrap-ng.com/), built for modern Angular.
 
 **Docs:** <https://bootstrap-ng.com/>
 

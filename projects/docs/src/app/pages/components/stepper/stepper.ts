@@ -12,7 +12,7 @@ import themesHtml from './examples/themes.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Stepper',
   lead: 'Steps of a process, such as a sign-up flow or checkout, laid out vertically or in a row.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/stepper/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/components/stepper/',
   sections: [
     {
       id: 'basic',

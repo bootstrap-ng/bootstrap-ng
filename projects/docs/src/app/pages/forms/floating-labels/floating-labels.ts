@@ -24,7 +24,7 @@ import layoutHtml from './examples/layout.html' with { loader: 'text' };
 const PAGE: DocsPageData = {
   title: 'Floating labels',
   lead: 'Labels that float over their form controls.',
-  bootstrapDocs: 'https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/floating-labels/',
+  bootstrapDocs: 'https://getbootstrap.com/docs/6.0/forms/floating-labels/',
   sections: [
     {
       id: 'example',
