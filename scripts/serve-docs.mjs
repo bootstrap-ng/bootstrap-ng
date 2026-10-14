@@ -1,6 +1,6 @@
 // Serves the built docs site the way Cloudflare Pages does, for the end-to-end tests.
 // Usage: node scripts/serve-docs.mjs [--port 4300] [--dir dist/docs/browser]
-import { createReadStream, statSync } from 'node:fs';
+import { createReadStream, readFileSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -34,6 +34,36 @@ function file(path) {
   return null;
 }
 
+/**
+ * Rules from the _headers file that scripts/headers.mjs writes, as [pattern, headers] pairs.
+ * Supports the `*` splat in paths, like Cloudflare Pages.
+ */
+function headerRules() {
+  let text;
+  try {
+    text = readFileSync(join(values.dir, '_headers'), 'utf8');
+  } catch {
+    return [];
+  }
+  const rules = [];
+  for (const line of text.split('\n')) {
+    if (!line.trim() || line.trim().startsWith('#')) continue;
+    if (/^\s/.test(line)) {
+      const [, name, value] = /^\s+([^:]+):\s*(.*)$/.exec(line) ?? [];
+      if (name) rules.at(-1)?.[1].push([name, value]);
+    } else {
+      const pattern = line
+        .trim()
+        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\*/g, '.*');
+      rules.push([new RegExp(`^${pattern}$`), []]);
+    }
+  }
+  return rules;
+}
+
+const rules = headerRules();
+
 function isDirectory(path) {
   try {
     return statSync(path).isDirectory();
@@ -47,6 +77,10 @@ createServer((request, response) => {
   const path = normalize(join(values.dir, decodeURIComponent(pathname)));
   const inside = path.startsWith(normalize(values.dir));
   // Like Cloudflare Pages: a folder requested without its trailing slash redirects to it.
+  for (const [pattern, headers] of rules) {
+    if (pattern.test(pathname))
+      for (const [name, value] of headers) response.setHeader(name, value);
+  }
   if (inside && !pathname.endsWith('/') && isDirectory(path)) {
     response.writeHead(301, { Location: `${pathname}/` });
     response.end();

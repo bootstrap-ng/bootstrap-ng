@@ -142,3 +142,18 @@ test.describe('after a redeploy', () => {
     expect(await page.evaluate(() => 'staleTab' in window)).toBe(false);
   });
 });
+
+test('sends the security headers from the _headers file', async ({ request }) => {
+  const response = await request.get('components/alert/');
+  const headers = response.headers();
+  expect(headers['content-security-policy']).toContain("frame-ancestors 'none'");
+  expect(headers['content-security-policy']).toMatch(/script-src 'self' 'sha256-/);
+  expect(headers).toMatchObject({
+    'strict-transport-security': expect.stringContaining('max-age='),
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'permissions-policy': expect.stringContaining('camera=()'),
+    'cross-origin-opener-policy': 'same-origin',
+  });
+});
