@@ -1,4 +1,4 @@
-import { test as base } from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
 
 export { expect, type Page } from '@playwright/test';
 
@@ -9,6 +9,9 @@ export { expect, type Page } from '@playwright/test';
  * leaves the page unstyled and fails the "renders without errors" check.
  *
  * Icons that `bs-icon` loads from jsDelivr get a placeholder SVG for the same reason.
+ *
+ * Every test also fails if the page breaks the Content-Security-Policy that the test server
+ * sends from the _headers file.
  */
 const ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8"/></svg>';
@@ -31,6 +34,18 @@ export const test = base.extend({
         headers: { 'Access-Control-Allow-Origin': '*' },
       }),
     );
+    const violations: string[] = [];
+    await page.exposeFunction('docsCspViolation', (violation: string) => {
+      violations.push(violation);
+    });
+    await page.addInitScript(() => {
+      document.addEventListener('securitypolicyviolation', (event) => {
+        const report = (window as unknown as { docsCspViolation: (violation: string) => void })
+          .docsCspViolation;
+        report(`${event.effectiveDirective} blocked ${event.blockedURI || 'inline'}`);
+      });
+    });
     await use(page);
+    expect(violations, 'Content-Security-Policy violations').toEqual([]);
   },
 });
