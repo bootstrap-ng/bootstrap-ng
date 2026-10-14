@@ -1,20 +1,20 @@
 ---
 name: Publish
 
-# Publishes the library to npm when a GitHub release is published.
-# The release tag must match the version in projects/bootstrap-ng/package.json (e.g. v6.0.0-alpha.1).
-# Prereleases go to the `next` dist-tag, stable versions to `latest`.
+# Publishes the library to npm when run from the Actions tab ("Run workflow" on main).
+# Publishes the version in projects/bootstrap-ng/package.json.
+# Prerelease versions (such as 6.0.0-alpha.2) go to the `next` dist-tag, stable versions to `latest`.
 # Authenticates with npm trusted publishing (OIDC), so no npm token is stored in the repository.
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: npm
     permissions:
@@ -34,19 +34,9 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build:lib
-      - name: Check the release tag matches the package version
-        run: |
-          version="$(node -p "require('./dist/bootstrap-ng/package.json').version")"
-          if [ "${TAG#v}" != "${version}" ]; then
-            echo "::error::Release tag ${TAG} does not match package version ${version}"
-            exit 1
-          fi
-        env:
-          TAG: ${{ github.event.release.tag_name }}
       - name: Publish to npm
         working-directory: dist/bootstrap-ng
         run: |
-          if [ "${PRERELEASE}" = "true" ]; then dist_tag=next; else dist_tag=latest; fi
+          version="$(node -p "require('./package.json').version")"
+          case "${version}" in *-*) dist_tag=next ;; *) dist_tag=latest ;; esac
           npm publish --provenance --access public --tag "${dist_tag}"
-        env:
-          PRERELEASE: ${{ github.event.release.prerelease }}
