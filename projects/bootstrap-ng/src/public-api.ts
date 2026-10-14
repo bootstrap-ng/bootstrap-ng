@@ -21,6 +21,7 @@ export * from './lib/icon/icon';
 export * from './lib/icon/icon-registry';
 export * from './lib/carousel/carousel';
 export * from './lib/pagination/pagination';
+export * from './lib/table/table';
 export * from './lib/breadcrumb/breadcrumb';
 export * from './lib/tabs/tabs';
 export * from './lib/toast/toast';

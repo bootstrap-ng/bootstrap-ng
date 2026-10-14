@@ -36,6 +36,7 @@ export const COMPONENT_PAGES: DocsNavItem[] = [
   { title: 'Spinner', path: 'components/spinner' },
   { title: 'Stepper', path: 'components/stepper' },
   { title: 'Tab', path: 'components/tab' },
+  { title: 'Table', path: 'components/table' },
   { title: 'Toasts', path: 'components/toasts' },
   { title: 'Toggler', path: 'components/toggler' },
   { title: 'Tooltip', path: 'components/tooltip' },

@@ -1,0 +1,39 @@
+<div class="d-flex flex-wrap align-items-end gap-5 mb-5">
+  <div bsFormField class="flex-grow-1">
+    <label bsFormLabel>Search employees</label>
+    <input #q type="search" bsFormControl [value]="search()" (input)="onSearch(q.value)" />
+  </div>
+  <div bsFormField>
+    <label bsFormLabel>Rows per page</label>
+    <select #size bsFormControl (change)="pageSize.set(+size.value); page.set(1)">
+      <option value="5">5</option>
+      <option value="8" selected>8</option>
+      <option value="20">20</option>
+      <option value="0">All</option>
+    </select>
+  </div>
+</div>
+<table
+  bsTable
+  #table="bsTable"
+  [data]="employees"
+  [(columns)]="columns"
+  [(sort)]="sort"
+  [(page)]="page"
+  [pageSize]="pageSize()"
+  [filter]="search()"
+  striped
+  hover>
+  <caption>
+    Employees, searchable and paged
+  </caption>
+</table>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-5">
+  <p class="mb-0" aria-live="polite">{{ table.totalRows() }} of {{ employees.length }} employees</p>
+  <nav
+    bsPagination
+    aria-label="Employee pages"
+    [page]="table.currentPage()"
+    (pageChange)="page.set($event)"
+    [pageCount]="table.pageCount()"></nav>
+</div>

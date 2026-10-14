@@ -1,0 +1,12 @@
+<table bsTable [data]="employees" [(columns)]="columns" [(sort)]="sort" hover>
+  <caption>
+    Employees, sortable
+  </caption>
+</table>
+<p class="mb-0">
+  @if (sort(); as sort) {
+    Sorted by {{ sort.key }}, {{ sort.direction === 'asc' ? 'ascending' : 'descending' }}
+  } @else {
+    Not sorted
+  }
+</p>

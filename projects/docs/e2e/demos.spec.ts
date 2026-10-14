@@ -281,3 +281,50 @@ test('icons load from their libraries and labelled icons are images', async ({ p
   await expect(basic.getByRole('img', { name: 'Notifications' }).locator('svg')).toHaveCount(1);
   await expect(basic.locator('bs-icon[aria-hidden="true"]')).toHaveCount(3);
 });
+
+test('a table sorts, searches and pages', async ({ page }) => {
+  await page.goto('components/table/');
+  const sorting = example(page, 'sorting');
+  const name = sorting.getByRole('columnheader', { name: 'Name' });
+  await expect(name).toHaveAttribute('aria-sort', 'ascending');
+  await name.getByRole('button').click();
+  await expect(name).toHaveAttribute('aria-sort', 'descending');
+
+  const paging = example(page, 'search-and-pagination');
+  await expect(paging.locator('tbody tr')).toHaveCount(8);
+  await paging.getByRole('button', { name: '6' }).click();
+  await expect(paging.locator('[aria-current="page"]')).toHaveText('6');
+  await paging.getByLabel('Search employees').fill('ava');
+  await expect(paging.locator('tbody tr')).toHaveCount(5);
+  await expect(paging.locator('[aria-current="page"]')).toHaveText('1');
+  await expect(paging).toContainText('5 of 48 employees');
+});
+
+test('table rows can be selected and expanded', async ({ page }) => {
+  await page.goto('components/table/');
+  const selection = example(page, 'selection');
+  await selection.getByRole('checkbox', { name: 'Select all rows' }).check();
+  await expect(selection.locator('tbody tr.table-active')).toHaveCount(5);
+  await selection.getByRole('checkbox', { name: 'Select all rows' }).uncheck();
+  await expect(selection).toContainText('Selected: nobody');
+
+  const detail = example(page, 'expandable-rows');
+  const toggle = detail.getByRole('button', { name: 'Show details' }).first();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(detail.locator('dl')).toBeVisible();
+});
+
+test('table columns resize with the keyboard and move with buttons', async ({ page }) => {
+  await page.goto('components/table/');
+  const demo = example(page, 'columns');
+  const handle = demo.getByRole('separator', { name: 'Resize Name' });
+  await expect(handle).toHaveAttribute('aria-valuenow', '180');
+  await handle.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(handle).toHaveAttribute('aria-valuenow', '190');
+  await demo.getByRole('button', { name: 'Move Name right' }).click();
+  await expect(demo.locator('thead th').nth(1)).toContainText('Name');
+  await demo.getByRole('checkbox', { name: 'Show Department' }).check();
+  await expect(demo.getByRole('columnheader', { name: 'Department' })).toBeVisible();
+});
