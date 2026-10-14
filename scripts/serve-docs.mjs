@@ -1,4 +1,4 @@
-// Serves the built docs site the way GitHub Pages does, for the end-to-end tests.
+// Serves the built docs site the way Cloudflare Pages does, for the end-to-end tests.
 // Usage: node scripts/serve-docs.mjs [--port 4300] [--dir dist/docs/browser]
 import { createReadStream, statSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -46,14 +46,14 @@ createServer((request, response) => {
   const { pathname } = new URL(request.url ?? '/', 'http://localhost');
   const path = normalize(join(values.dir, decodeURIComponent(pathname)));
   const inside = path.startsWith(normalize(values.dir));
-  // Like GitHub Pages: a folder requested without its trailing slash redirects to it.
+  // Like Cloudflare Pages: a folder requested without its trailing slash redirects to it.
   if (inside && !pathname.endsWith('/') && isDirectory(path)) {
     response.writeHead(301, { Location: `${pathname}/` });
     response.end();
     return;
   }
   const found = inside ? file(path) : null;
-  // Like the 404.html copy on GitHub Pages: unknown paths load the client-rendered app.
+  // Like 404.html on Cloudflare Pages: unknown paths load the client-rendered app.
   const served = found ?? join(values.dir, 'index.csr.html');
   response.writeHead(found ? 200 : 404, {
     'Content-Type': TYPES[extname(served)] ?? 'application/octet-stream',
