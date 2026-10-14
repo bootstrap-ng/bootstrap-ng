@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   FormControl,
   FormGroup,
@@ -161,6 +161,196 @@ describe('BsFormControl', () => {
     input.dispatchEvent(new Event('input'));
     await fixture.whenStable();
     expect(input.classList).not.toContain('is-invalid');
+  });
+});
+
+describe('BsFormControl clearable', () => {
+  function clearButton(fixture: ComponentFixture<unknown>): HTMLButtonElement | null {
+    return (fixture.nativeElement as HTMLElement).querySelector('button[bsformcontrolclear]');
+  }
+
+  it('shows a clear button while the input has a value', async () => {
+    @Component({
+      imports: [BsFormControl],
+      template: `
+        <div style="width: 300px">
+          <input
+            id="name"
+            bsFormControl
+            [clearable]="clearable()"
+            clearLabel="Clear name"
+            (cleared)="clearedCount = clearedCount + 1"
+            aria-label="Name" />
+        </div>
+      `,
+    })
+    class Host {
+      readonly clearable = signal(true);
+      clearedCount = 0;
+    }
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    const button = clearButton(fixture)!;
+    expect(button.hidden).toBe(true);
+    expect(button.type).toBe('button');
+    expect(button.className).toBe('btn-close');
+    expect(button.getAttribute('aria-label')).toBe('Clear name');
+    expect(button.getAttribute('aria-controls')).toBe('name');
+    expect(button.previousElementSibling).toBe(input);
+    expect(input.style.paddingInlineEnd).not.toBe('');
+
+    input.value = 'Mark';
+    input.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect(button.hidden).toBe(false);
+    const box = input.getBoundingClientRect();
+    const rect = button.getBoundingClientRect();
+    expect(rect.right).toBeLessThanOrEqual(box.right);
+    expect(rect.left).toBeGreaterThan(box.left + box.width / 2);
+    expect(Math.abs(rect.top + rect.height / 2 - (box.top + box.height / 2))).toBeLessThan(1);
+
+    button.click();
+    await fixture.whenStable();
+    expect(input.value).toBe('');
+    expect(document.activeElement).toBe(input);
+    expect(button.hidden).toBe(true);
+    expect(fixture.componentInstance.clearedCount).toBe(1);
+
+    fixture.componentInstance.clearable.set(false);
+    await fixture.whenStable();
+    expect(clearButton(fixture)).toBeNull();
+    expect(input.style.paddingInlineEnd).toBe('');
+  });
+
+  it('adds no button unless clearable, and none to selects', async () => {
+    @Component({
+      imports: [BsFormControl],
+      template: `
+        <input bsFormControl value="Mark" aria-label="Name" />
+        <select bsFormControl clearable aria-label="Size">
+          <option>Small</option>
+        </select>
+      `,
+    })
+    class Host {}
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    expect(clearButton(fixture)).toBeNull();
+    expect(fixture.nativeElement.querySelector('select').style.paddingInlineEnd).toBe('');
+  });
+
+  it('hides the button on disabled and readonly controls', async () => {
+    @Component({
+      imports: [BsFormControl],
+      template: `
+        <input
+          bsFormControl
+          clearable
+          value="Mark"
+          [disabled]="disabled()"
+          [readOnly]="readOnly()"
+          aria-label="Name" />
+      `,
+    })
+    class Host {
+      readonly disabled = signal(true);
+      readonly readOnly = signal(false);
+    }
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const button = clearButton(fixture)!;
+    expect(button.hidden).toBe(true);
+    fixture.componentInstance.disabled.set(false);
+    await fixture.whenStable();
+    expect(button.hidden).toBe(false);
+    fixture.componentInstance.readOnly.set(true);
+    await fixture.whenStable();
+    expect(button.hidden).toBe(true);
+  });
+
+  it('places the button at the start in right-to-left text and on a textarea first line', async () => {
+    @Component({
+      imports: [BsFormControl],
+      template: `
+        <div dir="rtl" style="width: 300px">
+          <input bsFormControl clearable value="Mark" aria-label="Name" />
+        </div>
+        <div style="width: 300px">
+          <textarea bsFormControl clearable rows="4" aria-label="Notes">Hi</textarea>
+        </div>
+      `,
+    })
+    class Host {}
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const [rtlButton, textareaButton] = Array.from<HTMLButtonElement>(
+      fixture.nativeElement.querySelectorAll('button'),
+    );
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('textarea');
+    const inputBox = input.getBoundingClientRect();
+    expect(rtlButton.getBoundingClientRect().left).toBeLessThan(inputBox.left + inputBox.width / 2);
+    const textareaBox = textarea.getBoundingClientRect();
+    expect(textareaButton.getBoundingClientRect().top).toBeLessThan(
+      textareaBox.top + textareaBox.height / 2,
+    );
+  });
+
+  it('clears a reactive form control', async () => {
+    @Component({
+      imports: [ReactiveFormsModule, BsFormControl],
+      template: `<input bsFormControl clearable [formControl]="name" aria-label="Name" />`,
+    })
+    class Host {
+      readonly name = new FormControl('');
+    }
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const button = clearButton(fixture)!;
+    expect(button.hidden).toBe(true);
+    fixture.componentInstance.name.setValue('Mark');
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
+    expect(button.hidden).toBe(false);
+    button.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.name.value).toBe('');
+  });
+
+  it('clears ngModel', async () => {
+    @Component({
+      imports: [FormsModule, BsFormControl],
+      template: `<input bsFormControl clearable [(ngModel)]="name" aria-label="Name" />`,
+    })
+    class Host {
+      name = 'Mark';
+    }
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const button = clearButton(fixture)!;
+    expect(button.hidden).toBe(false);
+    button.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.name).toBe('');
+  });
+
+  it('clears Signal Forms', async () => {
+    @Component({
+      imports: [FormField, BsFormControl],
+      template: `<input bsFormControl clearable [formField]="profile.name" aria-label="Name" />`,
+    })
+    class Host {
+      readonly model = signal({ name: 'Mark' });
+      profile = form(this.model);
+    }
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const button = clearButton(fixture)!;
+    expect(button.hidden).toBe(false);
+    button.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.model().name).toBe('');
   });
 });
 
