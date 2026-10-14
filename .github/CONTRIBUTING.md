@@ -126,7 +126,7 @@ Keep each pull request focused on one change. Smaller pull requests are easier t
 
 ## Releasing
 
-Maintainers publish to npm from the [Publish workflow](workflows/publish.yml), which lints, tests and builds the library and publishes `dist/bootstrap-ng` with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) and provenance.
+Maintainers publish to npm from the [Publish workflow](workflows/publish.yml), which lints, tests and builds the library and publishes `dist/bootstrap-ng` with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers).
 
 1. Set `version` in `projects/bootstrap-ng/package.json` and merge it to `main`.
 2. On the **Actions** tab, open **Publish**, choose **Run workflow** and run it on `main`.
