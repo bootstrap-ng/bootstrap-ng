@@ -1,9 +1,23 @@
 name: CI
 
+# Skip CI when a change only touches files that can't affect the build or tests.
+# Prettier ignores Markdown (.prettierignore), and Super-Linter and cspell still check these files.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+      - .cspell.json
+      - .github/CODEOWNERS
+      - .vscode/**
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+      - .cspell.json
+      - .github/CODEOWNERS
+      - .vscode/**
 
 permissions:
   contents: read
