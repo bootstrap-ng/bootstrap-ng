@@ -24,6 +24,10 @@ import { FormControlDateTimeExample } from './examples/date-time';
 import date_timeHtml from './examples/date-time.html' with { loader: 'text' };
 import { FormControlFileExample } from './examples/file';
 import fileHtml from './examples/file.html' with { loader: 'text' };
+import { FormControlClearableExample } from './examples/clearable';
+import clearableHtml from './examples/clearable.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import clearableTs from './examples/clearable.ts' with { loader: 'text' };
 import { FormControlGhostExample } from './examples/ghost';
 import ghostHtml from './examples/ghost.html' with { loader: 'text' };
 
@@ -48,6 +52,15 @@ const PAGE: DocsPageData = {
       example: FormControlReactiveExample,
       html: reactiveHtml,
       ts: reactiveTs,
+    },
+    {
+      id: 'clearable',
+      title: 'Clearable',
+      description:
+        'Add <code>clearable</code> to an input or textarea to show a button at its end that clears the value and moves focus back to the control. The button shows only while the control has a value and is enabled and editable. Clearing fires an <code>input</code> event, so Angular forms see the new value. Set <code>clearLabel</code> to change the button’s accessible label.',
+      example: FormControlClearableExample,
+      html: clearableHtml,
+      ts: clearableTs,
     },
     {
       id: 'textarea',
@@ -153,6 +166,19 @@ const PAGE: DocsPageData = {
           description: 'Shows a caret, for example on an input with a datalist.',
         },
         {
+          name: 'clearable',
+          type: 'boolean',
+          default: 'false',
+          description:
+            'Shows a button that clears the value of an input or textarea while it has one.',
+        },
+        {
+          name: 'clearLabel',
+          type: 'string',
+          default: "'Clear'",
+          description: 'Accessible label of the clear button.',
+        },
+        {
           name: 'id',
           type: 'string',
           default: 'generated',
@@ -163,6 +189,25 @@ const PAGE: DocsPageData = {
           type: "'auto' | 'valid' | 'invalid' | 'none'",
           default: "'auto'",
           description: 'Validation styles. auto follows the bound Angular form control.',
+        },
+      ],
+      outputs: [
+        {
+          name: 'cleared',
+          type: 'void',
+          description: 'Emits after the clear button cleared the value.',
+        },
+      ],
+      methods: [
+        {
+          name: 'clear()',
+          type: 'void',
+          description: 'Clears the value, notifies Angular forms and focuses the control.',
+        },
+        {
+          name: 'hasClearableValue',
+          type: 'Signal<boolean>',
+          description: 'Whether the clear button is shown.',
         },
       ],
     },

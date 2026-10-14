@@ -128,6 +128,21 @@ test('a typeahead suggests values and picks one with the keyboard', async ({ pag
   await expect(demo).toContainText('Value: Iceland');
 });
 
+test('a clearable input clears its value and keeps focus', async ({ page }) => {
+  await page.goto('forms/form-control/');
+  const demo = example(page, 'clearable');
+  const input = demo.getByRole('searchbox', { name: 'Search' });
+  await expect(input).toHaveValue('Bootstrap');
+  await demo.getByRole('button', { name: 'Clear' }).click();
+  await expect(input).toHaveValue('');
+  await expect(input).toBeFocused();
+  await expect(demo.getByRole('button', { name: 'Clear' })).toBeHidden();
+  await expect(demo).toContainText('Value:');
+  await input.fill('Angular');
+  await expect(demo.getByRole('button', { name: 'Clear' })).toBeVisible();
+  await expect(demo).toContainText('Value: Angular');
+});
+
 test('an async typeahead renders custom items', async ({ page }) => {
   await page.goto('forms/typeahead/');
   const demo = example(page, 'async');
