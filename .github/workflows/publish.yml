@@ -41,4 +41,4 @@ jobs:
         run: |
           version="$(node -p "require('./package.json').version")"
           case "${version}" in *-*) dist_tag=next ;; *) dist_tag=latest ;; esac
-          npm publish --provenance --access public --tag "${dist_tag}"
+          npm publish --provenance --access public --tag "${dist_tag}" --loglevel verbose
