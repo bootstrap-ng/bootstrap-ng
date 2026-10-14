@@ -1,0 +1,18 @@
+<div class="d-flex flex-wrap gap-2">
+  <button type="button" bsButton theme="secondary" bsTooltip="Shown after 500ms" [delay]="500">
+    Delayed
+  </button>
+  <button type="button" bsButton theme="secondary" bsTooltip="Toggled by click" trigger="click">
+    Click me
+  </button>
+  <button
+    type="button"
+    bsButton
+    theme="secondary"
+    #tip="bsTooltip"
+    bsTooltip="Opened with show()"
+    trigger="manual"
+    (click)="tip.toggle()">
+    Manual
+  </button>
+</div>

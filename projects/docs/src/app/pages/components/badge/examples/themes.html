@@ -1,0 +1,7 @@
+@for (variant of variants; track variant) {
+  <div class="d-flex flex-wrap gap-2 mb-2">
+    @for (theme of themes; track theme) {
+      <span bsBadge [theme]="theme" [variant]="variant">{{ theme }}</span>
+    }
+  </div>
+}

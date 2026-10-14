@@ -1,0 +1,22 @@
+<button type="button" bsButton theme="primary" (click)="choose()">Choose a size</button>
+<p class="mt-3 mb-0">Size: {{ size() }}</p>
+
+<ng-template #picker let-drawer>
+  <div class="drawer-header">
+    <h5 class="drawer-title">Size</h5>
+    <button type="button" bsCloseButton bsDrawerClose></button>
+  </div>
+  <div class="drawer-body">
+    <div bsListGroup>
+      @for (option of sizes; track option) {
+        <button
+          type="button"
+          bsListGroupItem
+          [active]="option === size()"
+          (click)="drawer.close(option)">
+          {{ option }}
+        </button>
+      }
+    </div>
+  </div>
+</ng-template>

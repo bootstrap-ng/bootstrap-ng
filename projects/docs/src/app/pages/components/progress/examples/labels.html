@@ -1,0 +1,27 @@
+<div class="vstack gap-3">
+  <bs-progress
+    [value]="files()"
+    [max]="8"
+    [valueText]="`${files()} of 8 files`"
+    aria-label="Upload">
+    {{ files() }} / 8
+  </bs-progress>
+  <div class="d-flex gap-2">
+    <button
+      type="button"
+      bsButton="subtle"
+      theme="secondary"
+      size="sm"
+      (click)="files.set(files() - 1)">
+      −
+    </button>
+    <button
+      type="button"
+      bsButton="subtle"
+      theme="secondary"
+      size="sm"
+      (click)="files.set(files() + 1)">
+      +
+    </button>
+  </div>
+</div>

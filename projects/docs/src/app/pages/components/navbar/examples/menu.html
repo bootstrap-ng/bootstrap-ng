@@ -1,0 +1,38 @@
+<nav class="navbar lg:navbar-expand bg-1" aria-label="Shop">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Shop</a>
+    <button
+      type="button"
+      class="btn-icon navbar-toggler"
+      aria-label="Toggle navigation"
+      [bsDrawerToggle]="shopDrawer">
+      <span class="navbar-toggler-icon" aria-hidden="true"></span>
+    </button>
+    <dialog bsDrawer #shopDrawer="bsDrawer" placement="end" aria-labelledby="shop-drawer-title">
+      <div class="drawer-header">
+        <h2 class="drawer-title h5" id="shop-drawer-title">Shop</h2>
+        <button type="button" bsCloseButton bsDrawerClose></button>
+      </div>
+      <div class="drawer-body">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <button type="button" class="nav-link" [bsMenuToggle]="categories">Categories</button>
+            <div bsMenu #categories="bsMenu">
+              <a class="menu-item" href="#">Books</a>
+              <a class="menu-item" href="#">Music</a>
+              <a class="menu-item" href="#">Games</a>
+            </div>
+          </li>
+        </ul>
+        <form class="d-flex gap-2" role="search" (submit)="$event.preventDefault()">
+          <label class="visually-hidden" for="navbar-search">Search</label>
+          <input class="form-control" id="navbar-search" type="search" placeholder="Search" />
+          <button type="submit" bsButton="outline" theme="success">Search</button>
+        </form>
+      </div>
+    </dialog>
+  </div>
+</nav>

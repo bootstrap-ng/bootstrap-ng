@@ -1,0 +1,20 @@
+<button type="button" bsButton theme="danger" (click)="confirming.set(true)">Delete file</button>
+<p class="mt-3 mb-0">Result: {{ result() }}</p>
+
+<dialog
+  bsDialog
+  [(open)]="confirming"
+  (dismissed)="result.set(`dismissed with ${$event}`)"
+  aria-labelledby="confirm-dialog-title">
+  <div class="dialog-header">
+    <h1 class="dialog-title" id="confirm-dialog-title">Delete file?</h1>
+    <button type="button" bsCloseButton bsDialogClose></button>
+  </div>
+  <div class="dialog-body">
+    <p>You cannot undo this.</p>
+  </div>
+  <div class="dialog-footer">
+    <button type="button" bsButton theme="secondary" (click)="answer('cancelled')">Cancel</button>
+    <button type="button" bsButton theme="danger" (click)="answer('deleted')">Delete</button>
+  </div>
+</dialog>

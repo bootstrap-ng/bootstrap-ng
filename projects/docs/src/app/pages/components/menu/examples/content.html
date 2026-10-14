@@ -1,0 +1,9 @@
+<button type="button" bsButton theme="secondary" [bsMenuToggle]="menu">Options</button>
+<div bsMenu #menu="bsMenu" class="menu-translucent">
+  <div class="menu-header">Document</div>
+  <button type="button" class="menu-item active">Edit</button>
+  <button type="button" class="menu-item">Duplicate</button>
+  <button type="button" class="menu-item" disabled>Share (disabled)</button>
+  <hr class="menu-divider" />
+  <button type="button" class="menu-item theme-danger">Delete</button>
+</div>

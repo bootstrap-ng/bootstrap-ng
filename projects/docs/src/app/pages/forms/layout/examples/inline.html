@@ -1,0 +1,27 @@
+<form class="row lg:row-cols-auto g-3 align-items-center">
+  <div class="col-12">
+    <label class="visually-hidden" for="inlineUsername">Username</label>
+    <div bsInputGroup>
+      <div bsInputGroupText>&#64;</div>
+      <input bsFormControl id="inlineUsername" placeholder="Username" />
+    </div>
+  </div>
+  <div class="col-12">
+    <label class="visually-hidden" for="inlinePreference">Preference</label>
+    <select bsFormControl id="inlinePreference">
+      <option selected>Choose…</option>
+      <option value="1">One</option>
+      <option value="2">Two</option>
+      <option value="3">Three</option>
+    </select>
+  </div>
+  <div class="col-12">
+    <div bsFormField>
+      <input type="checkbox" bsCheck />
+      <label bsLabel>Remember me</label>
+    </div>
+  </div>
+  <div class="col-12">
+    <button type="submit" bsButton theme="primary">Submit</button>
+  </div>
+</form>

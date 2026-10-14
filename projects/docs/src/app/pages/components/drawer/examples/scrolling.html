@@ -1,0 +1,18 @@
+<button type="button" bsButton theme="primary" [bsDrawerToggle]="scrollDrawer">
+  Enable body scrolling
+</button>
+
+<dialog
+  bsDrawer
+  #scrollDrawer="bsDrawer"
+  scroll
+  [backdrop]="false"
+  aria-labelledby="scrollDrawer-title">
+  <div class="drawer-header">
+    <h2 class="drawer-title h5" id="scrollDrawer-title">Drawer with body scrolling</h2>
+    <button type="button" bsCloseButton bsDrawerClose></button>
+  </div>
+  <div class="drawer-body">
+    <p>Try scrolling the rest of the page to see this option in action.</p>
+  </div>
+</dialog>

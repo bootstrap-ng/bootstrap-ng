@@ -1,0 +1,18 @@
+<div class="d-flex gap-2 mb-3">
+  <button type="button" bsButton="subtle" theme="secondary" size="sm" (click)="shipping.set(true)">
+    Open shipping
+  </button>
+  <button type="button" bsButton="subtle" theme="secondary" size="sm" (click)="shipping.set(false)">
+    Close shipping
+  </button>
+</div>
+<div bsAccordion [exclusive]="false">
+  <details bsAccordionItem [(open)]="shipping">
+    <summary bsAccordionHeader>Shipping ({{ shipping() ? 'open' : 'closed' }})</summary>
+    <div bsAccordionBody>Orders ship within two working days.</div>
+  </details>
+  <details bsAccordionItem>
+    <summary bsAccordionHeader>Returns</summary>
+    <div bsAccordionBody>Return any item within 30 days.</div>
+  </details>
+</div>

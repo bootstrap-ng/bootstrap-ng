@@ -1,0 +1,12 @@
+<div class="d-flex flex-wrap gap-2">
+  @for (placement of placements; track placement) {
+    <button
+      type="button"
+      bsButton
+      theme="secondary"
+      [placement]="placement"
+      [bsPopover]="`Popover on ${placement}`">
+      Popover on {{ placement }}
+    </button>
+  }
+</div>

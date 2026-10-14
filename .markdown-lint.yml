@@ -1,0 +1,12 @@
+---
+# markdownlint rules for Super Linter (it reads this file because the workflow
+# sets LINTER_RULES_PATH to the repo root).
+# Rules: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+
+default: true
+
+# Prose is not hard-wrapped; long lines are expected.
+MD013: false
+
+# Allow the HTML used in GitHub templates and READMEs.
+MD033: false

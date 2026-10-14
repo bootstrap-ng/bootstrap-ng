@@ -1,0 +1,34 @@
+<div class="vstack gap-3 align-items-start">
+  <button
+    type="button"
+    bsCombobox
+    size="sm"
+    placeholder="Small combobox"
+    aria-label="Small combobox"
+    [menu]="small"></button>
+  <div bsComboboxMenu #small="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="1">One</button>
+    <button type="button" bsComboboxOption value="2">Two</button>
+  </div>
+  <button
+    type="button"
+    bsCombobox
+    placeholder="Default combobox"
+    aria-label="Default combobox"
+    [menu]="medium"></button>
+  <div bsComboboxMenu #medium="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="1">One</button>
+    <button type="button" bsComboboxOption value="2">Two</button>
+  </div>
+  <button
+    type="button"
+    bsCombobox
+    size="lg"
+    placeholder="Large combobox"
+    aria-label="Large combobox"
+    [menu]="large"></button>
+  <div bsComboboxMenu #large="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="1">One</button>
+    <button type="button" bsComboboxOption value="2">Two</button>
+  </div>
+</div>

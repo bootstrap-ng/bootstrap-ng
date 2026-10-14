@@ -1,0 +1,14 @@
+<button
+  type="button"
+  bsCombobox
+  placeholder="Choose a fruit…"
+  aria-label="Fruit"
+  [menu]="fruits"
+  [(value)]="fruit"></button>
+<div bsComboboxMenu #fruits="bsComboboxMenu">
+  <button type="button" bsComboboxOption value="apple">Apple</button>
+  <button type="button" bsComboboxOption value="banana">Banana</button>
+  <button type="button" bsComboboxOption value="cherry">Cherry</button>
+  <button type="button" bsComboboxOption value="grape">Grape</button>
+</div>
+<p class="mt-3 mb-0 fg-3">Value: {{ fruit() ?? 'none' }}</p>

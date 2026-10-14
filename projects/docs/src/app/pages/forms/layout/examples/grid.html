@@ -1,0 +1,38 @@
+<form class="row g-3">
+  <div bsFormField class="md:col-6">
+    <label bsFormLabel>Email</label>
+    <input type="email" bsFormControl autocomplete="email" />
+  </div>
+  <div bsFormField class="md:col-6">
+    <label bsFormLabel>Password</label>
+    <input type="password" bsFormControl autocomplete="new-password" />
+  </div>
+  <div bsFormField class="col-12">
+    <label bsFormLabel>Address</label>
+    <input bsFormControl placeholder="1234 Main St" autocomplete="address-line1" />
+  </div>
+  <div bsFormField class="md:col-6">
+    <label bsFormLabel>City</label>
+    <input bsFormControl autocomplete="address-level2" />
+  </div>
+  <div bsFormField class="md:col-4">
+    <label bsFormLabel>State</label>
+    <select bsFormControl>
+      <option selected>Choose…</option>
+      <option>…</option>
+    </select>
+  </div>
+  <div bsFormField class="md:col-2">
+    <label bsFormLabel>Zip</label>
+    <input bsFormControl autocomplete="postal-code" />
+  </div>
+  <div class="col-12">
+    <div bsFormField>
+      <input type="checkbox" bsCheck />
+      <label bsLabel>Check me out</label>
+    </div>
+  </div>
+  <div class="col-12">
+    <button type="submit" bsButton theme="primary">Sign in</button>
+  </div>
+</form>

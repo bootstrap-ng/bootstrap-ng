@@ -1,0 +1,10 @@
+<label bsFormLabel for="password2">Password</label>
+<input
+  #password2
+  type="password"
+  bsFormControl
+  id="password2"
+  placeholder="Enter password"
+  autocomplete="new-password" />
+<div bsStrength #meter="bsStrength" [input]="password2"></div>
+<span [bsStrengthText]="meter"></span>

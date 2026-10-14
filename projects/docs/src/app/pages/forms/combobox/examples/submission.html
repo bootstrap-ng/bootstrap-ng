@@ -1,0 +1,15 @@
+<form class="d-flex gap-2" action="about:blank" target="_blank">
+  <button
+    type="button"
+    bsCombobox
+    name="size"
+    placeholder="Choose a size…"
+    aria-label="Size"
+    [menu]="sizes"></button>
+  <div bsComboboxMenu #sizes="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="s">Small</button>
+    <button type="button" bsComboboxOption value="m">Medium</button>
+    <button type="button" bsComboboxOption value="l">Large</button>
+  </div>
+  <button type="submit" bsButton theme="primary">Submit</button>
+</form>

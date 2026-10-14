@@ -1,0 +1,12 @@
+<div bsListGroup>
+  @for (folder of folders; track folder) {
+    <button
+      type="button"
+      bsListGroupItem
+      [active]="selected() === folder"
+      (click)="selected.set(folder)">
+      {{ folder }}
+    </button>
+  }
+  <button type="button" bsListGroupItem disabled>Archive</button>
+</div>

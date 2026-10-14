@@ -1,0 +1,8 @@
+// Readable line lengths for the page and the lead paragraph; there are no max-width utilities.
+:host {
+  max-width: 64rem;
+}
+
+.docs-hero-lead {
+  max-width: 44rem;
+}

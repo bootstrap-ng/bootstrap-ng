@@ -1,0 +1,49 @@
+<form>
+  <div class="row mb-3">
+    <label for="horizontalEmail" class="sm:col-2 col-form-label">Email</label>
+    <div class="sm:col-10">
+      <input type="email" bsFormControl id="horizontalEmail" autocomplete="email" />
+    </div>
+  </div>
+  <div class="row mb-3">
+    <label for="horizontalPassword" class="sm:col-2 col-form-label col-form-label-sm"
+      >Password</label
+    >
+    <div class="sm:col-10">
+      <input
+        type="password"
+        bsFormControl
+        controlSize="sm"
+        id="horizontalPassword"
+        autocomplete="current-password" />
+    </div>
+  </div>
+  <fieldset class="row mb-3">
+    <legend class="col-form-label sm:col-2 pt-0">Radios</legend>
+    <div class="sm:col-10">
+      <div class="form-group">
+        <div bsFormField class="mb-1">
+          <input type="radio" bsRadio name="gridRadios" value="option1" checked />
+          <label bsLabel>First radio</label>
+        </div>
+        <div bsFormField class="mb-1">
+          <input type="radio" bsRadio name="gridRadios" value="option2" />
+          <label bsLabel>Second radio</label>
+        </div>
+        <div bsFormField>
+          <input type="radio" bsRadio name="gridRadios" value="option3" disabled />
+          <label bsLabel>Third disabled radio</label>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  <div class="row mb-3">
+    <div class="sm:col-10 sm:offset-2">
+      <div bsFormField>
+        <input type="checkbox" bsCheck />
+        <label bsLabel>Example checkbox</label>
+      </div>
+    </div>
+  </div>
+  <button type="submit" bsButton theme="primary">Sign in</button>
+</form>

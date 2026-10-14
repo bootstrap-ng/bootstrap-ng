@@ -1,0 +1,27 @@
+<div class="d-flex flex-wrap gap-3">
+  <div>
+    <label bsFormLabel for="datepickerMinMax">Event date (2026 only)</label>
+    <input
+      type="text"
+      bsFormControl
+      bsDatepicker
+      id="datepickerMinMax"
+      class="w-12"
+      autocomplete="off"
+      min="2026-01-01"
+      max="2026-12-31"
+      placeholder="Select a date in 2026" />
+  </div>
+  <div>
+    <label bsFormLabel for="datepickerWeekdays">Weekday</label>
+    <input
+      type="text"
+      bsFormControl
+      bsDatepicker
+      id="datepickerWeekdays"
+      class="w-12"
+      autocomplete="off"
+      placeholder="Mon to Fri"
+      [dateDisabled]="weekend" />
+  </div>
+</div>

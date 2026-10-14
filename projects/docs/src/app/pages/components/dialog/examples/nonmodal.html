@@ -1,0 +1,13 @@
+<button type="button" bsButton theme="primary" (click)="dialog.toggle()">
+  Toggle inline dialog
+</button>
+
+<dialog bsDialog #dialog="bsDialog" [modal]="false" aria-labelledby="inline-dialog-title">
+  <div class="dialog-header">
+    <h1 class="dialog-title" id="inline-dialog-title">Inline dialog</h1>
+    <button bsCloseButton bsDialogClose></button>
+  </div>
+  <div class="dialog-body">
+    <p>This dialog opens with <code>show()</code>, so the rest of the page stays interactive.</p>
+  </div>
+</dialog>

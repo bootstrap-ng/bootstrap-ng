@@ -1,0 +1,15 @@
+<button type="button" bsButton theme="primary" (click)="dialog.show()">Open dialog</button>
+
+<dialog bsDialog #dialog="bsDialog" aria-labelledby="basic-dialog-title">
+  <div class="dialog-header">
+    <h1 class="dialog-title" id="basic-dialog-title">Dialog title</h1>
+    <button bsCloseButton bsDialogClose></button>
+  </div>
+  <div class="dialog-body">
+    <p>This is a native dialog element with the browser’s built-in modal behavior.</p>
+  </div>
+  <div class="dialog-footer">
+    <button type="button" bsButton theme="secondary" bsDialogClose>Close</button>
+    <button type="button" bsButton theme="primary" bsDialogClose>Save changes</button>
+  </div>
+</dialog>

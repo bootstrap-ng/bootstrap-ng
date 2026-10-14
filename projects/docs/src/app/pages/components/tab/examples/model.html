@@ -1,0 +1,16 @@
+<nav bsTabs #tabs="bsTabs" class="nav-underline mb-3" [(active)]="active" aria-label="Steps">
+  <button type="button" bsTab="one">Step one</button>
+  <button type="button" bsTab="two">Step two</button>
+  <button type="button" bsTab="three">Step three</button>
+</nav>
+<div [bsTabContent]="tabs">
+  <div bsTabPane="one"><p>Fill in your details.</p></div>
+  <div bsTabPane="two"><p>Choose a plan.</p></div>
+  <div bsTabPane="three"><p>Confirm and pay.</p></div>
+</div>
+<p>
+  Active tab: <code>{{ active() }}</code>
+</p>
+<button type="button" bsButton variant="outline" theme="secondary" (click)="active.set('three')">
+  Jump to step three
+</button>

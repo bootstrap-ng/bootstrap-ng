@@ -1,0 +1,20 @@
+<nav bsTabs #tabs="bsTabs" class="nav-tabs mb-3" aria-label="Account sections">
+  <button type="button" bsTab="home">Home</button>
+  <button type="button" bsTab="profile">Profile</button>
+  <button type="button" bsTab="contact">Contact</button>
+  <button type="button" bsTab="disabled" disabled>Disabled</button>
+</nav>
+<div [bsTabContent]="tabs">
+  <div bsTabPane="home">
+    <p>This is the <strong>Home</strong> tab’s content.</p>
+  </div>
+  <div bsTabPane="profile">
+    <p>This is the <strong>Profile</strong> tab’s content.</p>
+  </div>
+  <div bsTabPane="contact">
+    <p>This is the <strong>Contact</strong> tab’s content.</p>
+  </div>
+  <div bsTabPane="disabled">
+    <p>This is the <strong>Disabled</strong> tab’s content.</p>
+  </div>
+</div>

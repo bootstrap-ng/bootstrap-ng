@@ -1,0 +1,50 @@
+<h1>Conventions</h1>
+<p class="fs-lg fg-2">The rules that every bootstrap-ng component follows.</p>
+
+<h2 class="mt-11" id="markup" docsHeading>Bootstrap markup, not wrappers</h2>
+<p>
+  Most components use attribute selectors on the element that Bootstrap styles. The rendered DOM is
+  the same as in Bootstrap's own documentation, so selectors such as
+  <code>.accordion &gt; .accordion-item</code> keep working.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="selectors" language="angular-html" />
+
+<h2 class="mt-11" id="themes" docsHeading>Themes and variants</h2>
+<p>
+  Bootstrap 6 replaces color-named classes such as <code>.btn-primary</code> with a variant class
+  and a <code>.theme-*</code> class. bootstrap-ng exposes these as separate <code>variant</code> and
+  <code>theme</code> inputs. The themes are <code>primary</code>, <code>accent</code>,
+  <code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>,
+  <code>inverse</code> and <code>secondary</code>.
+</p>
+
+<h2 class="mt-11" id="signals" docsHeading>Signals and two-way binding</h2>
+<p>
+  Inputs use <code>input()</code> and outputs use <code>output()</code>. State that the user can
+  change, such as whether a collapse is open, is a <code>model()</code>, so you can bind it both
+  ways:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="twoWay" language="angular-html" />
+
+<h2 class="mt-11" id="methods" docsHeading>Template references</h2>
+<p>
+  Components with behavior have an <code>exportAs</code> name. Use a template reference to call
+  their methods:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="exportAs" language="angular-html" />
+
+<h2 class="mt-11" id="imports" docsHeading>Imports</h2>
+<p>
+  Import single components so that unused ones are removed from your bundle. For quick prototypes,
+  <code>BOOTSTRAP_NG</code> contains everything:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="all" language="angular-ts" />
+
+<h2 class="mt-11" id="accessibility" docsHeading>Accessibility</h2>
+<p>
+  Components set the ARIA roles and states that Bootstrap documents, such as
+  <code>aria-expanded</code> on collapse toggles and <code>role="progressbar"</code> on progress
+  bars. You still give labels: for example, <code>aria-label</code> on icon buttons and progress
+  bars. See <a routerLink="/getting-started/accessibility">Accessibility</a> for keyboard support,
+  focus management and live announcements.
+</p>

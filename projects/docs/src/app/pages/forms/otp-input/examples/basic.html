@@ -1,0 +1,9 @@
+<div bsOtp (complete)="completed.set($event)">
+  <input bsOtpInput maxlength="6" aria-label="Verification code" [formControl]="code" />
+</div>
+<p class="mt-3 mb-0 fg-3">
+  Value: {{ code.value || 'empty' }}
+  @if (completed()) {
+    · completed with {{ completed() }}
+  }
+</p>

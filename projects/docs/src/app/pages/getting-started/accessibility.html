@@ -1,0 +1,153 @@
+<h1>Accessibility</h1>
+<p class="fs-lg fg-2">
+  What bootstrap-ng does to make its components accessible, and what is still up to you.
+</p>
+
+<h2 class="mt-11" id="overview" docsHeading>Overview and limitations</h2>
+<p>
+  bootstrap-ng implements Bootstrap 6's interactive components in Angular, following the
+  <a href="https://www.w3.org/WAI/ARIA/apg/">WAI-ARIA Authoring Practices</a>. Components work with
+  a mouse, touch and the keyboard, and expose their roles and states to screen readers. Every page
+  of this site is tested with <a href="https://www.deque.com/axe/">axe</a> in light and dark mode,
+  including with menus, popovers and dialogs open.
+</p>
+<p>
+  How accessible your app is still depends on your markup, content and styles. With those done well,
+  you can build apps that meet
+  <a href="https://www.w3.org/TR/WCAG22/"
+    ><abbr title="Web Content Accessibility Guidelines">WCAG</abbr> 2.2</a
+  >
+  AA and similar standards.
+</p>
+
+<h2 class="mt-11" id="aria" docsHeading>ARIA roles and states</h2>
+<p>
+  Components set the roles and states that their pattern needs through their host bindings, so you
+  don't write them yourself. For example, tabs get <code>role="tab"</code>,
+  <code>aria-selected</code> and <code>aria-controls</code>; collapse and menu toggles get
+  <code>aria-expanded</code>; and the current page in pagination, breadcrumbs and navs gets
+  <code>aria-current</code>. IDs that link elements together are generated for you.
+</p>
+<p>
+  Components can't know what your content means, so you still give accessible names where there is
+  no visible text, such as on icon-only buttons, progress bars and carousels:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="labels" language="angular-html" />
+
+<h2 class="mt-11" id="keyboard" docsHeading>Keyboard support</h2>
+<p>
+  Everything you can do with a pointer, you can do with the keyboard. Composite widgets are a single
+  Tab stop, and arrow keys move within them:
+</p>
+<!-- Focusable so keyboard users can scroll the table on narrow screens. -->
+<div class="overflow-auto" tabindex="0">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Component</th>
+        <th scope="col">Keys</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keyboard; track row.name) {
+        <tr>
+          <td class="text-nowrap">
+            <a [routerLink]="row.path">{{ row.name }}</a>
+          </td>
+          <td>{{ row.keys }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  Menus and submenus follow the page's direction, so Left and Right swap in right-to-left layouts.
+</p>
+
+<h2 class="mt-11" id="focus" docsHeading>Focus management</h2>
+<p>Components move focus so that keyboard and screen reader users don't lose their place:</p>
+<ul>
+  <li>
+    Modal dialogs and drawers use the native <code>&lt;dialog&gt;</code> element, which traps focus
+    while open and returns it to the element that opened the dialog when it closes.
+  </li>
+  <li>Closing a menu with Escape returns focus to its toggle.</li>
+  <li>
+    Popovers are rendered at the end of the page, but Tab and Shift+Tab move between the trigger and
+    the popover as if it came right after the trigger.
+  </li>
+  <li>
+    When a dismissible alert closes while focus is inside it, focus moves to the next control on the
+    page.
+  </li>
+</ul>
+
+<h2 class="mt-11" id="announcements" docsHeading>Live announcements</h2>
+<p>
+  Screen readers often miss a live region that appears together with its text. So toasts and
+  carousels don't rely on <code>aria-live</code> on their own elements. Instead, they announce
+  through <code>BsLiveAnnouncer</code>, a service that keeps visually hidden live regions on the
+  page:
+</p>
+<ul>
+  <li>
+    Toasts read their text when shown, politely by default. Set <code>live="assertive"</code> for
+    errors that should interrupt.
+  </li>
+  <li>
+    Carousels announce the new slide when the user changes it, but not during autoplay, as in the
+    WAI-ARIA carousel pattern.
+  </li>
+</ul>
+<p>Use the same service to announce your own status messages, such as search results:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="announcer" language="angular-ts" />
+
+<h2 class="mt-11" id="color-contrast" docsHeading>Color contrast</h2>
+<p>
+  Some colors in Bootstrap 6's default palette, used for buttons, alerts and validation states, may
+  not meet the WCAG 2.2
+  <a href="https://www.w3.org/TR/WCAG22/#contrast-minimum">text contrast ratio of 4.5:1</a> or the
+  <a href="https://www.w3.org/TR/WCAG22/#non-text-contrast">non-text contrast ratio of 3:1</a>,
+  especially on light backgrounds. Test the colors you use and adjust Bootstrap's theme where
+  needed.
+</p>
+
+<h2 class="mt-11" id="visually-hidden" docsHeading>Visually hidden content</h2>
+<p>
+  Use <code>.visually-hidden</code> for content that screen readers should read but that isn't
+  shown, such as meaning that is otherwise conveyed only by color:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="visuallyHidden" language="angular-html" />
+<p>
+  For controls that should appear when focused, such as skip links, use
+  <code>.visually-hidden-focusable</code> on its own, not together with
+  <code>.visually-hidden</code>:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="skipLink" language="angular-html" />
+
+<h2 class="mt-11" id="reduced-motion" docsHeading>Reduced motion</h2>
+<p>
+  Bootstrap's CSS respects
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion"
+    ><code>prefers-reduced-motion</code></a
+  >, which turns off most transitions. bootstrap-ng does the same for the motion it adds: when the
+  user prefers reduced motion, a looping carousel jumps back to its first slide instead of sliding
+  on past the last one, and scrollspy links jump to their section instead of scrolling smoothly.
+</p>
+
+<h2 class="mt-11" id="resources" docsHeading>Additional resources</h2>
+<ul>
+  <li>
+    <a href="https://www.w3.org/TR/WCAG22/">Web Content Accessibility Guidelines (WCAG) 2.2</a>
+  </li>
+  <li><a href="https://www.w3.org/WAI/ARIA/apg/">WAI-ARIA Authoring Practices Guide</a></li>
+  <li><a href="https://angular.dev/best-practices/a11y">Angular accessibility guide</a></li>
+  <li><a href="https://www.a11yproject.com/">The A11Y Project</a></li>
+  <li>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility"
+      >MDN accessibility documentation</a
+    >
+  </li>
+  <li><a href="https://www.deque.com/axe/">Deque axe testing tools</a></li>
+  <li><a href="https://accessibilityinsights.io/">Microsoft Accessibility Insights</a></li>
+</ul>

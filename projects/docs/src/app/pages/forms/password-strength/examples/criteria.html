@@ -1,0 +1,11 @@
+<div class="vstack gap-3">
+  @for (sample of samples; track sample.password) {
+    <div>
+      <code>{{ sample.password }}</code> scores {{ sample.score }}
+      <div
+        bsStrength
+        [password]="sample.password"
+        [aria-label]="`Strength of ${sample.password}`"></div>
+    </div>
+  }
+</div>

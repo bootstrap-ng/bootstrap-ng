@@ -1,0 +1,10 @@
+<p>
+  <button type="button" bsButton theme="primary" [bsCollapseToggle]="side">Toggle width</button>
+</p>
+<div style="min-height: 120px">
+  <div bsCollapse horizontal #side="bsCollapse">
+    <div class="card card-body" style="width: 300px">
+      This is some placeholder content for a horizontal collapse.
+    </div>
+  </div>
+</div>

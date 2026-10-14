@@ -1,0 +1,36 @@
+<div class="row">
+  <div class="col-4">
+    <nav #toc bsNav variant="pills" vertical aria-label="Sections">
+      <a bsNavLink current="true" href="#spy-one">One</a>
+      <a bsNavLink current="true" href="#spy-two">Two</a>
+      <a bsNavLink current="true" href="#spy-three">Three</a>
+      <a bsNavLink current="true" href="#spy-four">Four</a>
+    </nav>
+  </div>
+  <div class="col-8">
+    <div
+      [bsScrollspy]="toc"
+      smoothScroll
+      (activate)="active.set($event)"
+      class="overflow-y-auto position-relative"
+      style="height: 240px"
+      tabindex="0"
+      role="region"
+      aria-label="Scrollspy content">
+      @for (section of ['one', 'two', 'three', 'four']; track section) {
+        <section [id]="`spy-${section}`" class="mb-4">
+          <h3 class="h5 text-capitalize">Section {{ section }}</h3>
+          <p>
+            This is some placeholder content for the scrollspy page. As you scroll, the navigation
+            highlights the section in view. Keep scrolling to see more sections.
+          </p>
+          <p>
+            Scrollspy uses an activation line near the top of the scroll area. The last section
+            whose top has passed it is the active one.
+          </p>
+        </section>
+      }
+    </div>
+  </div>
+</div>
+<p class="mt-2 mb-0">Active section: {{ active() }}</p>

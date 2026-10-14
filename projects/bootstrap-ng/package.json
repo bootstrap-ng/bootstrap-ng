@@ -1,0 +1,38 @@
+{
+  "name": "bootstrap-ng",
+  "version": "6.0.0-alpha0",
+  "description": "Angular components for Bootstrap 6, built with signals.",
+  "keywords": [
+    "angular",
+    "bootstrap",
+    "bootstrap-6",
+    "components",
+    "signals"
+  ],
+  "homepage": "https://bootstrap-ng.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bootstrap-ng/bootstrap-ng.git",
+    "directory": "projects/bootstrap-ng"
+  },
+  "bugs": {
+    "url": "https://github.com/bootstrap-ng/bootstrap-ng/issues"
+  },
+  "funding": {
+    "type": "PayPal",
+    "url": "https://paypal.me/coliff"
+  },
+  "author": "Christian Oliff",
+  "license": "MIT",
+  "peerDependencies": {
+    "@floating-ui/dom": "^1.7.6",
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "bootstrap": ">=6.0.0-alpha.1 <7"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

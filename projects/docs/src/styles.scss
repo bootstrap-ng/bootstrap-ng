@@ -1,0 +1,49 @@
+/* Global styles for the docs site. Bootstrap's CSS is loaded from jsDelivr in index.html. */
+
+/* Geist and Geist Mono (loaded in index.html), set the way Bootstrap 6's own docs do. */
+:root {
+  --bs-body-font-family: 'Geist', system-ui, sans-serif;
+  --bs-font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+html {
+  min-height: 100%;
+  background-attachment: fixed;
+  background-color: #080d1a;
+  background-image:
+    radial-gradient(60% 55% at 8% 12%, rgb(6 78 59 / 22%), transparent 72%),
+    radial-gradient(55% 50% at 92% 18%, rgb(88 28 135 / 34%), transparent 72%),
+    radial-gradient(65% 60% at 78% 88%, rgb(49 46 129 / 45%), transparent 72%),
+    radial-gradient(70% 60% at 12% 92%, rgb(23 37 84 / 75%), transparent 72%),
+    linear-gradient(160deg, #03100c, #0d0a22 50%, #060c1f);
+  scroll-padding-top: 4.5rem;
+}
+
+/* Homepage backdrop, on the body so it fills the viewport behind the header too. `img/bg.svg` is in
+public/ and listed in `externalDependencies` in angular.json, so its URL resolves against the base href. */
+body:has(.docs-home) {
+  background-color: transparent !important;
+  background-image: url('img/bg.svg');
+  background-position: center top;
+  background-size: cover;
+}
+
+/* Geist Mono's contextual ligatures (e.g. `--`, `->`, `==`) distort code, so render glyphs literally. */
+code,
+kbd,
+samp,
+pre {
+  font-variant-ligatures: none;
+  font-feature-settings:
+    'liga' 0,
+    'calt' 0;
+}
+
+/* Shiki colors each token with CSS variables for both themes; pick the one for the color mode. */
+docs-code .shiki span {
+  color: var(--shiki-light);
+}
+
+[data-bs-theme='dark'] docs-code .shiki span {
+  color: var(--shiki-dark);
+}

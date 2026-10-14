@@ -1,0 +1,140 @@
+import { expect, test } from './fixtures';
+import { expectNoAxeViolations } from './axe';
+import { NAV } from '../src/app/nav';
+
+const PAGES = [{ title: 'bootstrap-ng', path: '' }, ...NAV.flatMap((section) => section.items)];
+
+for (const page of PAGES) {
+  test.describe(`/${page.path}`, () => {
+    test('is prerendered', async ({ request }) => {
+      const response = await request.get(page.path ? `${page.path}/` : '');
+      expect(response.status()).toBe(200);
+      const html = await response.text();
+      expect(html).toMatch(/<h1[\s>]/);
+      expect(html).toContain('data-pagefind-body');
+    });
+
+    test('has a canonical link and a last-modified date', async ({ page: browserPage }) => {
+      await browserPage.goto(page.path ? `${page.path}/` : '');
+      await expect(browserPage.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        `https://bootstrap-ng.com/${page.path ? `${page.path}/` : ''}`,
+      );
+      const lastModified = await browserPage
+        .locator('meta[name="last-modified"]')
+        .getAttribute('content');
+      expect(Number.isNaN(Date.parse(lastModified ?? ''))).toBe(false);
+    });
+
+    test('renders without errors', async ({ page: browserPage }) => {
+      const errors: string[] = [];
+      browserPage.on('pageerror', (error) => errors.push(error.message));
+      browserPage.on('console', (message) => {
+        if (message.type() === 'error') errors.push(message.text());
+      });
+
+      await browserPage.goto(page.path ? `${page.path}/` : '');
+      await expect(browserPage.locator('h1').first()).toBeVisible();
+      await expect(browserPage).toHaveTitle(
+        page.path ? new RegExp(`· bootstrap-ng$`) : /bootstrap-ng/,
+      );
+      if (page.path) {
+        await expect(browserPage.locator('.docs-sidebar a[aria-current="page"]')).toHaveText(
+          page.title,
+        );
+      }
+      expect(errors).toEqual([]);
+    });
+
+    test('has unique ids that its references and in-page links point to', async ({
+      page: browserPage,
+    }) => {
+      await browserPage.goto(page.path ? `${page.path}/` : '');
+      await expect(browserPage.locator('h1').first()).toBeVisible();
+      const problems = await browserPage.evaluate(() => {
+        const ids = [...document.querySelectorAll('[id]')].map((element) => element.id);
+        const known = new Set(ids);
+        const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+        const references = [
+          ...document.querySelectorAll(
+            '[aria-controls], [aria-labelledby], [aria-describedby], [aria-activedescendant], label[for]',
+          ),
+        ].flatMap((element) =>
+          ['aria-controls', 'aria-labelledby', 'aria-describedby', 'aria-activedescendant', 'for']
+            .flatMap((name) => element.getAttribute(name)?.split(/\s+/) ?? [])
+            .filter((id) => id && !known.has(id)),
+        );
+        const anchors = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')]
+          .map((link) => decodeURIComponent(link.hash.slice(1)))
+          .filter((id) => id && !known.has(id));
+        return { duplicates, references, anchors };
+      });
+      expect(problems).toEqual({ duplicates: [], references: [], anchors: [] });
+    });
+
+    test('does not shift its layout while loading', async ({ page: browserPage }) => {
+      await browserPage.addInitScript(() => {
+        const shifts: number[] = [];
+        Object.assign(window, { docsLayoutShifts: shifts });
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries() as (PerformanceEntry & { value: number })[]) {
+            shifts.push(entry.value);
+          }
+        }).observe({ type: 'layout-shift', buffered: true });
+      });
+      await browserPage.goto(page.path ? `${page.path}/` : '', { waitUntil: 'networkidle' });
+      const shift = await browserPage.evaluate(() =>
+        (window as unknown as { docsLayoutShifts: number[] }).docsLayoutShifts.reduce(
+          (sum, value) => sum + value,
+          0,
+        ),
+      );
+      // Lighthouse counts a cumulative layout shift under 0.1 as good.
+      expect(shift).toBeLessThan(0.1);
+    });
+
+    for (const mode of ['light', 'dark'] as const) {
+      test(`passes axe checks in ${mode} mode`, async ({ page: browserPage }) => {
+        await browserPage.addInitScript((value) => {
+          localStorage.setItem('docs-color-mode', value);
+        }, mode);
+        await browserPage.goto(page.path ? `${page.path}/` : '');
+        await expect(browserPage.locator('html')).toHaveAttribute('data-bs-theme', mode);
+        await expect(browserPage.locator('h1').first()).toBeVisible();
+
+        await expectNoAxeViolations(browserPage);
+      });
+    }
+  });
+}
+
+test('loads the app for paths that are not prerendered', async ({ page }) => {
+  await page.goto('does-not-exist');
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator('h1').first()).toBeVisible();
+});
+
+test('navigates between pages from the sidebar', async ({ page }) => {
+  await page.goto('components/accordion/');
+  await page.locator('.docs-sidebar').getByRole('link', { name: 'Tooltip' }).click();
+  await expect(page).toHaveURL(/components\/tooltip\/$/);
+  await expect(page.locator('h1')).toHaveText('Tooltip');
+});
+
+test('page URLs end in a slash', async ({ page, request }) => {
+  const response = await request.get('components/alert', { maxRedirects: 0 });
+  expect(response.status()).toBe(301);
+  expect(response.headers()['location']).toBe('/components/alert/');
+
+  await page.goto('components/alert/');
+  const hrefs = await page
+    .locator('header a[href^="/"], .docs-sidebar a[href]')
+    .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''));
+  expect(hrefs.length).toBeGreaterThan(NAV.flatMap((section) => section.items).length);
+  for (const href of hrefs) {
+    expect(href).toMatch(/\/$/);
+  }
+  await expect(
+    page.getByRole('navigation', { name: 'On this page' }).getByRole('link').first(),
+  ).toHaveAttribute('href', /^\/components\/alert\/#/);
+});

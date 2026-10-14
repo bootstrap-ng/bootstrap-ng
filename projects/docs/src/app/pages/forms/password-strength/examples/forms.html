@@ -1,0 +1,12 @@
+<div bsFormField>
+  <label bsFormLabel>New password</label>
+  <input type="password" bsFormControl autocomplete="new-password" [formControl]="password" />
+  <div
+    bsStrength
+    #meter="bsStrength"
+    minLength="10"
+    [password]="password.value"
+    [messages]="messages"></div>
+  <span [bsStrengthText]="meter"></span>
+  <small bsFormText>Use at least 10 characters.</small>
+</div>

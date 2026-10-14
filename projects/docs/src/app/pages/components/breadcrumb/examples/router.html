@@ -1,0 +1,9 @@
+<nav bsBreadcrumb label="Docs breadcrumb" [items]="items">
+  <ng-template bsBreadcrumbLink let-item let-current="current">
+    @if (current) {
+      <span class="breadcrumb-link active">{{ item.label }}</span>
+    } @else {
+      <a class="breadcrumb-link" [routerLink]="item.href">{{ item.label }}</a>
+    }
+  </ng-template>
+</nav>

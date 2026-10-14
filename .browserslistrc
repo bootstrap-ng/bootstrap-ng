@@ -1,0 +1,17 @@
+# https://github.com/browserslist/browserslist#readme
+#
+# Angular's own default (Baseline Widely available), raised to Bootstrap 6's
+# minimum browsers from https://github.com/twbs/bootstrap/blob/main/.browserslistrc
+#
+# Bootstrap's file isn't copied as-is: its `last 2 major versions` and
+# `unreleased versions` queries add browsers Angular doesn't support (Opera,
+# Samsung Internet, Safari TP, unreleased Chrome), so every build warns.
+# Excluding older versions from Angular's list keeps every target inside both
+# support policies. Check with `npx browserslist` after any change.
+
+baseline widely available
+not Chrome < 130
+not Edge < 130
+not Firefox < 132
+not iOS < 18
+not Safari < 18

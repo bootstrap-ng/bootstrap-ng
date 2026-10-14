@@ -1,0 +1,16 @@
+<form class="vstack gap-3" novalidate (submit)="save($event)">
+  <div bsFormField>
+    <label bsFormLabel>Name</label>
+    <input bsFormControl [formField]="signup.name" autocomplete="name" />
+    <div bsInvalidFeedback>Please enter your name.</div>
+  </div>
+  <div bsFormField>
+    <label bsFormLabel>Email address</label>
+    <input type="email" bsFormControl [formField]="signup.email" autocomplete="email" />
+    <div bsInvalidFeedback>Please enter a valid email address.</div>
+  </div>
+  <button type="submit" bsButton theme="primary" class="align-self-start">Sign up</button>
+  @if (saved()) {
+    <p class="mb-0" role="status">Thanks for signing up!</p>
+  }
+</form>

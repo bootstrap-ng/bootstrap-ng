@@ -1,0 +1,9 @@
+<div class="vstack gap-3">
+  @for (variant of variants; track variant) {
+    <ul bsNav [variant]="variant" [attr.aria-label]="`${variant} nav`">
+      <li class="nav-item"><a bsNavLink active href="#">Active</a></li>
+      <li class="nav-item"><a bsNavLink href="#">Link</a></li>
+      <li class="nav-item"><a bsNavLink disabled>Disabled</a></li>
+    </ul>
+  }
+</div>

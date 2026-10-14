@@ -1,0 +1,13 @@
+<div class="vstack gap-2">
+  <button
+    type="button"
+    bsButton
+    theme="primary"
+    class="align-self-start"
+    bsToggler="bg-2"
+    [target]="[one, two]">
+    Toggle both
+  </button>
+  <div #one class="p-3 rounded border">First</div>
+  <div #two class="p-3 rounded border bg-2">Second, which starts with <code>bg-2</code></div>
+</div>

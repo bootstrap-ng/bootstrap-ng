@@ -1,0 +1,46 @@
+<form class="row g-3 align-items-start" bsValidate [formGroup]="form" (ngSubmit)="save()">
+  <div bsFormField class="md:col-4">
+    <label bsFormLabel>Name</label>
+    <input bsFormControl formControlName="name" autocomplete="name" />
+    <div bsInvalidFeedback>Full name is required.</div>
+  </div>
+  <div bsFormField class="md:col-5">
+    <label bsFormLabel>City</label>
+    <input bsFormControl formControlName="city" autocomplete="address-level2" />
+    <div bsInvalidFeedback>Please provide a city.</div>
+  </div>
+  <div bsFormField class="md:col-3">
+    <label bsFormLabel>Zip</label>
+    <input bsFormControl formControlName="zip" autocomplete="postal-code" />
+    <div bsInvalidFeedback>Enter 5 digits.</div>
+  </div>
+  <fieldset class="form-group col-12">
+    <legend class="form-label">Shipping method</legend>
+    <div bsFormField class="mb-1">
+      <input type="radio" bsRadio value="standard" formControlName="shipping" />
+      <div class="form-field-content">
+        <label bsLabel>Standard</label>
+        <small bsFormText>Arrives in 5-7 business days.</small>
+      </div>
+    </div>
+    <div bsFormField>
+      <input type="radio" bsRadio value="express" formControlName="shipping" />
+      <div class="form-field-content">
+        <label bsLabel>Express</label>
+        <small bsFormText>Arrives in 2-3 business days.</small>
+        <div bsInvalidFeedback>Please choose a shipping method.</div>
+      </div>
+    </div>
+  </fieldset>
+  <div bsFormField class="col-12">
+    <input type="checkbox" bsCheck formControlName="terms" />
+    <div class="form-field-content">
+      <label bsLabel>Agree to terms and conditions</label>
+      <div bsInvalidFeedback>You must agree before submitting.</div>
+    </div>
+  </div>
+  <div class="col-12 d-flex align-items-center gap-3">
+    <button type="submit" bsButton theme="primary">Submit form</button>
+    <span role="status">{{ message() }}</span>
+  </div>
+</form>

@@ -1,0 +1,14 @@
+<div bsFormField>
+  <label bsFormLabel>Volume: {{ volume.value }}</label>
+  <div bsRange>
+    <input type="range" bsRange [formControl]="volume" />
+  </div>
+</div>
+<button
+  type="button"
+  bsButton="subtle"
+  theme="secondary"
+  class="mt-3"
+  (click)="volume.setValue(100)">
+  Turn it up
+</button>

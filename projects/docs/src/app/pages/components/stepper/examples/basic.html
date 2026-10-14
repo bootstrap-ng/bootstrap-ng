@@ -1,0 +1,12 @@
+<ol bsStepper #stepper="bsStepper" [(step)]="step" horizontal>
+  <li bsStepperItem>Create account</li>
+  <li bsStepperItem>Confirm email</li>
+  <li bsStepperItem>Update profile</li>
+  <li bsStepperItem>Finish</li>
+</ol>
+<div class="hstack gap-2 mt-3">
+  <button type="button" bsButton="outline" theme="secondary" (click)="stepper.previous()">
+    Back
+  </button>
+  <button type="button" bsButton theme="primary" (click)="stepper.next()">Next</button>
+</div>

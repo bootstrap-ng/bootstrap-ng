@@ -1,0 +1,8 @@
+<form bsValidate="valid">
+  <div bsFormField>
+    <label bsFormLabel>Email address</label>
+    <input type="email" bsFormControl [formControl]="email" autocomplete="email" />
+    <div bsInvalidFeedback>Please enter a valid email address.</div>
+    <div bsValidFeedback>Looks good!</div>
+  </div>
+</form>

@@ -1,0 +1,14 @@
+<button type="button" bsButton theme="primary" [bsDrawerToggle]="basicDrawer">Open drawer</button>
+
+<dialog bsDrawer #basicDrawer="bsDrawer" aria-labelledby="basicDrawer-title">
+  <div class="drawer-header">
+    <h2 class="drawer-title h5" id="basicDrawer-title">Drawer</h2>
+    <button type="button" bsCloseButton bsDrawerClose></button>
+  </div>
+  <div class="drawer-body">
+    <p>
+      Some text as placeholder. In real life you can have the elements you have chosen, like text,
+      images and lists.
+    </p>
+  </div>
+</dialog>

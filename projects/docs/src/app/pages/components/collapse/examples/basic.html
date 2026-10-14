@@ -1,0 +1,11 @@
+<p class="d-flex gap-2">
+  <button type="button" bsButton theme="primary" [bsCollapseToggle]="details">
+    Toggle details
+  </button>
+</p>
+<div bsCollapse #details="bsCollapse">
+  <div class="card card-body">
+    Some placeholder content for the collapse component. This panel is hidden by default and
+    revealed when the user activates the toggle.
+  </div>
+</div>

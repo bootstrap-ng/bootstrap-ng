@@ -1,0 +1,88 @@
+<h1>Theming</h1>
+<p class="fs-lg fg-2">
+  Theme colors, light and dark color modes, and customizing Bootstrap in an Angular application.
+</p>
+
+<h2 class="mt-11" id="themes" docsHeading>Theme colors</h2>
+<p>
+  Bootstrap 6 colors a component with a <code>.theme-*</code> class. Components that support it have
+  a <code>theme</code> input that sets this class for you, and you can bind it like any other input:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="themeInput" language="angular-html" />
+<p>
+  The themes are <code>primary</code>, <code>accent</code>, <code>success</code>,
+  <code>danger</code>, <code>warning</code>, <code>info</code>, <code>inverse</code> and
+  <code>secondary</code>. Use the <code>BsTheme</code> type to pass a theme through your own
+  components:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="themeType" language="angular-ts" />
+
+<h2 class="mt-11" id="color-modes" docsHeading>Color modes</h2>
+<p>
+  Bootstrap 6 builds its colors with the CSS <code>light-dark()</code> function, so every page
+  follows the visitor's system setting for light or dark mode with no extra code. bootstrap-ng
+  components use Bootstrap's color tokens, so they switch with the page.
+</p>
+<p>
+  To force a mode for the whole application, set <code>data-bs-theme</code> on the
+  <code>&lt;html&gt;</code> element in <code>src/index.html</code>:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="forceMode" language="angular-html" />
+<p>Set it on any other element to force a mode for just that part of the page:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="scopedMode" language="angular-html" />
+<p>
+  Popups such as the <a routerLink="/forms/datepicker">datepicker</a> calendar open in the top
+  layer, outside the element they belong to. The datepicker's <code>colorMode</code> input forces a
+  mode for its calendar.
+</p>
+
+<h3 class="mt-9" id="switching" docsHeading>Switching modes</h3>
+<p>
+  To let people choose a mode, set the attribute from a component. Keep the choice in a signal and
+  write it to the document in an <code>effect()</code>:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="toggle" language="angular-ts" />
+<p>
+  If you save the choice, for example in <code>localStorage</code>, read it back before Angular
+  starts. Otherwise a server-rendered or prerendered page paints in the system mode first and then
+  flashes. A small inline script in <code>src/index.html</code> does this:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="inlineScript" language="angular-html" />
+<p>
+  The theme toggle on this site works this way. See
+  <a routerLink="/getting-started/server-rendering">Server-side rendering</a> for other code that
+  should only run in the browser.
+</p>
+
+<h2 class="mt-11" id="sass" docsHeading>Customize with Sass</h2>
+<p>
+  To change Bootstrap's design tokens at build time, import its Sass source in
+  <code>src/styles.scss</code> instead of adding the compiled CSS to <code>angular.json</code>. Pass
+  the tokens you want to change with <code>with ()</code>, and Bootstrap merges them with its
+  defaults:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="sass" language="scss" />
+<p>
+  The Angular CLI resolves <code>bootstrap/scss/bootstrap</code> from <code>node_modules</code>, so
+  no extra configuration is needed. To add a theme color of your own, pass a
+  <code>$theme-colors</code> map the same way. Bootstrap then generates a
+  <code>.theme-&lt;name&gt;</code> class, which you add to a component yourself because the
+  <code>theme</code> input only accepts the built-in names:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="customTheme" language="angular-html" />
+
+<h2 class="mt-11" id="css-variables" docsHeading>Customize with CSS variables</h2>
+<p>
+  Bootstrap outputs every token as a CSS variable with a <code>--bs-</code> prefix, so you can also
+  change them in plain CSS, with no Sass build. Set them on a component's class to change every
+  instance, or on one element:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="css" language="scss" />
+<p>
+  Bootstrap's own documentation lists every token:
+  <a href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/customize/theme/">Theme</a>,
+  <a href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/customize/color-modes/"
+    >Color modes</a
+  >
+  and <a href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/customize/sass/">Sass</a>.
+</p>

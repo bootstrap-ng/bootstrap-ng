@@ -1,0 +1,25 @@
+<div class="hstack gap-2 flex-wrap">
+  @for (p of placements; track p) {
+    <button
+      type="button"
+      bsButton="outline"
+      theme="primary"
+      (click)="placement.set(p); drawer.show()">
+      {{ p }}
+    </button>
+  }
+</div>
+
+<dialog
+  bsDrawer
+  #drawer="bsDrawer"
+  [placement]="placement()"
+  aria-labelledby="placement-drawer-title">
+  <div class="drawer-header">
+    <h2 class="drawer-title h5" id="placement-drawer-title">Placement: {{ placement() }}</h2>
+    <button type="button" bsCloseButton bsDrawerClose></button>
+  </div>
+  <div class="drawer-body">
+    <p>This drawer slides in from the {{ placement() }} edge.</p>
+  </div>
+</dialog>

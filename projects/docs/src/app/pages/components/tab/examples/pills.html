@@ -1,0 +1,12 @@
+<div class="d-flex align-items-start gap-4">
+  <div bsTabs #tabs="bsTabs" class="nav-pills nav-pills-vertical" vertical aria-label="Settings">
+    <button type="button" bsTab="general">General</button>
+    <button type="button" bsTab="security">Security</button>
+    <button type="button" bsTab="billing">Billing</button>
+  </div>
+  <div [bsTabContent]="tabs">
+    <div bsTabPane="general"><p>General settings.</p></div>
+    <div bsTabPane="security"><p>Security settings.</p></div>
+    <div bsTabPane="billing"><p>Billing settings.</p></div>
+  </div>
+</div>

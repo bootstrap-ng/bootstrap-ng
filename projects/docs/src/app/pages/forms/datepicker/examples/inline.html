@@ -1,0 +1,7 @@
+<div class="d-flex flex-wrap gap-5">
+  <div>
+    <div bsCalendar [(value)]="date"></div>
+    <p class="mt-3 mb-0 fg-3">Value: {{ date() ?? 'none' }}</p>
+  </div>
+  <div bsCalendar selectionMode="range" monthsCount="2" [(value)]="range"></div>
+</div>

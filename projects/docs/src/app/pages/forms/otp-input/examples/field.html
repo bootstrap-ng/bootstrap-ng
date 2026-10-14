@@ -1,0 +1,8 @@
+<div bsFormField>
+  <label bsFormLabel>Verification code</label>
+  <div bsOtp>
+    <input bsOtpInput maxlength="6" [formControl]="code" />
+  </div>
+  <small bsFormText>Enter the 6-digit code sent to your phone.</small>
+  <div bsInvalidFeedback>Enter all 6 digits.</div>
+</div>

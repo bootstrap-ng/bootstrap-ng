@@ -1,0 +1,50 @@
+<section class="text-center">
+  <span bsBadge variant="subtle" theme="primary" pill>Angular 22 · Bootstrap 6 alpha</span>
+  <h1 class="my-5 fs-4xl fw-bold lh-1 text-balance">
+    Bootstrap components, built for modern Angular
+  </h1>
+  <p class="docs-hero-lead fs-lg fg-2 mx-auto mb-9">
+    bootstrap-ng gives you native Angular components for Bootstrap 6. They use signals, standalone
+    imports and zoneless change detection. They render the same markup as Bootstrap, so its CSS and
+    theming work as documented.
+  </p>
+  <div class="d-flex flex-wrap justify-content-center gap-2">
+    <a bsButton theme="primary" routerLink="/getting-started">Get started</a>
+    <a bsButton="outline" theme="secondary" href="https://github.com/bootstrap-ng/bootstrap-ng">GitHub</a>
+  </div>
+  <div
+    class="d-flex md:d-inline-flex align-items-center gap-3 mt-9 py-2 ps-6 pe-2 border rounded-5 bg-1">
+    <pre class="flex-grow-1 min-w-0 text-start text-wrap mb-0"><code>{{ install }}</code></pre>
+    <docs-copy-button [text]="install" />
+  </div>
+</section>
+
+<section class="d-grid gap-9 mt-12 md:grid-cols-2 lg:grid-cols-4">
+  <div>
+    <h2 class="fs-lg fw-semibold">Signals first</h2>
+    <p class="fg-2">
+      Inputs, outputs and two-way bindings use the signal APIs. Every component is OnPush and works
+      without zone.js.
+    </p>
+  </div>
+  <div>
+    <h2 class="fs-lg fw-semibold">Real Bootstrap markup</h2>
+    <p class="fg-2">
+      Attribute selectors such as <code>&lt;div bsAlert&gt;</code> keep the DOM exactly as Bootstrap
+      expects. No wrapper elements break its CSS.
+    </p>
+  </div>
+  <div>
+    <h2 class="fs-lg fw-semibold">Platform native</h2>
+    <p class="fg-2">
+      Dialogs use <code>&lt;dialog&gt;</code> and accordions use <code>&lt;details&gt;</code>, like
+      Bootstrap 6. The browser does the hard work.
+    </p>
+  </div>
+  <div>
+    <h2 class="fs-lg fw-semibold">No Bootstrap JavaScript</h2>
+    <p class="fg-2">
+      Behavior is written in Angular, so there is no jQuery-era plugin layer and no DOM fighting.
+    </p>
+  </div>
+</section>

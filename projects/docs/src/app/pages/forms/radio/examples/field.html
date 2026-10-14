@@ -1,0 +1,12 @@
+<fieldset class="form-group">
+  <legend class="form-label">Size</legend>
+  @for (option of ['small', 'medium', 'large']; track option) {
+    <div bsFormField>
+      <input type="radio" bsRadio [value]="option" [formControl]="size" />
+      <label bsLabel class="text-capitalize">{{ option }}</label>
+    </div>
+  }
+</fieldset>
+<p class="mt-2 mb-0">
+  Value: <code>{{ size.value }}</code>
+</p>

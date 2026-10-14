@@ -1,0 +1,8 @@
+<div class="vstack gap-2">
+  @for (theme of themes; track theme) {
+    <div bsFormField>
+      <input type="radio" bsRadio [name]="`radio-${theme}`" [theme]="theme" checked />
+      <label bsLabel>Example {{ theme }} radio</label>
+    </div>
+  }
+</div>

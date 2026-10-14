@@ -1,0 +1,16 @@
+<div bsFormField>
+  <label bsFormLabel>Plan</label>
+  <button
+    type="button"
+    bsCombobox
+    placeholder="Choose a plan…"
+    [menu]="plans"
+    [formControl]="plan"></button>
+  <div bsComboboxMenu #plans="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="free">Free</button>
+    <button type="button" bsComboboxOption value="pro">Pro</button>
+    <button type="button" bsComboboxOption value="team">Team</button>
+  </div>
+  <small bsFormText>You can change plans at any time.</small>
+  <div bsInvalidFeedback>Please choose a plan.</div>
+</div>

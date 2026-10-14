@@ -1,0 +1,25 @@
+<form class="vstack gap-3" [formGroup]="form" (ngSubmit)="save()">
+  <div bsFormField>
+    <label bsFormLabel>Email address</label>
+    <input type="email" bsFormControl formControlName="email" autocomplete="email" />
+    <div bsFormText>We’ll never share your email with anyone else.</div>
+  </div>
+  <div bsFormField>
+    <label bsFormLabel>Password</label>
+    <input
+      type="password"
+      bsFormControl
+      formControlName="password"
+      autocomplete="current-password" />
+  </div>
+  <div bsFormField>
+    <input type="checkbox" bsCheck formControlName="remember" />
+    <label bsLabel>Check me out</label>
+  </div>
+  <button type="submit" bsButton theme="primary" class="align-self-start">Submit</button>
+</form>
+@if (submitted()) {
+  <p class="mt-3 mb-0" role="status">
+    Submitted: <code>{{ submitted() }}</code>
+  </p>
+}

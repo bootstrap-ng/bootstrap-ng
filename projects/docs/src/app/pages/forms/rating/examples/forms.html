@@ -1,0 +1,7 @@
+<div bsFormField>
+  <div class="form-label" id="service-rating-label">How was our service?</div>
+  <div bsRating aria-labelledby="service-rating-label" [formControl]="rating"></div>
+  <div bsInvalidFeedback>Pick a rating.</div>
+  <small bsFormText>Your feedback helps us improve.</small>
+</div>
+<p class="mt-3 mb-0 fg-3">Value: {{ rating.value ?? 'empty' }}</p>

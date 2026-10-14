@@ -1,0 +1,23 @@
+<div class="d-flex flex-wrap gap-3">
+  <button
+    type="button"
+    bsCombobox
+    disabled
+    placeholder="Disabled combobox"
+    aria-label="Disabled combobox"
+    [menu]="off"></button>
+  <div bsComboboxMenu #off="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="1">One</button>
+  </div>
+  <button
+    type="button"
+    bsCombobox
+    placeholder="Some options disabled"
+    aria-label="Combobox with disabled options"
+    [menu]="some"></button>
+  <div bsComboboxMenu #some="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="1">Available</button>
+    <button type="button" bsComboboxOption value="2" disabled>Sold out</button>
+    <button type="button" bsComboboxOption value="3">Available too</button>
+  </div>
+</div>

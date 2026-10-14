@@ -1,0 +1,46 @@
+<div bsCarousel aria-label="Carousel with indicators" [(active)]="slide">
+  <div class="carousel-inner">
+    <div bsCarouselItem>
+      <div
+        class="d-flex align-items-center justify-content-center rounded-5 bg-2"
+        style="height: 240px">
+        First slide
+      </div>
+    </div>
+    <div bsCarouselItem>
+      <div
+        class="d-flex align-items-center justify-content-center rounded-5 bg-3"
+        style="height: 240px">
+        Second slide
+      </div>
+    </div>
+    <div bsCarouselItem>
+      <div
+        class="d-flex align-items-center justify-content-center rounded-5 bg-2"
+        style="height: 240px">
+        Third slide
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mt-2">
+    <div>
+      <button type="button" class="btn-icon btn-sm" bsCarouselPrev>
+        <span class="carousel-icon-prev" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button type="button" class="btn-icon btn-sm" bsCarouselNext>
+        <span class="carousel-icon-next" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+    <div class="carousel-indicators">
+      @for (i of [0, 1, 2]; track i) {
+        <button
+          type="button"
+          [bsCarouselIndicator]="i"
+          [attr.aria-label]="`Slide ${i + 1}`"></button>
+      }
+    </div>
+  </div>
+</div>
+<p class="mt-2 mb-0">Active slide: {{ slide() + 1 }}</p>

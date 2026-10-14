@@ -1,0 +1,26 @@
+<button
+  type="button"
+  bsButton
+  theme="primary"
+  class="lg:d-none"
+  [bsDrawerToggle]="responsiveDrawer">
+  Toggle drawer
+</button>
+
+<dialog
+  bsDrawer
+  #responsiveDrawer="bsDrawer"
+  placement="end"
+  responsive="lg"
+  aria-labelledby="responsiveDrawer-title">
+  <div class="drawer-header">
+    <h2 class="drawer-title h5" id="responsiveDrawer-title">Responsive drawer</h2>
+    <button type="button" bsCloseButton bsDrawerClose></button>
+  </div>
+  <div class="drawer-body">
+    <p class="mb-0">
+      This is content within an <code>.lg:drawer</code>. Resize your browser to see it switch
+      between inline and drawer.
+    </p>
+  </div>
+</dialog>

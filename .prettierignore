@@ -1,0 +1,8 @@
+node_modules/
+CODEOWNERS
+
+*.css
+*.min.*
+*.md
+.cspell.json
+package.json

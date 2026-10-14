@@ -1,0 +1,14 @@
+<button
+  type="button"
+  bsButton
+  theme="primary"
+  [popoverTitle]="title"
+  [bsPopover]="body"
+  trigger="hover focus">
+  Hover or focus me
+</button>
+
+<ng-template #title>Profile <span class="badge theme-success">new</span></ng-template>
+<ng-template #body>
+  Popover content can be any <strong>template</strong>, with bindings: {{ count() }} views.
+</ng-template>

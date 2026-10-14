@@ -1,0 +1,78 @@
+<div class="d-flex flex-wrap gap-3">
+  <button
+    type="button"
+    bsCombobox
+    placeholder="Choose a language…"
+    aria-label="Language"
+    [menu]="languages"
+    [(value)]="language"></button>
+  <div bsComboboxMenu #languages="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="html">
+      <svg
+        class="menu-item-icon"
+        width="16"
+        height="16"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+        aria-hidden="true">
+        <path
+          d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
+      </svg>
+      <span>HTML</span>
+    </button>
+    <button type="button" bsComboboxOption value="css">
+      <svg
+        class="menu-item-icon"
+        width="16"
+        height="16"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+        aria-hidden="true">
+        <path
+          d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
+      </svg>
+      <span>CSS</span>
+    </button>
+    <button type="button" bsComboboxOption value="js">
+      <svg
+        class="menu-item-icon"
+        width="16"
+        height="16"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+        aria-hidden="true">
+        <path
+          d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
+      </svg>
+      <span>JavaScript</span>
+    </button>
+  </div>
+
+  <button
+    type="button"
+    bsCombobox
+    placeholder="Select a role…"
+    aria-label="Role"
+    [menu]="roles"
+    [(value)]="role"></button>
+  <div bsComboboxMenu check #roles="bsComboboxMenu">
+    <button type="button" bsComboboxOption value="admin">
+      <span class="menu-item-content">
+        <span>Admin</span>
+        <small class="menu-item-description">Full access to all resources</small>
+      </span>
+    </button>
+    <button type="button" bsComboboxOption value="editor">
+      <span class="menu-item-content">
+        <span>Editor</span>
+        <small class="menu-item-description">Can edit and publish content</small>
+      </span>
+    </button>
+    <button type="button" bsComboboxOption value="viewer">
+      <span class="menu-item-content">
+        <span>Viewer</span>
+        <small class="menu-item-description">Read-only access</small>
+      </span>
+    </button>
+  </div>
+</div>

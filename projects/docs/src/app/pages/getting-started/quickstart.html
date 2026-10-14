@@ -1,0 +1,50 @@
+<h1>Quickstart</h1>
+<p class="fs-lg fg-2">
+  Create a new Angular application with bootstrap-ng and build a small page with a dialog and a
+  toast.
+</p>
+
+<h2 class="mt-11" id="create" docsHeading>1. Create an application</h2>
+<p>
+  You need Node.js and npm. Create an application with the Angular CLI and choose Sass for styles:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="create" language="shellscript" />
+
+<h2 class="mt-11" id="install" docsHeading>2. Install bootstrap-ng and Bootstrap</h2>
+<p>
+  Bootstrap 6 is published under the <code>next</code> tag until its stable release. Floating UI
+  positions tooltips, popovers and menus.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="install" language="shellscript" />
+
+<h2 class="mt-11" id="styles" docsHeading>3. Add Bootstrap's styles</h2>
+<p>Import Bootstrap at the top of <code>src/styles.scss</code>:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="styles" language="scss" />
+<p>Do not add Bootstrap's JavaScript. bootstrap-ng implements all of its behavior in Angular.</p>
+
+<h2 class="mt-11" id="build" docsHeading>4. Build a page</h2>
+<p>Replace <code>src/app/app.ts</code> with a component that imports the parts it uses:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="app" language="angular-ts" />
+<p>And replace <code>src/app/app.html</code> with its template:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="html" language="angular-html" />
+<p>
+  The button opens a native <code>&lt;dialog&gt;</code>, which traps focus and closes with
+  <kbd>Escape</kbd>. Saving closes it and shows a toast through <code>BsToaster</code>.
+</p>
+
+<h2 class="mt-11" id="run" docsHeading>5. Run it</h2>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="serve" language="shellscript" />
+<p>Open <code>http://localhost:4200</code> and select <strong>Edit name</strong>.</p>
+
+<h2 class="mt-11" id="next" docsHeading>Next steps</h2>
+<ul>
+  <li>
+    Read the <a routerLink="/getting-started/conventions">conventions</a> that every component
+    follows.
+  </li>
+  <li>
+    Change colors and switch to dark mode in <a routerLink="/getting-started/theming">Theming</a>.
+  </li>
+  <li>Build forms with <a routerLink="/forms/overview">fields, controls and validation</a>.</li>
+  <li>Browse the components in the sidebar.</li>
+</ul>

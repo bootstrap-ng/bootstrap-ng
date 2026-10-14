@@ -1,0 +1,54 @@
+<h1>Introduction</h1>
+<p class="fs-lg fg-2">Add bootstrap-ng to an Angular application and use your first component.</p>
+
+<div bsAlert theme="warning">
+  <p>
+    bootstrap-ng targets <strong>Bootstrap 6</strong>, which is in alpha. Class names and markup can
+    change before the stable release. bootstrap-ng follows each Bootstrap 6 pre-release.
+  </p>
+</div>
+
+<h2 class="mt-11" id="requirements" docsHeading>Requirements</h2>
+<ul>
+  <li>Angular 22 or later</li>
+  <li>Bootstrap 6 CSS</li>
+</ul>
+<p>
+  bootstrap-ng does not use Bootstrap's JavaScript. Do not add <code>bootstrap.bundle.js</code> to
+  your application. It would handle the same elements twice.
+</p>
+
+<h2 class="mt-11" id="install" docsHeading>Install</h2>
+<docs-code
+  class="mb-5 rounded-5 bg-1"
+  code="npm install bootstrap-ng bootstrap@next @floating-ui/dom"
+  language="shellscript" />
+<p>
+  Bootstrap 6 is published under the <code>next</code> tag until its stable release, so a plain
+  <code>npm install bootstrap</code> would install Bootstrap 5.
+  <a href="https://floating-ui.com/">Floating UI</a> positions tooltips, popovers and menus, as it
+  does in Bootstrap.
+</p>
+
+<h2 class="mt-11" id="css" docsHeading>Add Bootstrap's CSS</h2>
+<p>Add the compiled CSS to the <code>styles</code> array in <code>angular.json</code>:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="angularJson" language="json" />
+<p>Or, to customize Bootstrap with Sass, import its source in your global stylesheet:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="sassImport" language="scss" />
+<p>
+  Or load it from the jsDelivr CDN in the <code>&lt;head&gt;</code> of <code>src/index.html</code>,
+  as this site does. Keep the version in step with the <code>bootstrap</code> package:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="cdnLink" language="angular-html" />
+
+<h2 class="mt-11" id="usage" docsHeading>Use a component</h2>
+<p>
+  Every component and directive is standalone. Import the ones you need into your component's
+  <code>imports</code>:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="usage" language="angular-ts" />
+<p>
+  Follow the <a routerLink="/getting-started/quickstart">Quickstart</a> to build a small page step
+  by step, or read the <a routerLink="/getting-started/conventions">conventions</a> to learn how the
+  API is designed, then browse the components in the sidebar.
+</p>

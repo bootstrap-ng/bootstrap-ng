@@ -1,0 +1,9 @@
+@if (visible()) {
+  <div bsAlert theme="warning" dismissible (closed)="visible.set(false)">
+    <p>Something’s wrong. Check the fields below and try again.</p>
+  </div>
+} @else {
+  <button type="button" bsButton="subtle" theme="secondary" (click)="visible.set(true)">
+    Show the alert again
+  </button>
+}

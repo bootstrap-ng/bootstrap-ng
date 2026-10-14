@@ -1,0 +1,52 @@
+---
+name: Publish
+
+# Publishes the library to npm when a GitHub release is published.
+# The release tag must match the version in projects/bootstrap-ng/package.json (e.g. v6.0.0-alpha0).
+# Prereleases go to the `next` dist-tag, stable versions to `latest`.
+# Authenticates with npm trusted publishing (OIDC), so no npm token is stored in the repository.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write # to authenticate with npm trusted publishing and sign provenance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false # no cache in release builds, to rule out cache poisoning
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build:lib
+      - name: Check the release tag matches the package version
+        run: |
+          version="$(node -p "require('./dist/bootstrap-ng/package.json').version")"
+          if [ "${TAG#v}" != "${version}" ]; then
+            echo "::error::Release tag ${TAG} does not match package version ${version}"
+            exit 1
+          fi
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+      - name: Publish to npm
+        working-directory: dist/bootstrap-ng
+        run: |
+          if [ "${PRERELEASE}" = "true" ]; then dist_tag=next; else dist_tag=latest; fi
+          npm publish --provenance --access public --tag "${dist_tag}"
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}

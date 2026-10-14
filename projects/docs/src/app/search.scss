@@ -1,0 +1,31 @@
+// The dialog width, the button's fixed width and hover state, and the result hover background
+// have no utility equivalents.
+.docs-search-dialog {
+  --bs-dialog-width: 36rem;
+}
+
+.docs-search-button {
+  padding: 0.375rem 0.375rem 0.375rem 0.75rem;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--bs-fg-3);
+    color: var(--bs-fg-body);
+  }
+}
+
+@media (width >= 768px) {
+  .docs-search-button {
+    width: 14rem;
+  }
+}
+
+.docs-search-results a {
+  color: inherit;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--bs-bg-2);
+  }
+}

@@ -1,0 +1,7 @@
+<div class="vstack gap-3">
+  @for (theme of themes; track theme) {
+    <div bsAlert [theme]="theme">
+      <p>A simple {{ theme }} alert with <a href="#" class="alert-link">an example link</a>.</p>
+    </div>
+  }
+</div>

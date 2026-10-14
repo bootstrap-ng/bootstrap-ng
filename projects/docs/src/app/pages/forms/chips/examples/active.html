@@ -1,0 +1,13 @@
+<div class="d-flex flex-wrap gap-2">
+  @for (filter of filters(); track filter.name) {
+    <button
+      type="button"
+      bsChip
+      theme="primary"
+      [active]="filter.active"
+      [attr.aria-pressed]="filter.active"
+      (click)="toggle(filter.name)">
+      {{ filter.name }}
+    </button>
+  }
+</div>

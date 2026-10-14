@@ -1,0 +1,21 @@
+<div class="d-flex flex-wrap gap-2">
+  <button type="button" bsButton theme="secondary" [bsMenuToggle]="up">Drop up</button>
+  <div bsMenu #up="bsMenu" placement="top-start">
+    <button type="button" class="menu-item">Action</button>
+    <button type="button" class="menu-item">Another action</button>
+  </div>
+
+  <button type="button" bsButton theme="secondary" [bsMenuToggle]="end">Aligned to end</button>
+  <div bsMenu #end="bsMenu" placement="bottom-end">
+    <button type="button" class="menu-item">Action</button>
+    <button type="button" class="menu-item">Another action</button>
+  </div>
+
+  <button type="button" bsButton theme="secondary" [bsMenuToggle]="outside">
+    Closes on outside click
+  </button>
+  <div bsMenu #outside="bsMenu" autoClose="outside">
+    <button type="button" class="menu-item">Clicking me keeps the menu open</button>
+    <button type="button" class="menu-item">So does this</button>
+  </div>
+</div>

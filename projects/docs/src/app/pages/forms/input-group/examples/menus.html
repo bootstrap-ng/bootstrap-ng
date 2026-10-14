@@ -1,0 +1,34 @@
+<div class="vstack gap-3">
+  <div bsInputGroup>
+    <button
+      type="button"
+      bsButton="outline"
+      theme="secondary"
+      class="input-group-btn"
+      [bsMenuToggle]="before">
+      Menu
+    </button>
+    <div bsMenu #before="bsMenu">
+      <button type="button" class="menu-item">Action</button>
+      <button type="button" class="menu-item">Another action</button>
+      <hr class="menu-divider" />
+      <button type="button" class="menu-item">Separated action</button>
+    </div>
+    <input bsFormControl aria-label="Text input with menu button" />
+  </div>
+  <div bsInputGroup>
+    <input bsFormControl aria-label="Text input with menu button at the end" />
+    <button
+      type="button"
+      bsButton="outline"
+      theme="secondary"
+      class="input-group-btn"
+      [bsMenuToggle]="after">
+      Menu
+    </button>
+    <div bsMenu #after="bsMenu" placement="bottom-end">
+      <button type="button" class="menu-item">Action</button>
+      <button type="button" class="menu-item">Another action</button>
+    </div>
+  </div>
+</div>

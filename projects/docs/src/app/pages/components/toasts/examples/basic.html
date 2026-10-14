@@ -1,0 +1,12 @@
+<button type="button" bsButton theme="primary" (click)="toast.show()">Show toast</button>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div bsToast #toast="bsToast">
+    <div class="toast-header">
+      <strong class="me-auto">bootstrap-ng</strong>
+      <small>just now</small>
+      <button type="button" bsCloseButton bsToastClose></button>
+    </div>
+    <div class="toast-body">Hello, world! This is a toast message.</div>
+  </div>
+</div>

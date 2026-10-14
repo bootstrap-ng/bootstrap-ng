@@ -1,0 +1,24 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.fixAll.stylelint": "always"
+  },
+  "[markdown]": {
+    "editor.formatOnSave": false
+  },
+  "eslint.validate": ["javascript", "typescript", "html"],
+  "markdownlint.configFile": ".markdown-lint.yml",
+  "files.exclude": {
+    "**/.angular": true
+  },
+  "search.exclude": {
+    "**/.angular": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/playwright-report": true,
+    "**/test-results": true,
+    "package-lock.json": true
+  }
+}

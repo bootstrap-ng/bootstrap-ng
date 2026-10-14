@@ -1,0 +1,16 @@
+<button
+  type="button"
+  bsCombobox
+  multiple
+  placeholder="Select skills…"
+  aria-label="Skills"
+  [menu]="skillMenu"
+  [(value)]="skills"></button>
+<div bsComboboxMenu #skillMenu="bsComboboxMenu">
+  <button type="button" bsComboboxOption value="html">HTML</button>
+  <button type="button" bsComboboxOption value="css">CSS</button>
+  <button type="button" bsComboboxOption value="js">JavaScript</button>
+  <button type="button" bsComboboxOption value="ts">TypeScript</button>
+  <button type="button" bsComboboxOption value="angular">Angular</button>
+</div>
+<p class="mt-3 mb-0 fg-3">Value: {{ skills() }}</p>

@@ -1,0 +1,39 @@
+{
+  "version": "0.2",
+  "words": [
+    "christianoliff",
+    "CODEOWNERS",
+    "coliff",
+    "COMMITLINT",
+    "Cpath",
+    "Csvg",
+    "Datepicker",
+    "davidanson",
+    "dbaeumer",
+    "esbenp",
+    "GITLEAKS",
+    "htmlhint",
+    "llms",
+    "nvmrc",
+    "Oliff",
+    "ossf",
+    "packagr",
+    "prerendered",
+    "sarif",
+    "Scrollspy",
+    "shiki",
+    "specialchars",
+    "stylelint",
+    "tagname",
+    "twbs",
+    "TYPELESS",
+    "WCAG",
+    "ZIZMOR"
+  ],
+  "language": "en,en-US",
+  "ignorePaths": [
+    ".cspell.json",
+    "**/node_modules/**"
+  ],
+  "useGitignore": true
+}

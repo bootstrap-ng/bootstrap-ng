@@ -1,0 +1,22 @@
+// The sticky offset under the header, the link padding (between `py-0` and `py-1`) and the
+// left-border marker on the current section have no utility equivalents.
+.docs-toc {
+  inset-block-start: 3.5rem;
+  max-height: calc(100vh - 3.5rem);
+}
+
+a {
+  padding-block: 0.125rem;
+  margin-inline-start: -1px;
+  border-inline-start: 2px solid transparent;
+  color: var(--bs-fg-2);
+
+  &:hover,
+  &.active {
+    color: var(--bs-fg-body);
+  }
+
+  &.active {
+    border-inline-start-color: currentcolor;
+  }
+}

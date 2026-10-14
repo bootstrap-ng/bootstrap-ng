@@ -1,0 +1,21 @@
+<div class="d-flex flex-wrap gap-2">
+  <span bsChip>Basic chip</span>
+  <span bsChip>
+    <span class="chip-icon">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+      </svg>
+    </span>
+    With icon
+  </span>
+  @if (!dismissed()) {
+    <span bsChip>
+      Dismissible
+      <button
+        type="button"
+        bsChipDismiss
+        aria-label="Remove Dismissible"
+        (click)="dismissed.set(true)"></button>
+    </span>
+  }
+</div>

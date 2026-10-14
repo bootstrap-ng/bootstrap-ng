@@ -1,0 +1,10 @@
+<div class="vstack gap-2">
+  @for (theme of themes; track theme) {
+    <div bsFormField>
+      <div bsSwitch [theme]="theme">
+        <input type="checkbox" bsSwitch checked />
+      </div>
+      <label bsLabel>Example {{ theme }} switch</label>
+    </div>
+  }
+</div>

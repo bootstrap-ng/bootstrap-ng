@@ -1,0 +1,34 @@
+<nav class="navbar md:navbar-expand bg-1" aria-label="Example">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button
+      type="button"
+      class="btn-icon navbar-toggler"
+      aria-label="Toggle navigation"
+      [bsDrawerToggle]="navDrawer">
+      <span class="navbar-toggler-icon" aria-hidden="true"></span>
+    </button>
+    <dialog bsDrawer #navDrawer="bsDrawer" placement="end" aria-labelledby="navbar-drawer-title">
+      <div class="drawer-header">
+        <h2 class="drawer-title h5" id="navbar-drawer-title">Menu</h2>
+        <button type="button" bsCloseButton bsDrawerClose></button>
+      </div>
+      <div class="drawer-body">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+          </li>
+        </ul>
+      </div>
+    </dialog>
+  </div>
+</nav>

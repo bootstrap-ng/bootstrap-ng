@@ -1,0 +1,16 @@
+<form class="vstack gap-3" bsValidate="valid" [formGroup]="form">
+  <div bsFormField>
+    <label bsFormLabel>Email address</label>
+    <input type="email" bsFormControl formControlName="email" autocomplete="email" />
+    <div bsInvalidFeedback>Please enter a valid email address.</div>
+    <div bsValidFeedback>Looks good!</div>
+  </div>
+  <div bsFormField>
+    <input type="checkbox" bsCheck formControlName="terms" />
+    <div class="form-field-content">
+      <label bsLabel>Agree to terms and conditions</label>
+      <div bsInvalidFeedback>You must agree before submitting.</div>
+    </div>
+  </div>
+  <button type="submit" bsButton theme="primary" class="align-self-start">Submit</button>
+</form>

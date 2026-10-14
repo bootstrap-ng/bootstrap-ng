@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    open-pull-requests-limit: 1
+
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Bootstrap 6 is installed from a pinned twbs/bootstrap commit
+      - dependency-name: bootstrap
+      # Pinned to match the preinstalled Chromium build
+      - dependency-name: playwright
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: '@playwright/test'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+    open-pull-requests-limit: 1

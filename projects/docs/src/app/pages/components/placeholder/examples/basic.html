@@ -1,0 +1,21 @@
+<div class="card" style="width: 18rem">
+  <div class="card-body">
+    @if (loading()) {
+      <div aria-hidden="true" class="placeholder-glow">
+        <h3 class="card-title h5"><span bsPlaceholder [width]="6"></span></h3>
+        <p class="card-text">
+          <span bsPlaceholder [width]="7"></span>
+          <span bsPlaceholder [width]="4"></span>
+          <span bsPlaceholder [width]="4"></span>
+          <span bsPlaceholder [width]="6"></span>
+        </p>
+      </div>
+    } @else {
+      <h3 class="card-title h5">Card title</h3>
+      <p class="card-text">Some quick example text to build on the card title.</p>
+    }
+    <button type="button" bsButton theme="primary" (click)="loading.set(!loading())">
+      {{ loading() ? 'Show content' : 'Show placeholder' }}
+    </button>
+  </div>
+</div>

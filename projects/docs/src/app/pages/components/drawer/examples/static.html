@@ -1,0 +1,13 @@
+<button type="button" bsButton theme="primary" [bsDrawerToggle]="staticDrawer">
+  Toggle static drawer
+</button>
+
+<dialog bsDrawer #staticDrawer="bsDrawer" backdrop="static" aria-labelledby="staticDrawer-title">
+  <div class="drawer-header">
+    <h2 class="drawer-title h5" id="staticDrawer-title">Drawer</h2>
+    <button type="button" bsCloseButton bsDrawerClose></button>
+  </div>
+  <div class="drawer-body">
+    <p>I will not close if you click outside of me.</p>
+  </div>
+</dialog>

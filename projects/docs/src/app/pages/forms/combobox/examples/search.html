@@ -1,0 +1,23 @@
+<button
+  type="button"
+  bsCombobox
+  placeholder="Select a country…"
+  aria-label="Country"
+  [menu]="countries"
+  [(value)]="country"></button>
+<div bsComboboxMenu #countries="bsComboboxMenu">
+  <div class="combobox-search">
+    <input bsComboboxSearch placeholder="Search…" aria-label="Search countries" />
+  </div>
+  <button type="button" bsComboboxOption value="us">United States</button>
+  <button type="button" bsComboboxOption value="uk">United Kingdom</button>
+  <button type="button" bsComboboxOption value="ca">Canada</button>
+  <button type="button" bsComboboxOption value="au">Australia</button>
+  <button type="button" bsComboboxOption value="de">Germany</button>
+  <button type="button" bsComboboxOption value="fr">France</button>
+  <button type="button" bsComboboxOption value="jp">Japan</button>
+  <button type="button" bsComboboxOption value="br">Brazil</button>
+  <button type="button" bsComboboxOption value="in">India</button>
+  <button type="button" bsComboboxOption value="mx">Mexico</button>
+  <div bsComboboxNoResults>No results found</div>
+</div>

@@ -1,0 +1,27 @@
+<button type="button" bsButton theme="secondary" [bsMenuToggle]="menu">File</button>
+<div bsMenu #menu="bsMenu">
+  <button type="button" class="menu-item">New</button>
+  <div bsSubmenu>
+    <button type="button" class="menu-item">Open recent</button>
+    <div class="menu">
+      <button type="button" class="menu-item">report.pdf</button>
+      <button type="button" class="menu-item">budget.xlsx</button>
+      <div bsSubmenu>
+        <button type="button" class="menu-item">More</button>
+        <div class="menu">
+          <button type="button" class="menu-item">notes.txt</button>
+          <button type="button" class="menu-item">todo.md</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div bsSubmenu>
+    <button type="button" class="menu-item">Export as</button>
+    <div class="menu">
+      <button type="button" class="menu-item">PDF</button>
+      <button type="button" class="menu-item">HTML</button>
+    </div>
+  </div>
+  <hr class="menu-divider" />
+  <button type="button" class="menu-item">Close</button>
+</div>

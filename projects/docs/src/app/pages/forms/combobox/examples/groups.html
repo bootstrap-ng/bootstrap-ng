@@ -1,0 +1,17 @@
+<button
+  type="button"
+  bsCombobox
+  placeholder="Select a language…"
+  aria-label="Programming language"
+  [menu]="languages"
+  [(value)]="language"></button>
+<div bsComboboxMenu #languages="bsComboboxMenu">
+  <div class="menu-header" role="presentation">Frontend</div>
+  <button type="button" bsComboboxOption value="html">HTML</button>
+  <button type="button" bsComboboxOption value="css">CSS</button>
+  <button type="button" bsComboboxOption value="js">JavaScript</button>
+  <div class="menu-header" role="presentation">Backend</div>
+  <button type="button" bsComboboxOption value="python">Python</button>
+  <button type="button" bsComboboxOption value="ruby">Ruby</button>
+  <button type="button" bsComboboxOption value="go">Go</button>
+</div>

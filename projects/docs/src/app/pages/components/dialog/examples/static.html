@@ -1,0 +1,19 @@
+<button type="button" bsButton theme="primary" (click)="dialog.show()">Open static dialog</button>
+
+<dialog
+  bsDialog
+  #dialog="bsDialog"
+  backdrop="static"
+  [keyboard]="false"
+  aria-labelledby="static-dialog-title">
+  <div class="dialog-header">
+    <h1 class="dialog-title" id="static-dialog-title">Static backdrop</h1>
+    <button bsCloseButton bsDialogClose></button>
+  </div>
+  <div class="dialog-body">
+    <p>I do not close when you click outside me or press Escape.</p>
+  </div>
+  <div class="dialog-footer">
+    <button type="button" bsButton theme="secondary" bsDialogClose>Close</button>
+  </div>
+</dialog>

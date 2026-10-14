@@ -1,0 +1,13 @@
+<button type="button" bsButton theme="primary" (click)="add()">Add a toast</button>
+
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  @for (message of messages(); track message.id) {
+    <div bsToast open [delay]="4000" (hidden)="remove(message.id)">
+      <div class="toast-header">
+        <strong class="me-auto">Notification #{{ message.id }}</strong>
+        <button type="button" bsCloseButton bsToastClose></button>
+      </div>
+      <div class="toast-body">{{ message.text }}</div>
+    </div>
+  }
+</div>

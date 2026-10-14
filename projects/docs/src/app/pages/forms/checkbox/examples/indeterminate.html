@@ -1,0 +1,23 @@
+<div bsFormField>
+  <input
+    #allBox
+    type="checkbox"
+    bsCheck
+    [checked]="all()"
+    [indeterminate]="some()"
+    (change)="setAll(allBox.checked)" />
+  <label bsLabel>All toppings</label>
+</div>
+<div class="vstack gap-2 ms-4 mt-2">
+  @for (topping of toppings(); track topping.name) {
+    <div bsFormField>
+      <input
+        #box
+        type="checkbox"
+        bsCheck
+        [checked]="topping.checked"
+        (change)="set($index, box.checked)" />
+      <label bsLabel>{{ topping.name }}</label>
+    </div>
+  }
+</div>

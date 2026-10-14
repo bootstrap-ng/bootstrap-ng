@@ -1,0 +1,56 @@
+<h1>Server-side rendering</h1>
+<p class="fs-lg fg-2">
+  Use bootstrap-ng with server-side rendering, prerendering, hydration and zoneless change
+  detection.
+</p>
+
+<h2 class="mt-11" id="ssr" docsHeading>Server-side rendering and prerendering</h2>
+<p>
+  bootstrap-ng works with Angular's server-side rendering and build-time prerendering. Add them to
+  an application with the Angular CLI:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="addSsr" language="shellscript" />
+<p>
+  Components render Bootstrap's markup, classes and ARIA attributes on the server, so the page is
+  styled and readable before JavaScript loads. Work that needs a browser, such as measuring
+  elements, positioning popups, opening a <code>&lt;dialog&gt;</code>, moving focus or starting a
+  carousel, runs in <code>afterNextRender()</code> or <code>afterRenderEffect()</code>, which
+  Angular skips on the server.
+</p>
+<p>
+  So anything that needs the browser, such as a modal dialog's backdrop and focus trap, starts once
+  the page hydrates.
+</p>
+
+<h2 class="mt-11" id="hydration" docsHeading>Hydration</h2>
+<p>
+  bootstrap-ng supports full hydration and needs no <code>ngSkipHydration</code>. Enable it with
+  event replay, so that clicks made before the page hydrates are not lost:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="hydration" language="angular-ts" />
+<p>
+  This site prerenders every page and hydrates it with this configuration, so each component page is
+  a working example.
+</p>
+
+<h2 class="mt-11" id="browser-only" docsHeading>Browser-only code in your application</h2>
+<p>
+  <code>BsToaster</code> and <code>BsLiveAnnouncer</code> add elements to the document body. Call
+  them from event handlers, or wrap calls that run on load in <code>afterNextRender()</code>, so
+  they don't run on the server:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="browserOnly" language="angular-ts" />
+<p>
+  The same applies to your own use of <code>localStorage</code>, <code>matchMedia</code> or
+  <code>window</code>, for example when you save the color mode. See
+  <a routerLink="/getting-started/theming" fragment="switching">Switching modes</a> for how to apply
+  a saved mode before a prerendered page paints.
+</p>
+
+<h2 class="mt-11" id="zoneless" docsHeading>Zoneless change detection</h2>
+<p>
+  bootstrap-ng does not need <code>zone.js</code>. Components keep their state in signals, so they
+  update with zoneless change detection, which is the default for new Angular applications. The
+  library's tests and this site run without <code>zone.js</code>. Applications that still use
+  <code>zone.js</code> work as well.
+</p>

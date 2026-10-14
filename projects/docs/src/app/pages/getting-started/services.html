@@ -1,0 +1,66 @@
+<h1>Services and helpers</h1>
+<p class="fs-lg fg-2">
+  The services, functions and types that bootstrap-ng exports besides its components.
+</p>
+
+<h2 class="mt-11" id="toaster" docsHeading>BsToaster</h2>
+<p>
+  Shows toasts from code, without a toast in your template. The toasts stack in a fixed
+  <code>.toast-container</code> that is added to the page the first time a toast is shown.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="toaster" language="angular-ts" />
+<docs-api-table [entries]="toasterMethods" [showDefault]="false" label="BsToaster methods" />
+<p>
+  See <a routerLink="/components/toasts" fragment="service">Toasts</a> for every option, themes and
+  templates with actions.
+</p>
+
+<h2 class="mt-11" id="live-announcer" docsHeading>BsLiveAnnouncer</h2>
+<p>
+  Reads a message out to screen reader users through visually hidden live regions that stay on the
+  page. Use it for changes that happen without moving focus, such as search results updating. Toasts
+  and the carousel already announce through it.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="announcer" language="angular-ts" />
+<docs-api-table
+  [entries]="announcerMethods"
+  [showDefault]="false"
+  label="BsLiveAnnouncer methods" />
+<p>
+  See <a routerLink="/getting-started/accessibility" fragment="announcements">Accessibility</a> for
+  why a region that stays on the page is announced more reliably than one added with its text.
+</p>
+
+<h2 class="mt-11" id="icon-registry" docsHeading>BsIconRegistry</h2>
+<p>
+  The icon libraries that <code>bs-icon</code> loads from, and a cache of the icons it has loaded.
+  <code>bootstrap</code> (the default), <code>modus</code>, <code>font-awesome</code> and
+  <code>material</code> are built in and load from jsDelivr. Set the default library and add your
+  own with <code>provideBsIcons()</code>, or self-host a built-in set by passing a
+  <code>baseUrl</code> to its factory, such as <code>bootstrapIcons()</code>,
+  <code>modusIcons()</code>, <code>fontAwesomeIcons()</code> or <code>materialSymbols()</code>.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="icons" language="angular-ts" />
+<docs-api-table [entries]="iconMethods" [showDefault]="false" label="BsIconRegistry methods" />
+<p>See <a routerLink="/components/icon">Icon</a> for every built-in library and its variants.</p>
+
+<h2 class="mt-11" id="helpers" docsHeading>Helper functions</h2>
+<p>
+  bootstrap-ng uses these internally. They are exported for components that you build on top of it.
+</p>
+<docs-api-table [entries]="helpers" [showDefault]="false" label="Helper functions" />
+<p>
+  For example, to emit an event after a fade-out finishes, as bootstrap-ng's own
+  <code>hidden</code> and <code>closed</code> outputs do:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="transition" language="angular-ts" />
+
+<h2 class="mt-11" id="types" docsHeading>Types</h2>
+<docs-api-table [entries]="types" [showDefault]="false" label="Types" />
+
+<h2 class="mt-11" id="bootstrap-ng" docsHeading>BOOTSTRAP_NG</h2>
+<p>
+  An array of every component and directive, to add to a component's <code>imports</code> while
+  prototyping. Import single components in production code so unused ones are removed from your
+  bundle. See <a routerLink="/getting-started/conventions" fragment="imports">Conventions</a>.
+</p>
