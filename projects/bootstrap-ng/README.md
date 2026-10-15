@@ -1,5 +1,8 @@
 # bootstrap-ng
 
+[![npm version](https://img.shields.io/npm/v/bootstrap-ng/next.svg)](https://www.npmjs.com/package/bootstrap-ng)
+[![npm downloads](https://img.shields.io/npm/dm/bootstrap-ng.svg)](https://www.npmjs.com/package/bootstrap-ng)
+
 Angular components for [Bootstrap 6](https://bootstrap-ng.com/), built for modern Angular.
 
 **Docs:** <https://bootstrap-ng.com/>

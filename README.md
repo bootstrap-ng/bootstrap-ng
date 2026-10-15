@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/ci.yml/badge.svg)](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/ci.yml)
 [![Super Linter](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/super-linter.yml/badge.svg)](https://github.com/bootstrap-ng/bootstrap-ng/actions/workflows/super-linter.yml)
+[![npm version](https://img.shields.io/npm/v/bootstrap-ng/next.svg)](https://www.npmjs.com/package/bootstrap-ng)
+[![npm downloads](https://img.shields.io/npm/dm/bootstrap-ng.svg)](https://www.npmjs.com/package/bootstrap-ng)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Angular components for [Bootstrap 6](https://bootstrap-ng.com/), built for modern Angular.
