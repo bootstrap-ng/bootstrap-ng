@@ -107,7 +107,8 @@ const SIZES: Record<BsRatingSize, string> = { sm: 'fs-md', md: 'fs-xl', lg: 'fs-
                 stroke="currentColor"
                 stroke-width="1.5"
                 stroke-linejoin="round"
-                aria-hidden="true">
+                aria-hidden="true"
+                class="flex-shrink-0">
                 <polygon [attr.points]="star" />
               </svg>
             </span>

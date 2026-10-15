@@ -201,6 +201,17 @@ test('filled rating stars line up with the empty ones', async ({ page }) => {
   expect(filled?.y).toBeCloseTo(empty?.y ?? Number.NaN, 1);
 });
 
+test('a half rating star shows half of a full-size star', async ({ page }) => {
+  await page.goto('forms/rating/');
+  const star = example(page, 'half-stars').getByRole('slider').locator('> span').nth(2);
+  const empty = await star.locator('> svg').boundingBox();
+  const clip = await star.locator('> span').boundingBox();
+  const filled = await star.locator('> span > svg').boundingBox();
+  expect(filled?.width).toBeCloseTo(empty?.width ?? Number.NaN, 1);
+  expect(filled?.height).toBeCloseTo(empty?.height ?? Number.NaN, 1);
+  expect(clip?.width).toBeCloseTo((empty?.width ?? Number.NaN) / 2, 1);
+});
+
 test('a file dropzone lists picked files and rejects ones over its limits', async ({ page }) => {
   await page.goto('forms/file-dropzone/');
   const basic = example(page, 'how-it-works');
