@@ -4,7 +4,7 @@
 
 <header class="navbar-translucent sticky-top border-bottom">
   <!-- From md up, three equal columns keep the search centered, like Bootstrap's docs. -->
-  <div class="container d-flex md:d-grid md:grid-cols-3 align-items-center gap-2 md:gap-5 py-4">
+  <div class="2xl:container d-flex md:d-grid md:grid-cols-3 align-items-center gap-2 md:gap-5 py-4">
     <div class="d-flex align-items-center gap-2 md:gap-3">
       @if (!isHome()) {
         <button
@@ -74,7 +74,7 @@
     <router-outlet />
   </main>
 } @else {
-  <div class="docs-layout container">
+  <div class="docs-layout 2xl:container">
     <aside
       id="docs-sidebar"
       class="docs-sidebar md:d-block py-5 fs-sm overflow-auto"
