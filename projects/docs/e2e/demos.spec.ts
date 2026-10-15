@@ -339,6 +339,9 @@ test('a table sorts, searches and pages', async ({ page }) => {
   await expect(name).toHaveAttribute('aria-sort', 'ascending');
   await name.getByRole('button').click();
   await expect(name).toHaveAttribute('aria-sort', 'descending');
+  await expect(page.locator('body > [aria-live="polite"]')).toHaveText(
+    'Sorted by Name, descending',
+  );
 
   const paging = example(page, 'search-and-pagination');
   await expect(paging.locator('tbody tr')).toHaveCount(8);

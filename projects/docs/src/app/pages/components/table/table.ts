@@ -76,7 +76,7 @@ const PAGE: DocsPageData = {
       id: 'sorting',
       title: 'Sorting',
       description:
-        'Mark columns <code>sortable</code> to put a sort button in their header. Each click cycles through ascending, descending and unsorted, and the header gets <code>aria-sort</code>. Bind the state with <code>[(sort)]</code>. Numbers, dates and text (with natural number order) sort as you’d expect and empty values go last; set a column’s <code>compare</code> for anything else.',
+        'Mark columns <code>sortable</code> to put a sort button in their header. Each click cycles through ascending, descending and unsorted, the header gets <code>aria-sort</code>, and screen readers announce the new order (change the message with <code>sortAnnouncement</code>). Bind the state with <code>[(sort)]</code>. Numbers, dates and text (with natural number order) sort as you’d expect and empty values go last; set a column’s <code>compare</code> for anything else.',
       example: TableSortingExample,
       html: sortingHtml,
       ts: sortingTs,
@@ -364,6 +364,12 @@ const PAGE: DocsPageData = {
           default: "'Resize'",
           description: "Start of each resize handle's label, followed by the column header.",
         },
+        {
+          name: 'sortAnnouncement',
+          type: '(header: string, direction: BsSortDirection | null) => string',
+          default: "'Sorted by Name, ascending' / 'Not sorted'",
+          description: "Message announced after a sort button is used. Return '' to stay silent.",
+        },
       ],
       outputs: [
         {
@@ -441,7 +447,8 @@ const PAGE: DocsPageData = {
         {
           name: 'toggleSort(column)',
           type: 'void',
-          description: 'Cycles a column through ascending, descending and unsorted.',
+          description:
+            'Cycles a column through ascending, descending and unsorted, and announces the new sort.',
         },
         {
           name: 'moveColumn(key, index)',

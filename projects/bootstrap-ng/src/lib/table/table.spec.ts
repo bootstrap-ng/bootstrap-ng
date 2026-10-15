@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { BsLiveAnnouncer } from '../util/announcer';
 import {
   BsTable,
   BsTableCell,
@@ -132,6 +133,7 @@ describe('BsTable', () => {
 
   it('sorts ascending, descending and back on header clicks', async () => {
     const { fixture, host, table, names } = await setup();
+    const announce = vi.spyOn(TestBed.inject(BsLiveAnnouncer), 'announce');
     host.page.set(2);
     await fixture.whenStable();
     const button = table.querySelector<HTMLButtonElement>('th button')!;
@@ -144,16 +146,25 @@ describe('BsTable', () => {
     expect(host.page()).toBe(1);
     expect(th.getAttribute('aria-sort')).toBe('ascending');
     expect(names()).toEqual(['alice', 'Bob', 'Carol', 'Dave', 'Eve']);
+    expect(announce).toHaveBeenLastCalledWith('Sorted by Name, ascending');
+    // The icon is decorative: the button is named by the header alone.
+    expect(button.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
+    expect(button.textContent.trim()).toBe('Name');
+    // WCAG 2.5.8 minimum target size.
+    expect(button.getBoundingClientRect().height).toBeGreaterThanOrEqual(24);
 
     button.click();
     await fixture.whenStable();
     expect(th.getAttribute('aria-sort')).toBe('descending');
     expect(names()).toEqual(['Eve', 'Dave', 'Carol', 'Bob', 'alice']);
+    expect(announce).toHaveBeenLastCalledWith('Sorted by Name, descending');
 
     button.click();
     await fixture.whenStable();
     expect(host.sort()).toBeNull();
+    expect(th.hasAttribute('aria-sort')).toBe(false);
     expect(names()).toEqual(['Carol', 'alice', 'Bob', 'Dave', 'Eve']);
+    expect(announce).toHaveBeenLastCalledWith('Not sorted');
   });
 
   it('sorts numbers and dates, with empty values last', async () => {
