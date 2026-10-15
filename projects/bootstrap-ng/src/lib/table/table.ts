@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 import { BsCheck, BsRadio } from '../forms/check';
 import { BsSpinner } from '../spinner/spinner';
+import { BsLiveAnnouncer } from '../util/announcer';
 import { uniqueId } from '../util/id';
 import { BsTheme, themeClass } from '../util/theme';
 
@@ -188,6 +189,7 @@ function compareValues(a: unknown, b: unknown): number {
       display: inline-flex;
       gap: 0.25rem;
       align-items: center;
+      min-block-size: 1.5rem;
       padding: 0;
       font: inherit;
       color: inherit;
@@ -403,6 +405,7 @@ function compareValues(a: unknown, b: unknown): number {
 })
 export class BsTable<T> {
   private readonly element = inject<ElementRef<HTMLTableElement>>(ElementRef).nativeElement;
+  private readonly announcer = inject(BsLiveAnnouncer);
 
   protected readonly id = uniqueId('bs-table');
   protected readonly defaultMinWidth = 48;
@@ -486,6 +489,16 @@ export class BsTable<T> {
   readonly expandLabel = input('Show details');
   /** Start of each resize handle's accessible label, followed by the column header. */
   readonly resizeLabel = input('Resize');
+  /**
+   * Message screen readers announce after a sort button changes the sort, given the
+   * column header and the new direction (`null` when unsorted). Return `''` to stay silent.
+   */
+  readonly sortAnnouncement = input<(header: string, direction: BsSortDirection | null) => string>(
+    (header, direction) =>
+      direction
+        ? `Sorted by ${header}, ${direction === 'asc' ? 'ascending' : 'descending'}`
+        : 'Not sorted',
+  );
 
   private readonly cells = contentChildren<BsTableCell<T>>(BsTableCell);
   protected readonly detail = contentChild<BsTableDetail<T>>(BsTableDetail);
@@ -685,17 +698,19 @@ export class BsTable<T> {
     );
   }
 
-  /** Cycles a sortable column through ascending, descending and unsorted, and goes to page 1. */
+  /**
+   * Cycles a sortable column through ascending, descending and unsorted, goes to page 1
+   * and announces the new sort to screen readers.
+   */
   toggleSort(column: BsTableColumn<T>): void {
-    const direction = this.sortOf(column);
-    this.sort.set(
-      direction === 'asc'
-        ? { key: column.key, direction: 'desc' }
-        : direction === 'desc'
-          ? null
-          : { key: column.key, direction: 'asc' },
-    );
+    const current = this.sortOf(column);
+    const direction = current === 'asc' ? 'desc' : current === 'desc' ? null : 'asc';
+    this.sort.set(direction && { key: column.key, direction });
     this.page.set(1);
+    const message = this.sortAnnouncement()(column.header, direction);
+    if (message) {
+      this.announcer.announce(message);
+    }
   }
 
   /** Moves the column with `key` to `index` in `columns`. */
