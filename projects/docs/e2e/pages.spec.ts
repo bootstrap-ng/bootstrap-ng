@@ -51,6 +51,10 @@ for (const page of PAGES) {
     }) => {
       await browserPage.goto(page.path ? `${page.path}/` : '');
       await expect(browserPage.locator('h1').first()).toBeVisible();
+      // The "On this page" links are built in the browser once the page has rendered.
+      if (await browserPage.locator('#content [docsHeading]').count()) {
+        await expect(browserPage.locator('.docs-toc a').first()).toBeAttached();
+      }
       const problems = await browserPage.evaluate(() => {
         const ids = [...document.querySelectorAll('[id]')].map((element) => element.id);
         const known = new Set(ids);
@@ -64,9 +68,18 @@ for (const page of PAGES) {
             .flatMap((name) => element.getAttribute(name)?.split(/\s+/) ?? [])
             .filter((id) => id && !known.has(id)),
         );
-        const anchors = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')]
+        // In-page links, including the "On this page" ones, must lead to something on screen,
+        // not to a heading inside a closed drawer or dialog.
+        const anchors = [
+          ...document.querySelectorAll<HTMLAnchorElement>(
+            `a[href^="#"], a[href^="${location.pathname}#"]`,
+          ),
+        ]
           .map((link) => decodeURIComponent(link.hash.slice(1)))
-          .filter((id) => id && !known.has(id));
+          .filter(
+            (id) =>
+              id && !document.getElementById(id)?.checkVisibility({ visibilityProperty: true }),
+          );
         return { duplicates, references, anchors };
       });
       expect(problems).toEqual({ duplicates: [], references: [], anchors: [] });

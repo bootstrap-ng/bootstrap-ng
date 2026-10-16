@@ -23,8 +23,9 @@ interface DocsTocItem {
 const ACTIVE_OFFSET = 96;
 
 /**
- * "On this page" navigation built from the `h2` and `h3` headings with an `id` in the main
- * content. The link for the section being read is highlighted as the page scrolls.
+ * "On this page" navigation built from the `h2` and `h3` section headings (`docsHeading`) in the
+ * main content. Headings inside examples, such as a drawer's title, are left out. The link for
+ * the section being read is highlighted as the page scrolls.
  */
 @Component({
   selector: 'docs-toc',
@@ -98,7 +99,9 @@ export class DocsToc {
 
   private collect(): void {
     this.headings = Array.from(
-      this.document.querySelectorAll<HTMLElement>('#content h2[id], #content h3[id]'),
+      this.document.querySelectorAll<HTMLElement>(
+        '#content h2[docsHeading], #content h3[docsHeading]',
+      ),
     );
     this.items.set(
       this.headings.map((heading) => ({
