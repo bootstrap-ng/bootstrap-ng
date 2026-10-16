@@ -12,7 +12,7 @@
           bsButton="text"
           size="sm"
           icon
-          class="md:d-none"
+          class="lg:d-none"
           aria-label="Menu"
           aria-controls="docs-sidebar"
           [attr.aria-expanded]="menuOpen()"
@@ -75,34 +75,45 @@
   </main>
 } @else {
   <div class="docs-layout 2xl:container">
-    <aside
-      id="docs-sidebar"
-      class="docs-sidebar md:d-block py-5 fs-sm overflow-auto"
-      [class.d-none]="!menuOpen()"
-      [class.border-bottom]="menuOpen()">
-      <!-- Spacing mirrors Bootstrap's own docs sidebar (site/src/scss/_sidebar.scss). -->
-      <nav aria-label="Docs">
-        @for (section of nav; track section.title) {
-          <div class="py-2">
-            <strong class="d-block fw-bold">{{ section.title }}</strong>
-            <ul class="nav flex-column mt-1">
-              @for (item of section.items; track item.path) {
-                <li class="nav-item">
-                  <a
-                    class="nav-link justify-content-start py-1 ms-4 border-0"
-                    [routerLink]="`/${item.path}`"
-                    routerLinkActive="active"
-                    ariaCurrentWhenActive="page"
-                    [routerLinkActiveOptions]="{ exact: true }"
-                    (click)="closeMenu()">
-                    {{ item.title }}
-                  </a>
-                </li>
-              }
-            </ul>
-          </div>
-        }
-      </nav>
+    <!-- Below lg the sidebar is a bottom drawer, like Bootstrap's docs (lg:drawer drawer-bottom). -->
+    <aside class="docs-sidebar fs-sm">
+      <dialog
+        bsDrawer
+        id="docs-sidebar"
+        responsive="lg"
+        placement="bottom"
+        aria-labelledby="docs-sidebar-title"
+        [(open)]="menuOpen">
+        <div class="drawer-header border-bottom">
+          <h2 class="drawer-title fs-lg" id="docs-sidebar-title">Browse docs</h2>
+          <button type="button" bsCloseButton bsDrawerClose></button>
+        </div>
+        <div class="drawer-body lg:py-5">
+          <!-- Spacing mirrors Bootstrap's own docs sidebar (site/src/scss/_sidebar.scss). -->
+          <nav class="w-100" aria-label="Docs">
+            @for (section of nav; track section.title) {
+              <div class="py-2">
+                <strong class="d-block fw-bold">{{ section.title }}</strong>
+                <ul class="nav flex-column mt-1">
+                  @for (item of section.items; track item.path) {
+                    <li class="nav-item">
+                      <a
+                        class="nav-link justify-content-start py-1 ms-4 border-0"
+                        [routerLink]="`/${item.path}`"
+                        routerLinkActive="active"
+                        ariaCurrentWhenActive="page"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                        (click)="closeMenu()">
+                        {{ item.title }}
+                      </a>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </nav>
+        </div>
+      </dialog>
     </aside>
     <!-- Bound, not static: HTMLHint cannot tell this id is in the other @if branch. -->
     <!-- eslint-disable-next-line @angular-eslint/template/prefer-static-string-properties -->

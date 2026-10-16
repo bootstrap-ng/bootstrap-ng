@@ -1,3 +1,4 @@
+import { expectNoAxeViolations } from './axe';
 import { expect, test } from './fixtures';
 
 test.describe('search', () => {
@@ -127,6 +128,27 @@ test.describe('on small screens', () => {
     await expect(page.locator('h1')).toHaveText('Badge');
     await expect(menu).toHaveAttribute('aria-expanded', 'false');
   });
+
+  test('the sidebar opens as a bottom drawer that closes', async ({ page }) => {
+    await page.goto('components/alert/');
+    const menu = page.getByRole('button', { name: 'Menu' });
+    await menu.click();
+    const drawer = page.getByRole('dialog', { name: 'Browse docs' });
+    await expect(drawer).toBeVisible();
+    await expect(drawer).toHaveCSS('position', 'fixed');
+    await expectNoAxeViolations(page);
+    await drawer.getByRole('button', { name: 'Close' }).click();
+    await expect(drawer).toBeHidden();
+    await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  });
+});
+
+test('the sidebar shows inline from the lg breakpoint', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto('components/alert/');
+  await expect(page.getByRole('button', { name: 'Menu' })).toBeHidden();
+  await expect(page.locator('#docs-sidebar').getByRole('link', { name: 'Badge' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Browse docs' })).toBeHidden();
 });
 
 test.describe('after a redeploy', () => {
