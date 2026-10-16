@@ -9,7 +9,12 @@
   max-width: 52rem;
 }
 
-@media (width >= 768px) {
+// Below lg the sidebar is a bottom drawer; give it room for the long nav.
+.docs-sidebar .lg\:drawer {
+  --bs-drawer-height: 75vh;
+}
+
+@media (width >= 1024px) {
   .docs-layout {
     grid-template-columns: 15rem minmax(0, 1fr);
     gap: 3rem;
@@ -20,6 +25,7 @@
     inset-block-start: 3.5rem;
     align-self: start;
     max-height: calc(100vh - 3.5rem);
+    overflow-y: auto;
   }
 }
 

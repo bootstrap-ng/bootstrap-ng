@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { BsButton } from 'bootstrap-ng';
+import { BsButton, BsCloseButton, BsDialogClose, BsDrawer } from 'bootstrap-ng';
 import { filter, map } from 'rxjs';
 import { NAV } from './nav';
 import { DocsSearch } from './search';
@@ -23,6 +23,9 @@ import { DocsToc } from './toc';
     RouterLink,
     RouterLinkActive,
     BsButton,
+    BsCloseButton,
+    BsDialogClose,
+    BsDrawer,
     DocsSearch,
     DocsThemeToggle,
     DocsToc,
