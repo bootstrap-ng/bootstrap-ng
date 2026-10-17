@@ -6,6 +6,11 @@
   --bs-font-mono: 'Geist Mono', ui-monospace, monospace;
 }
 
+/* Bootstrap 6 sets `scrollbar-gutter: stable` on :root; this sheet loads after it, so this wins. */
+:root {
+  scrollbar-gutter: auto;
+}
+
 html {
   min-height: 100%;
   background-attachment: fixed;
