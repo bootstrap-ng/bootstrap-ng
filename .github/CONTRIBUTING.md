@@ -45,7 +45,7 @@ Use an [EditorConfig](https://editorconfig.org) plugin in your editor so indenta
 | `npm start`             | Serves the docs site at <http://localhost:4200> with live reload.                                |
 | `npm test`              | Runs the library unit tests (Vitest in browser mode with Chromium).                              |
 | `npm run test:coverage` | Runs the unit tests with coverage. It fails below the thresholds in `angular.json`.              |
-| `npm run lint`          | Runs ESLint on the library and docs.                                                             |
+| `npm run lint`          | Runs ESLint on the library and docs, then type-checks the e2e tests.                             |
 | `npm run format`        | Formats the code with Prettier. `npm run format:check` only checks it.                           |
 | `npm run build`         | Builds the library, then the docs site, its Pagefind search index, `llms.txt` and `sitemap.xml`. |
 | `npm run e2e`           | Runs the Playwright tests against the built docs. Run `npm run build` first.                     |
@@ -53,7 +53,7 @@ Use an [EditorConfig](https://editorconfig.org) plugin in your editor so indenta
 
 ### Linting and formatting
 
-ESLint is configured in `eslint.config.js`. It is type-aware and strict (typescript-eslint `strictTypeChecked` and every angular-eslint rule), so a few patterns come up often:
+ESLint is configured in `eslint.config.js`. It is type-aware and strict (typescript-eslint `strictTypeChecked` and every angular-eslint rule, plus the Vitest plugin on unit tests and the Playwright plugin on e2e tests), so a few patterns come up often:
 
 - Type element references as `inject<ElementRef<HTMLElement>>(ElementRef)`.
 - Mark a promise you intentionally don't await with `void`.
@@ -62,7 +62,7 @@ Prettier formats TypeScript, HTML and SCSS under `projects/`. Run `npm run forma
 
 ### Tests
 
-Coverage must stay at or above 90% for statements, functions and lines, and 85% for branches (`coverageThresholds` in `angular.json`).
+Coverage must stay at or above 93% for statements and lines, 92% for functions and 88% for branches (`coverageThresholds` in `angular.json`).
 
 The e2e tests read the pages from `projects/docs/src/app/nav.ts`, so every page in the navigation gets render checks and [axe](https://github.com/dequelabs/axe-core) accessibility checks in both light and dark mode automatically.
 

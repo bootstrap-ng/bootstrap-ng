@@ -4,6 +4,7 @@
     "paths": {
       "bootstrap-ng": ["./projects/bootstrap-ng/src/public-api.ts"]
     },
+    "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
@@ -12,6 +13,8 @@
     "exactOptionalPropertyTypes": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "erasableSyntaxOnly": true,
+    "noUncheckedSideEffectImports": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,

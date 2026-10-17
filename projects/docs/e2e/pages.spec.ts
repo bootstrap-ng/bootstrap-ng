@@ -30,14 +30,14 @@ for (const page of PAGES) {
       const errors: string[] = [];
       browserPage.on('pageerror', (error) => errors.push(error.message));
       browserPage.on('console', (message) => {
-        if (message.type() === 'error') errors.push(message.text());
+        if (message.type() === 'error') {
+          errors.push(message.text());
+        }
       });
 
       await browserPage.goto(page.path ? `${page.path}/` : '');
       await expect(browserPage.locator('h1').first()).toBeVisible();
-      await expect(browserPage).toHaveTitle(
-        page.path ? new RegExp(`· bootstrap-ng$`) : /bootstrap-ng/,
-      );
+      await expect(browserPage).toHaveTitle(page.path ? /· bootstrap-ng$/ : /bootstrap-ng/);
       if (page.path) {
         await expect(browserPage.locator('.docs-sidebar a[aria-current="page"]')).toHaveText(
           page.title,
@@ -95,6 +95,8 @@ for (const page of PAGES) {
           }
         }).observe({ type: 'layout-shift', buffered: true });
       });
+      // Layout shifts are only final once late resources (fonts, images) have loaded.
+      // eslint-disable-next-line playwright/no-networkidle
       await browserPage.goto(page.path ? `${page.path}/` : '', { waitUntil: 'networkidle' });
       const shift = await browserPage.evaluate(() =>
         (window as unknown as { docsLayoutShifts: number[] }).docsLayoutShifts.reduce(
