@@ -69,6 +69,34 @@ describe('BsDatepicker', () => {
     ).toBe(true);
   });
 
+  it('sets inputmode="numeric" on inputs only on macOS and iPadOS', async () => {
+    const userAgent = vi.spyOn(navigator, 'userAgent', 'get');
+    userAgent.mockReturnValue(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15',
+    );
+    const first = await setup();
+    expect(first.input.getAttribute('inputmode')).toBe('numeric');
+    expect(first.button.hasAttribute('inputmode')).toBe(false);
+    document.body.querySelectorAll('[ng-version]').forEach((el) => el.remove());
+
+    userAgent.mockReturnValue(
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+    );
+    const { input } = await setup();
+    expect(input.hasAttribute('inputmode')).toBe(false);
+    userAgent.mockRestore();
+  });
+
+  it('keeps an inputmode set on the input', async () => {
+    const userAgent = vi
+      .spyOn(navigator, 'userAgent', 'get')
+      .mockReturnValue('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)');
+    TestBed.overrideTemplate(Host, '<input type="text" inputmode="text" bsDatepicker />');
+    const { input } = await setup();
+    expect(input.getAttribute('inputmode')).toBe('text');
+    userAgent.mockRestore();
+  });
+
   it('selects a date, closes and returns focus', async () => {
     const { fixture, input, calendar, day, component } = await setup();
     input.focus();

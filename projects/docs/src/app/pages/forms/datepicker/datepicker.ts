@@ -46,7 +46,7 @@ const PAGE: DocsPageData = {
       id: 'overview',
       title: 'Overview',
       description:
-        'Add <code>bsDatepicker</code> to a text input. The calendar opens below it on focus or click, and closes after you pick a date, on <kbd>Escape</kbd>, on a click outside, or when focus leaves it. <kbd>↓</kbd> moves focus into the calendar. The value is an ISO date (<code>YYYY-MM-DD</code>), which the input shows and accepts when typed. Unlike Bootstrap’s datepicker, the calendar is rendered by Angular, with no Vanilla Calendar Pro dependency.',
+        'Add <code>bsDatepicker</code> to a text input. The calendar opens below it on focus or click, and closes after you pick a date, on <kbd>Escape</kbd>, on a click outside, or when focus leaves it. <kbd>↓</kbd> moves focus into the calendar. The value is an ISO date (<code>YYYY-MM-DD</code>), which the input shows and accepts when typed. On macOS and iPadOS the input gets <code>inputmode="numeric"</code>, so the iPad on-screen keyboard shows the keys a date needs; iPhones keep the default keyboard. Unlike Bootstrap’s datepicker, the calendar is rendered by Angular, with no Vanilla Calendar Pro dependency.',
       example: DatepickerBasicExample,
       html: basicHtml,
       ts: basicTs,
