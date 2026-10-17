@@ -20,7 +20,7 @@ Node.js 22.22.3+ or 24.15+ (see `.nvmrc`).
 - `npm run build`: builds the library, then the docs
 - `npm run e2e`: Playwright tests in `projects/docs/e2e` against the built docs (run `npm run build` first). They cover every page in `nav.ts`, including axe checks in light and dark mode
 - `npm run format` / `npm run format:check`: Prettier
-- `npm run lint`: ESLint on the library and docs, configured in `eslint.config.js`. It is type-aware and strict (typescript-eslint `strictTypeChecked` and `stylisticTypeChecked`, all angular-eslint rules, plus extra rules such as `eqeqeq`, `switch-exhaustiveness-check` and `prefer-readonly`), so type `ElementRef` as `inject<ElementRef<HTMLElement>>(ElementRef)` and mark promises you intentionally don't await with `void`. Unused `eslint-disable` comments are errors.
+- `npm run lint`: ESLint on the library and docs, configured in `eslint.config.js`. It is type-aware and strict (typescript-eslint `strictTypeChecked` and `stylisticTypeChecked`, all angular-eslint rules, plus extra rules such as `eqeqeq`, `curly`, `switch-exhaustiveness-check` and `prefer-readonly`, `@vitest/eslint-plugin` on unit tests and `eslint-plugin-playwright` on e2e tests), so type `ElementRef` as `inject<ElementRef<HTMLElement>>(ElementRef)` and mark promises you intentionally don't await with `void`. Unused `eslint-disable` comments are errors. It then type-checks `projects/docs/e2e` with `tsc`, which Playwright itself skips.
 
 CI runs `format:check`, `lint`, `test:coverage`, `build` and `e2e`; all must pass.
 

@@ -280,7 +280,9 @@ export class BsScrollspy {
     this.sentinelObserver?.disconnect();
     this.sentinel?.remove();
     this.stopResize?.();
-    this.observer = this.sentinelObserver = this.sentinel = null;
+    this.observer = null;
+    this.sentinelObserver = null;
+    this.sentinel = null;
     this.stopResize = null;
     this.intersecting.clear();
     this.atBottom = false;

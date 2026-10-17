@@ -3,6 +3,8 @@ const eslint = require('@eslint/js');
 const { defineConfig } = require('eslint/config');
 const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
+const vitest = require('@vitest/eslint-plugin');
+const playwright = require('eslint-plugin-playwright');
 
 /**
  * @param {string} prefix
@@ -79,6 +81,46 @@ module.exports = defineConfig([
       '@typescript-eslint/require-array-sort-compare': 'error',
       '@typescript-eslint/no-loop-func': 'error',
       '@typescript-eslint/default-param-last': 'error',
+      curly: 'error',
+      yoda: 'error',
+      'no-alert': 'error',
+      'no-eval': 'error',
+      'no-new-func': 'error',
+      'no-new-wrappers': 'error',
+      'no-object-constructor': 'error',
+      'no-caller': 'error',
+      'no-proto': 'error',
+      'no-extend-native': 'error',
+      'no-script-url': 'error',
+      'no-sequences': 'error',
+      'no-labels': 'error',
+      'no-lone-blocks': 'error',
+      'no-multi-assign': 'error',
+      'no-extra-bind': 'error',
+      'no-useless-call': 'error',
+      'no-useless-computed-key': 'error',
+      'no-self-compare': 'error',
+      'no-constructor-return': 'error',
+      'no-inner-declarations': 'error',
+      'no-unmodified-loop-condition': 'error',
+      'no-unreachable-loop': 'error',
+      'no-octal-escape': 'error',
+      'no-duplicate-imports': 'error',
+      'array-callback-return': 'error',
+      'accessor-pairs': 'error',
+      'grouped-accessor-pairs': ['error', 'getBeforeSet'],
+      'symbol-description': 'error',
+      'operator-assignment': 'error',
+      'logical-assignment-operators': ['error', 'always', { enforceForIfStatements: true }],
+      'prefer-exponentiation-operator': 'error',
+      'prefer-numeric-literals': 'error',
+      'prefer-object-has-own': 'error',
+      'prefer-regex-literals': ['error', { disallowRedundantWrapping: true }],
+      // Guardrails the code is well inside today, so a function can't quietly grow too tangled.
+      complexity: ['error', 20],
+      'max-depth': ['error', 4],
+      '@typescript-eslint/max-params': 'error',
+      '@typescript-eslint/no-unnecessary-parameter-property-assignment': 'error',
       // Class names follow the Angular v20+ style guide: `BsAlert`, not `BsAlertComponent`.
       '@angular-eslint/component-class-suffix': 'off',
       '@angular-eslint/directive-class-suffix': 'off',
@@ -110,6 +152,51 @@ module.exports = defineConfig([
       '@typescript-eslint/no-unnecessary-type-parameters': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
+    },
+  },
+  {
+    files: ['projects/bootstrap-ng/**/*.spec.ts'],
+    extends: [vitest.configs.recommended],
+    rules: {
+      'vitest/consistent-test-it': 'error',
+      'vitest/expect-expect': 'error',
+      'vitest/hoisted-apis-on-top': 'error',
+      'vitest/no-alias-methods': 'error',
+      'vitest/no-commented-out-tests': 'error',
+      'vitest/no-conditional-expect': 'error',
+      'vitest/no-conditional-in-test': 'error',
+      'vitest/no-conditional-tests': 'error',
+      'vitest/no-disabled-tests': 'error',
+      'vitest/no-duplicate-hooks': 'error',
+      'vitest/no-focused-tests': 'error',
+      'vitest/no-standalone-expect': 'error',
+      'vitest/no-test-prefixes': 'error',
+      'vitest/no-test-return-statement': 'error',
+      'vitest/prefer-comparison-matcher': 'error',
+      'vitest/prefer-equality-matcher': 'error',
+      'vitest/prefer-hooks-in-order': 'error',
+      'vitest/prefer-hooks-on-top': 'error',
+      'vitest/prefer-spy-on': 'error',
+      'vitest/prefer-to-be': 'error',
+      'vitest/prefer-to-contain': 'error',
+      'vitest/require-awaited-expect-poll': 'error',
+      'vitest/require-to-throw-message': 'error',
+      'vitest/valid-expect-in-promise': 'error',
+    },
+  },
+  {
+    files: ['projects/docs/e2e/**/*.ts'],
+    extends: [playwright.configs['flat/recommended']],
+    rules: {
+      // Promote the preset's warnings: a warning never fails `npm run lint`.
+      ...Object.fromEntries(
+        Object.entries(playwright.configs['flat/recommended'].rules ?? {})
+          .filter(([name]) => name.startsWith('playwright/'))
+          .map(([name]) => [name, 'error']),
+      ),
+      // The page tests loop over `nav.ts`, and the home page has no sidebar link or headings.
+      'playwright/no-conditional-in-test': 'off',
+      'playwright/no-conditional-expect': 'off',
     },
   },
   {

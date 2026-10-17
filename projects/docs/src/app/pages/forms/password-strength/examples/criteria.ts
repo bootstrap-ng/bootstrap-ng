@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { passwordScore } from 'bootstrap-ng';
-import { BsStrength } from 'bootstrap-ng';
+import { BsStrength, passwordScore } from 'bootstrap-ng';
 
 @Component({
   selector: 'docs-password-strength-criteria-example',

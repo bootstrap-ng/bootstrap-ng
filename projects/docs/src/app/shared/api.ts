@@ -35,19 +35,19 @@ export interface DocsApiDirective {
       </p>
       @if (directive.inputs?.length) {
         <h4 class="fs-md mt-3">Inputs</h4>
-        <docs-api-table [entries]="directive.inputs ?? []" [label]="directive.name + ' inputs'" />
+        <docs-api-table [entries]="directive.inputs" [label]="directive.name + ' inputs'" />
       }
       @if (directive.outputs?.length) {
         <h4 class="fs-md mt-3">Outputs</h4>
         <docs-api-table
-          [entries]="directive.outputs ?? []"
+          [entries]="directive.outputs"
           [label]="directive.name + ' outputs'"
           [showDefault]="false" />
       }
       @if (directive.methods?.length) {
         <h4 class="fs-md mt-3">Methods</h4>
         <docs-api-table
-          [entries]="directive.methods ?? []"
+          [entries]="directive.methods"
           [label]="directive.name + ' methods'"
           [showDefault]="false" />
       }

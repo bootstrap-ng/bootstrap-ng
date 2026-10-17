@@ -1,7 +1,6 @@
 import { Component, TemplateRef, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { BsToastContext } from './toaster';
-import { BsToaster } from './toaster';
+import { BsToastContext, BsToaster } from './toaster';
 
 @Component({
   template: `<ng-template #tpl let-toast
