@@ -47,8 +47,10 @@ export type BsDateFormatter = (date: Date, locale: string | undefined) => string
  * `[(value)]`.
  *
  * On an input, the calendar opens on focus and click; Arrow Down moves focus into it,
- * and dates can also be typed as `YYYY-MM-DD`. On a button, a click opens the calendar
- * and focuses it. Escape, a click outside or moving focus away closes it.
+ * and dates can also be typed as `YYYY-MM-DD`. On macOS and iPadOS the input gets
+ * `inputmode="numeric"` (unless it has its own) for an on-screen keyboard with the keys
+ * a date needs. On a button, a click opens the calendar and focuses it. Escape, a click
+ * outside or moving focus away closes it.
  *
  * ```html
  * <input type="text" bsFormControl bsDatepicker autocomplete="off" [formControl]="date" />
@@ -137,6 +139,18 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
 
   constructor() {
     super();
+    // iPadOS reports a macOS user agent, and its numeric keyboard has every key a typed
+    // date needs. iPhones report their own user agent and keep the default keyboard,
+    // because their numeric keypad has no `-`.
+    const userAgent = this.document.defaultView?.navigator.userAgent ?? '';
+    if (
+      this.isInput &&
+      !this.element.hasAttribute('inputmode') &&
+      userAgent.includes('Macintosh')
+    ) {
+      this.element.setAttribute('inputmode', 'numeric');
+    }
+
     effect(() => {
       // Inputs show the dates as their value; buttons without a `bsDatepickerDisplay`
       // show them as their text.
