@@ -66,6 +66,7 @@ describe('BsCombobox', () => {
     expect(toggle.classList).toContain('form-control');
     expect(toggle.classList).toContain('combobox-toggle');
     expect(toggle.type).toBe('button');
+    expect(toggle.getAttribute('role')).toBe('combobox');
     expect(toggle.getAttribute('aria-haspopup')).toBe('listbox');
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
     expect(toggle.getAttribute('aria-controls')).toBe(`${menu.id}-listbox`);

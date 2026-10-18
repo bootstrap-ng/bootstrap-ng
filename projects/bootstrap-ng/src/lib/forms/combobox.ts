@@ -278,6 +278,8 @@ export class BsComboboxNoResults {
   `,
   host: {
     type: 'button',
+    // A select-only combobox: its label names it and its text is announced as the value.
+    role: 'combobox',
     '[class]': 'classes()',
     'aria-haspopup': 'listbox',
     '[attr.aria-expanded]': 'isOpen()',

@@ -79,7 +79,7 @@ const STATES: {
     path: 'forms/combobox',
     include: ['.menu.show', '[aria-expanded="true"]'],
     open: async (page) => {
-      await example(page, 'example').getByRole('button', { name: 'Fruit' }).click();
+      await example(page, 'example').getByRole('combobox', { name: 'Fruit' }).click();
       await expect(page.getByRole('listbox')).toBeVisible();
     },
   },
