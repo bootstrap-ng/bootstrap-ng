@@ -19,10 +19,11 @@ Node.js 22.22.3+ or 24.15+ (see `.nvmrc`).
 - `npm run test:coverage`: unit tests with coverage; fails under the thresholds in `angular.json`
 - `npm run build`: builds the library, then the docs
 - `npm run e2e`: Playwright tests in `projects/docs/e2e` against the built docs (run `npm run build` first). They cover every page in `nav.ts`, including axe checks in light and dark mode
+- `npm run bundlewatch`: checks the gzipped size of the library FESM bundle against the limit under `bundlewatch` in `package.json` (run `npm run build:lib` first). Raise the limit in the same PR when growth is intended
 - `npm run format` / `npm run format:check`: Prettier
 - `npm run lint`: ESLint on the library and docs, configured in `eslint.config.js`. It is type-aware and strict (typescript-eslint `strictTypeChecked` and `stylisticTypeChecked`, all angular-eslint rules, plus extra rules such as `eqeqeq`, `curly`, `switch-exhaustiveness-check` and `prefer-readonly`, `@vitest/eslint-plugin` on unit tests and `eslint-plugin-playwright` on e2e tests), so type `ElementRef` as `inject<ElementRef<HTMLElement>>(ElementRef)` and mark promises you intentionally don't await with `void`. Unused `eslint-disable` comments are errors. It then type-checks `projects/docs/e2e` with `tsc`, which Playwright itself skips.
 
-CI runs `format:check`, `lint`, `test:coverage`, `build` and `e2e`; all must pass.
+CI runs `format:check`, `lint`, `test:coverage`, `build` and `e2e`, and the Bundlewatch workflow runs `build:lib` and `bundlewatch` when library files change; all must pass.
 
 Always format TypeScript (and every other file you change) with Prettier: run `npm run format` before committing, and never hand-format or leave a file unformatted. Super-Linter in CI also checks TypeScript with its own Prettier version, which can wrap some code differently from the repo's; if it disagrees, restructure the code (for example, move an inline arrow-function argument into a `const`) so both versions agree.
 

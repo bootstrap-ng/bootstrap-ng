@@ -1,0 +1,44 @@
+name: Bundlewatch
+
+# Checks the gzipped size of the library bundle against the limit under "bundlewatch" in package.json.
+# Pushes to main save a baseline; pull requests are compared with it in a commit status.
+# Only runs when a change can affect the library build, not for docs-only changes.
+on:
+  push:
+    branches: [main]
+    paths:
+      - projects/bootstrap-ng/**
+      - angular.json
+      - package.json
+      - package-lock.json
+      - tsconfig.json
+      - .github/workflows/bundlewatch.yml
+  pull_request:
+    paths:
+      - projects/bootstrap-ng/**
+      - angular.json
+      - package.json
+      - package-lock.json
+      - tsconfig.json
+      - .github/workflows/bundlewatch.yml
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  bundlewatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build:lib
+      - run: npm run bundlewatch
+        env:
+          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
