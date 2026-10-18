@@ -52,7 +52,7 @@ const MAX_RESULTS = 8;
     <button
       type="button"
       class="docs-search-button d-flex align-items-center gap-3 border rounded-5 bg-1 fg-2 text-start"
-      aria-label="Search docs"
+      [attr.aria-label]="'Search docs ' + shortcutLabel()"
       aria-keyshortcuts="Control+K Meta+K /"
       (click)="open()">
       <svg class="flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
