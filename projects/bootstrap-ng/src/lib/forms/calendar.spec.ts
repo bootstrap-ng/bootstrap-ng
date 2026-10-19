@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import fc from 'fast-check';
 import {
   BsCalendar,
   BsDateSelectionMode,
@@ -39,6 +40,89 @@ describe('calendar date helpers', () => {
     expect(weekNumber(new Date(2026, 11, 27), 0, 'simple')).toBe(1);
     expect(weekNumber(new Date(2025, 11, 29), 1, 'simple')).toBe(1);
     expect(weekNumber(new Date(2026, 5, 8), 1, 'simple')).toBe(24);
+  });
+});
+
+describe('calendar date helpers (property-based)', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  // Local dates from year 1000, so `new Date(year, …)` doesn't map 2-digit years to 19xx.
+  const localDate = fc
+    .date({ min: new Date(1000, 0, 1), max: new Date(9999, 11, 1), noInvalidDate: true })
+    .map((date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()));
+  const firstWeekday = fc.integer({ min: 0, max: 6 });
+  const startOfWeek = (date: Date, weekday: number) =>
+    new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() - ((date.getDay() - weekday + 7) % 7),
+    );
+  const nextWeek = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
+
+  /** A textbook ISO 8601 week number, computed in UTC. */
+  const isoWeek = (date: Date) => {
+    const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    utc.setUTCDate(utc.getUTCDate() + 4 - (utc.getUTCDay() || 7));
+    const yearStart = Date.UTC(utc.getUTCFullYear(), 0, 1);
+    return Math.ceil(((utc.getTime() - yearStart) / DAY + 1) / 7);
+  };
+
+  it('round-trips dates through toIsoDate and parseIsoDate', () => {
+    fc.assert(
+      fc.property(localDate, (date) => {
+        const iso = toIsoDate(date.getFullYear(), date.getMonth(), date.getDate());
+        expect(iso).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(parseIsoDate(iso)?.getTime()).toBe(date.getTime());
+      }),
+    );
+  });
+
+  it('parses any string to null or the date it spells', () => {
+    // Years from 1000: `new Date()` reads years 0 to 99 as 1900 to 1999.
+    const isoLike = fc
+      .tuple(
+        fc.integer({ min: 1000, max: 9999 }),
+        fc.integer({ min: 0, max: 99 }),
+        fc.integer({ min: 0, max: 99 }),
+      )
+      .map(([y, m, d]) => [y, m, d].map((n, i) => String(n).padStart(i ? 2 : 4, '0')).join('-'));
+    fc.assert(
+      fc.property(fc.oneof(fc.string(), isoLike), (value) => {
+        const date = parseIsoDate(value);
+        const iso = date && toIsoDate(date.getFullYear(), date.getMonth(), date.getDate());
+        expect(iso === null || iso === value.trim()).toBe(true);
+      }),
+    );
+  });
+
+  it('matches ISO 8601 week numbers for weeks starting on Monday', () => {
+    fc.assert(
+      fc.property(localDate, (date) => {
+        expect(weekNumber(startOfWeek(date, 1))).toBe(isoWeek(date));
+      }),
+    );
+  });
+
+  it('numbers consecutive weeks one apart, restarting at week 1', () => {
+    const numbering = fc.constantFrom<BsWeekNumbering>('iso', 'simple');
+    fc.assert(
+      fc.property(localDate, firstWeekday, numbering, (date, weekday, mode) => {
+        const start = startOfWeek(date, weekday);
+        const week = weekNumber(start, weekday, mode);
+        const next = weekNumber(nextWeek(start), weekday, mode);
+        expect(week).toBeGreaterThanOrEqual(1);
+        expect(week).toBeLessThanOrEqual(mode === 'iso' ? 53 : 54);
+        expect(next === week + 1 || (next === 1 && week >= 52)).toBe(true);
+      }),
+    );
+  });
+
+  it('makes the week holding 1 January week 1 with simple numbering', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1000, max: 9999 }), firstWeekday, (year, weekday) => {
+        expect(weekNumber(startOfWeek(new Date(year, 0, 1), weekday), weekday, 'simple')).toBe(1);
+      }),
+    );
   });
 });
 
