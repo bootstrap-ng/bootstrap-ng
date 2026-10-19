@@ -134,7 +134,7 @@ function pageMarkdown(path, html) {
           rows.push(
             children(child)
               .filter((cell) => cell.nodeName === 'th' || cell.nodeName === 'td')
-              .map((cell) => inlineBlock(cell).replace(/\|/g, '\\|').replace(/\n/g, ' ')),
+              .map((cell) => inlineBlock(cell).replace(/[\\|]/g, '\\$&').replace(/\n/g, ' ')),
           );
         } else {
           collect(child);
