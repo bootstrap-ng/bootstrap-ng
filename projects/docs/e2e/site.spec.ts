@@ -171,7 +171,7 @@ test('sends the security headers from the _headers file', async ({ request }) =>
   expect(headers['content-security-policy']).toContain("frame-ancestors 'none'");
   expect(headers['content-security-policy']).toMatch(/script-src 'self' 'sha256-/);
   expect(headers).toMatchObject({
-    'strict-transport-security': expect.stringContaining('max-age='),
+    'strict-transport-security': 'max-age=63072000; includeSubDomains; preload',
     'x-content-type-options': 'nosniff',
     'x-frame-options': 'DENY',
     'referrer-policy': 'strict-origin-when-cross-origin',
