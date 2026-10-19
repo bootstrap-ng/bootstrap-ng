@@ -11,7 +11,12 @@ export function lead(path) {
     const source = readFileSync(join(pagesDir, section, name, `${name}.ts`), 'utf8');
     const match = source.match(/lead:\s*'((?:[^'\\]|\\.)*)'/);
     if (!match) throw new Error(`No lead found for ${path}`);
-    return JSON.parse(`"${match[1].replace(/\\'/g, "'").replace(/"/g, '\\"')}"`);
+    // Turn the single-quoted literal into a JSON string in one pass, so each escape sequence is
+    // read whole: \' becomes ', a bare " is escaped, and other escapes such as \\ are kept.
+    const json = match[1].replace(/\\.|"/g, (token) =>
+      token === "\\'" ? "'" : token === '"' ? '\\"' : token,
+    );
+    return JSON.parse(`"${json}"`);
   }
   const file = path === 'getting-started' ? 'introduction' : path.split('/').pop();
   const source = readFileSync(join(pagesDir, 'getting-started', `${file}.html`), 'utf8');
