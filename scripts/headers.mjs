@@ -15,10 +15,13 @@ const { values } = parseArgs({
   },
 });
 
+/** Matches a script element, capturing its attributes and body. */
+const SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
+
 /** Hashes of the inline scripts in `html`, such as the color mode script. */
 function inlineScriptHashes(html) {
   const hashes = new Set();
-  for (const [, attributes, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
+  for (const [, attributes, body] of html.matchAll(SCRIPT)) {
     // External scripts are covered by 'self', and data blocks such as ng-state don't run.
     if (/\ssrc=/i.test(attributes) || /\stype="(?!module"|text\/javascript")/i.test(attributes)) {
       continue;
