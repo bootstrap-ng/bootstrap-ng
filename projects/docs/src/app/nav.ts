@@ -76,6 +76,7 @@ export const NAV: DocsNavSection[] = [
       { title: 'Services and helpers', path: 'getting-started/services' },
       { title: 'Server-side rendering', path: 'getting-started/server-rendering' },
       { title: 'Accessibility', path: 'getting-started/accessibility' },
+      { title: 'Internationalization', path: 'getting-started/internationalization' },
     ],
   },
   { title: 'Components', items: COMPONENT_PAGES },

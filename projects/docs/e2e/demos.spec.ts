@@ -201,6 +201,20 @@ test('a rating changes by click and arrow keys', async ({ page }) => {
   await expect(rating).toHaveAttribute('aria-valuetext', '3 out of 5');
 });
 
+test('right-to-left tabs and ratings follow the reading direction', async ({ page }) => {
+  await page.goto('getting-started/internationalization/');
+  const demo = example(page, 'rtl');
+  const home = demo.getByRole('tab', { name: 'الرئيسية' });
+  await home.click();
+  await home.press('ArrowLeft');
+  await expect(demo.getByRole('tab', { name: 'الملف الشخصي' })).toBeFocused();
+  const rating = demo.getByRole('slider', { name: 'التقييم' });
+  await expect(rating).toHaveAttribute('aria-valuenow', '3');
+  await rating.press('ArrowLeft');
+  await expect(rating).toHaveAttribute('aria-valuenow', '4');
+  await expect(rating).toHaveAttribute('aria-valuetext', '٤ من ٥');
+});
+
 test('filled rating stars line up with the empty ones', async ({ page }) => {
   await page.goto('forms/rating/');
   const star = example(page, 'how-it-works').getByRole('slider').locator('> span').first();
