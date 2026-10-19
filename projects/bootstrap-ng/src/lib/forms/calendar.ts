@@ -27,6 +27,13 @@ export type BsDateSelectionMode = 'single' | 'multiple' | 'range';
  */
 export type BsDateValue = string | string[] | null;
 
+/**
+ * How weeks are numbered. `iso` follows ISO 8601: week 1 holds the year's first Thursday.
+ * `simple` makes week 1 the week holding 1 January, with weeks starting on `firstWeekday`
+ * (the US convention when weeks start on Sunday).
+ */
+export type BsWeekNumbering = 'iso' | 'simple';
+
 interface CalendarDay {
   iso: string;
   day: number;
@@ -34,11 +41,16 @@ interface CalendarDay {
   month: 'prev' | 'next' | null;
 }
 
+interface CalendarWeek {
+  number: number;
+  days: (CalendarDay | null)[];
+}
+
 interface CalendarMonth {
   id: string;
   year: number;
   month: number;
-  weeks: (CalendarDay | null)[][];
+  weeks: CalendarWeek[];
 }
 
 const pad = (value: number) => String(value).padStart(2, '0');
@@ -85,6 +97,35 @@ const addMonths = (iso: string, months: number) => {
   const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
   return toIsoDate(target.getFullYear(), target.getMonth(), Math.min(date.getDate(), lastDay));
 };
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/** Days from 1 January of `year` to a date, counted in UTC to ignore daylight saving. */
+const dayOfYear = (date: Date, year = date.getFullYear()) =>
+  Math.round(
+    (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(year, 0, 1)) / DAY,
+  );
+
+/**
+ * Returns the number of the week that starts on `weekStart`, a date that falls on
+ * `firstWeekday` (0 for Sunday). With `iso` numbering a week that doesn't start on Monday
+ * takes the number of its Thursday's ISO week, which holds most of its days.
+ */
+export function weekNumber(
+  weekStart: Date,
+  firstWeekday = 1,
+  numbering: BsWeekNumbering = 'iso',
+): number {
+  const [year, month, day] = [weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()];
+  if (numbering === 'iso') {
+    const thursday = new Date(year, month, day + ((4 - firstWeekday + 7) % 7));
+    return Math.floor(dayOfYear(thursday) / 7) + 1;
+  }
+  // The week holding 1 January of the year the week ends in is week 1.
+  const end = new Date(year, month, day + 6);
+  const firstWeek = -((new Date(end.getFullYear(), 0, 1).getDay() - firstWeekday + 7) % 7);
+  return Math.floor((dayOfYear(weekStart, end.getFullYear()) - firstWeek) / 7) + 1;
+}
 
 /** Dates of a value, as an array. */
 export function selectedDates(value: BsDateValue): string[] {
@@ -137,7 +178,16 @@ export function selectedDates(value: BsDateValue): string[] {
             role="grid"
             [attr.aria-labelledby]="month.id"
             [attr.aria-multiselectable]="selectionMode() === 'single' ? null : true">
-            <div data-vc="week" role="row">
+            <div data-vc="week" role="row" [style.grid-template-columns]="gridColumns()">
+              @if (weekNumbers()) {
+                <abbr
+                  data-vc-week-numbers="title"
+                  class="text-decoration-none d-flex align-items-center justify-content-center fs-xs fw-semibold fg-3"
+                  role="columnheader"
+                  [attr.aria-label]="weekLabel()"
+                  >#</abbr
+                >
+              }
               @for (day of weekDays(); track day.short) {
                 <abbr
                   data-vc-week-day
@@ -150,8 +200,16 @@ export function selectedDates(value: BsDateValue): string[] {
             </div>
             <div data-vc="dates" role="rowgroup">
               @for (week of month.weeks; track $index) {
-                <div data-vc-dates="row" role="row">
-                  @for (day of week; track $index) {
+                <div data-vc-dates="row" role="row" [style.grid-template-columns]="gridColumns()">
+                  @if (weekNumbers()) {
+                    <div
+                      data-vc-week-number
+                      role="rowheader"
+                      class="d-flex align-items-center justify-content-center fs-xs fw-semibold fg-3">
+                      {{ week.number }}
+                    </div>
+                  }
+                  @for (day of week.days; track $index) {
                     @if (day) {
                       <div
                         role="gridcell"
@@ -232,6 +290,12 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   readonly nextLabel = input('Next month');
   /** Hides the neighboring months' days. */
   readonly hideOutsideDays = input(false, { transform: booleanAttribute });
+  /** Shows the week numbers before each week. */
+  readonly weekNumbers = input(false, { transform: booleanAttribute });
+  /** How weeks are numbered: ISO 8601 or from 1 January. */
+  readonly weekNumbering = input<BsWeekNumbering>('iso');
+  /** Accessible name of the week numbers column. */
+  readonly weekLabel = input('Week');
 
   /** Emits when the user completes a selection: a date, or a range's end date. */
   readonly selectionComplete = output<BsDateValue>();
@@ -286,6 +350,11 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     });
   });
 
+  /** Adds a column for the week numbers to Bootstrap's seven-column rows. */
+  protected readonly gridColumns = computed(() =>
+    this.weekNumbers() ? '1.5rem repeat(7, 1fr)' : null,
+  );
+
   protected readonly months = computed<CalendarMonth[]>(() => {
     const start = requireDate(this.view());
     const count = Math.max(1, this.monthsCount());
@@ -305,7 +374,14 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
         }
         return { iso: toIsoDate(year, month, day), day: date.getDate(), month: kind };
       });
-      const weeks = Array.from({ length: cells / 7 }, (_, w) => days.slice(w * 7, w * 7 + 7));
+      const weeks = Array.from({ length: cells / 7 }, (_, w) => ({
+        number: weekNumber(
+          new Date(year, month, w * 7 - offset + 1),
+          this.firstWeekday(),
+          this.weekNumbering(),
+        ),
+        days: days.slice(w * 7, w * 7 + 7),
+      }));
       return { id: `${this.idPrefix}-${year}-${month}`, year, month, weeks };
     });
   });

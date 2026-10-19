@@ -22,6 +22,8 @@ import rangeHtml from './examples/range.html' with { loader: 'text' };
 import rangeTs from './examples/range.ts' with { loader: 'text' };
 import { DatepickerFirstWeekdayExample } from './examples/first-weekday';
 import first_weekdayHtml from './examples/first-weekday.html' with { loader: 'text' };
+import { DatepickerWeekNumbersExample } from './examples/week-numbers';
+import week_numbersHtml from './examples/week-numbers.html' with { loader: 'text' };
 import { DatepickerPlacementExample } from './examples/placement';
 import placementHtml from './examples/placement.html' with { loader: 'text' };
 import { DatepickerButtonExample } from './examples/button';
@@ -101,6 +103,14 @@ const PAGE: DocsPageData = {
         'Weeks start on Monday. Set <code>firstWeekday</code> to <code>0</code> to start on Sunday. Set <code>locale</code> for month and day names in another language.',
       example: DatepickerFirstWeekdayExample,
       html: first_weekdayHtml,
+    },
+    {
+      id: 'week-numbers',
+      title: 'Week numbers',
+      description:
+        'Add <code>weekNumbers</code> to show each week’s number before it. Weeks are numbered by ISO 8601, where week 1 holds the year’s first Thursday. Set <code>weekNumbering="simple"</code> to make week 1 the week holding 1 January, as in the US with <code>firstWeekday="0"</code>. The numbers are row headers of the date grid, so screen readers announce them with the dates.',
+      example: DatepickerWeekNumbersExample,
+      html: week_numbersHtml,
     },
     {
       id: 'placement',
@@ -192,6 +202,18 @@ const PAGE: DocsPageData = {
           type: 'number',
           default: '1',
           description: 'Number of months shown side by side.',
+        },
+        {
+          name: 'weekNumbers',
+          type: 'boolean',
+          default: 'false',
+          description: 'Shows the week numbers before each week.',
+        },
+        {
+          name: 'weekNumbering',
+          type: "'iso' | 'simple'",
+          default: "'iso'",
+          description: 'How weeks are numbered: ISO 8601, or from the week holding 1 January.',
         },
         {
           name: 'locale',
@@ -325,6 +347,18 @@ const PAGE: DocsPageData = {
           description: 'Number of months shown side by side.',
         },
         {
+          name: 'weekNumbers',
+          type: 'boolean',
+          default: 'false',
+          description: 'Shows the week numbers before each week.',
+        },
+        {
+          name: 'weekNumbering',
+          type: "'iso' | 'simple'",
+          default: "'iso'",
+          description: 'How weeks are numbered: ISO 8601, or from the week holding 1 January.',
+        },
+        {
           name: 'locale',
           type: 'string | undefined',
           default: 'undefined',
@@ -353,6 +387,12 @@ const PAGE: DocsPageData = {
           type: 'boolean',
           default: 'false',
           description: 'Hides the neighboring months’ days. Always hidden with several months.',
+        },
+        {
+          name: 'weekLabel',
+          type: 'string',
+          default: "'Week'",
+          description: 'Accessible name of the week numbers column.',
         },
         {
           name: 'disabled',

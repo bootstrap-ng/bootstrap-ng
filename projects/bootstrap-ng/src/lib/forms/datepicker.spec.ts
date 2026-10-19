@@ -227,4 +227,30 @@ describe('BsDatepicker', () => {
     await fixture.whenStable();
     expect(calendar()!.getAttribute('aria-label')).toBe('Choose arrival date');
   });
+
+  it('passes week number options to the calendar', async () => {
+    @Component({
+      imports: [BsDatepicker],
+      template: `<input
+        type="text"
+        aria-label="Date"
+        bsDatepicker
+        weekNumbers
+        weekNumbering="simple"
+        firstWeekday="0"
+        value="2026-06-10" />`,
+    })
+    class WeekHost {}
+    const fixture = TestBed.createComponent(WeekHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    document.body.append(root);
+    root.querySelector('input')!.focus();
+    await fixture.whenStable();
+    const numbers = Array.from(root.querySelectorAll('[data-vc-week-number]')).map((n) =>
+      n.textContent.trim(),
+    );
+    expect(numbers).toEqual(['23', '24', '25', '26', '27']);
+  });
 });
