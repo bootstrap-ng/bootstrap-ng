@@ -14,9 +14,6 @@ jobs:
   build:
     permissions:
       contents: read
-      issues: write
-      pull-requests: write
-      statuses: write
     name: Super Linter
     runs-on: ubuntu-latest
 
@@ -34,10 +31,14 @@ jobs:
         uses: super-linter/super-linter/slim@2da136927bd4a73596db63044b504547c62cb854 # v9.0.0
         env:
           DEFAULT_BRANCH: main
+          # Results go to the job summary, so the token needs no write permissions
+          # for commit statuses (MULTI_STATUS) or a pull request comment.
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IGNORE_GITIGNORED_FILES: true
           LINTER_RULES_PATH: /
           LOG_LEVEL: NOTICE
+          MULTI_STATUS: false
           SUPPRESS_POSSUM: true
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_BIOME_FORMAT: false
