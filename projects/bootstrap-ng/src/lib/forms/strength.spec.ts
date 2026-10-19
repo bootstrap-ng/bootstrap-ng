@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import fc from 'fast-check';
 import { BsStrength, BsStrengthText, passwordScore } from './strength';
 
 describe('passwordScore', () => {
@@ -11,6 +12,17 @@ describe('passwordScore', () => {
     expect(passwordScore('Abcdefgh1!')).toBe(5);
     expect(passwordScore('Abcdefgh1!@#xyzw')).toBe(8);
     expect(passwordScore('abcdefgh', 8, { lowercase: 0 })).toBe(1);
+  });
+
+  it('scores between 0 and 8 and never drops as the password grows', () => {
+    fc.assert(
+      fc.property(fc.string(), fc.string(), fc.integer({ min: 0, max: 32 }), (start, end, min) => {
+        const score = passwordScore(start, min);
+        expect(score).toBeGreaterThanOrEqual(0);
+        expect(score).toBeLessThanOrEqual(8);
+        expect(passwordScore(start + end, min)).toBeGreaterThanOrEqual(score);
+      }),
+    );
   });
 });
 

@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import fc from 'fast-check';
 import { BsLiveAnnouncer } from '../util/announcer';
 import { BsFileDropzone, BsFileRejection, formatFileSize } from './file-dropzone';
 import { BsFormField, BsFormLabel, BsInvalidFeedback } from './form-field';
@@ -15,6 +16,22 @@ describe('formatFileSize', () => {
     expect(formatFileSize(1500)).toBe('1.5 kB');
     expect(formatFileSize(2_000_000)).toBe('2 MB');
     expect(formatFileSize(3e15)).toBe('3,000 TB');
+  });
+
+  it('formats any size in one of its units', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: Number.MAX_SAFE_INTEGER }), (bytes) => {
+        expect(formatFileSize(bytes)).toMatch(/^[\d,]+(\.\d)? (bytes?|kB|MB|GB|TB)$/);
+      }),
+    );
+  });
+
+  it('formats sizes under 1 kB as whole bytes', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 999 }), (bytes) => {
+        expect(formatFileSize(bytes)).toBe(`${String(bytes)} ${bytes === 1 ? 'byte' : 'bytes'}`);
+      }),
+    );
   });
 });
 
