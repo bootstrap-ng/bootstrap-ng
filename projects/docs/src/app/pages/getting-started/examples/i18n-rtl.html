@@ -1,0 +1,19 @@
+<div dir="rtl" lang="ar-EG">
+  <nav bsTabs #tabs="bsTabs" class="nav-tabs mb-3" aria-label="أقسام الحساب">
+    <button type="button" bsTab="home">الرئيسية</button>
+    <button type="button" bsTab="profile">الملف الشخصي</button>
+    <button type="button" bsTab="contact">اتصل بنا</button>
+  </nav>
+  <div [bsTabContent]="tabs">
+    <div bsTabPane="home"><p>مرحبًا بك في حسابك.</p></div>
+    <div bsTabPane="profile"><p>عدّل اسمك وصورتك.</p></div>
+    <div bsTabPane="contact"><p>راسلنا في أي وقت.</p></div>
+  </div>
+  <div bsRating class="mb-5" aria-label="التقييم" [(value)]="rating" [valueText]="valueText"></div>
+  <nav
+    bsPagination
+    aria-label="الصفحات"
+    previousText="السابق"
+    nextText="التالي"
+    [pageCount]="5"></nav>
+</div>

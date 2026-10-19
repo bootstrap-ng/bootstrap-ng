@@ -1,0 +1,145 @@
+<h1>Internationalization</h1>
+<p class="fs-lg fg-2">
+  Translate the text that components render, show dates in any locale and lay out pages from right
+  to left.
+</p>
+
+<h2 class="mt-11" id="overview" docsHeading>Overview</h2>
+<p>
+  bootstrap-ng has no translation files and no global language setting. Most of what users read is
+  your own content, and the few strings that components render themselves, such as a close button's
+  accessible name or a datepicker's month names, come from inputs or from the browser's
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl"
+    ><code>Intl</code> API</a
+  >. That means it works with
+  <a href="https://angular.dev/guide/i18n">Angular's built-in i18n</a> and with runtime translation
+  libraries alike.
+</p>
+<ul>
+  <li>Built-in labels default to English and each has an input to replace it.</li>
+  <li>
+    The calendar and datepicker format month names, weekdays and dates with
+    <code>Intl.DateTimeFormat</code> in the locale you give them.
+  </li>
+  <li>
+    Bootstrap 6's CSS uses logical properties, so one stylesheet works for both left-to-right and
+    right-to-left pages, and components follow the <code>dir</code> attribute.
+  </li>
+</ul>
+
+<h2 class="mt-11" id="dates" docsHeading>Dates and locales</h2>
+<p>
+  Set <code>locale</code> on a <a routerLink="/forms/datepicker">datepicker</a> or an inline
+  calendar to choose the language of its month names, weekdays and the dates it shows. Each calendar
+  below also sets its own previous and next month labels and the first day of the week:
+</p>
+<docs-example [component]="localesExample" [html]="localesHtml" />
+<p>
+  Without <code>locale</code>, the calendar uses the browser's language, not Angular's
+  <code>LOCALE_ID</code>. To match the rest of your app, such as dates shown with
+  <code>DatePipe</code>, pass <code>LOCALE_ID</code> in:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="localeId" language="angular-ts" />
+<p>
+  A datepicker on an input shows the selected date as an ISO date (<code>YYYY-MM-DD</code>), so what
+  it shows can also be typed. A datepicker on a button shows it in the locale's medium date style.
+  Pass <code>dateFormat</code> with other <code>Intl.DateTimeFormat</code> options, or with a
+  function for full control, to show localized dates in either. The value itself is always an ISO
+  date, whatever the locale:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="dateFormat" language="angular-html" />
+<docs-code class="mb-5 rounded-5 bg-1" [code]="formatDate" language="angular-ts" />
+
+<h2 class="mt-11" id="weeks" docsHeading>First day of the week and week numbers</h2>
+<p>
+  Weeks start on Monday by default. Set <code>firstWeekday</code> to <code>0</code> to start them on
+  Sunday, as is usual in the United States, Canada and Japan. The first day of the week isn't part
+  of the locale you pass, so set it alongside <code>locale</code>. Where browsers support
+  <code>Intl.Locale.getWeekInfo()</code>, you can read it from the locale:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="weekInfo" language="angular-ts" />
+<p>
+  Add <code>weekNumbers</code> to show a week number before each week. Weeks are numbered with ISO
+  8601 by default, as is common in Europe; set <code>weekNumbering="simple"</code> to make week 1
+  the week that holds 1 January instead. Translate the week column's accessible name with
+  <code>weekLabel</code>. See
+  <a routerLink="/forms/datepicker" fragment="week-numbers">Week numbers</a> on the datepicker page.
+</p>
+
+<h2 class="mt-11" id="labels" docsHeading>Translating labels</h2>
+<p>
+  Components that render text of their own take it from inputs. Strings that depend on a value, such
+  as a rating's "3 out of 5" or the number of typeahead suggestions, are functions:
+</p>
+<docs-example [component]="labelsExample" [html]="labelsHtml" [ts]="labelsTs" />
+<p>These are the inputs to translate, with links to each component's API:</p>
+<!-- Focusable so keyboard users can scroll the table on narrow screens. -->
+<div class="overflow-auto" tabindex="0">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Component</th>
+        <th scope="col">Inputs</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of labels; track row.name) {
+        <tr>
+          <td class="text-nowrap">
+            <a [routerLink]="row.path" fragment="api">{{ row.name }}</a>
+          </td>
+          <td>{{ row.inputs }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  Accessible names you give yourself, such as <code>aria-label</code> on a pagination or a carousel,
+  need translating too. When part of a page is in another language than the page itself, mark it
+  with a <code>lang</code> attribute, as the examples on this page do, so screen readers pronounce
+  it correctly.
+</p>
+
+<h2 class="mt-11" id="angular-i18n" docsHeading>With Angular i18n</h2>
+<p>
+  Mark static inputs for translation with Angular's <code>i18n-<em>name</em></code> attributes, just
+  like native attributes. They work on any input set as a static attribute:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="i18nAttributes" language="angular-html" />
+<p>
+  For function inputs and strings in TypeScript, use
+  <a href="https://angular.dev/api/localize/init/$localize"><code>$localize</code></a
+  >:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="localize" language="angular-ts" />
+<p>
+  A localized build sets <code>LOCALE_ID</code> for each language, so passing it to the
+  <code>locale</code> input, as shown <a routerLink="." fragment="dates">above</a>, keeps calendars
+  in the same language as the rest of the build. The
+  <a routerLink="/forms/file-dropzone">file dropzone</a> already formats file sizes with
+  <code>LOCALE_ID</code>. With a runtime library such as Transloco or ngx-translate, bind the same
+  inputs to its translated strings instead.
+</p>
+
+<h2 class="mt-11" id="rtl" docsHeading>Right to left</h2>
+<p>
+  For Arabic, Hebrew, Persian and other right-to-left languages, set <code>dir="rtl"</code> on the
+  <code>&lt;html&gt;</code> element, together with <code>lang</code>:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="rtlDocument" language="angular-html" />
+<p>
+  You can also set <code>dir</code> on part of a page. Components read the direction from their
+  element, so arrow keys follow the reading direction in tabs, menus, button group toolbars, ratings
+  and calendars, the carousel slides the other way, popups placed at <code>start</code> or
+  <code>end</code> open on the correct side, and table columns resize from their other edge. Try the
+  arrow keys on the tabs and the rating:
+</p>
+<docs-example [component]="rtlExample" [html]="rtlHtml" [ts]="rtlTs" />
+<p>
+  Use logical utilities such as <code>ms-*</code>, <code>pe-*</code>, <code>text-start</code> and
+  <code>float-end</code> in your own markup, so it flips with the components. To switch the
+  direction at runtime, for example from a language picker, set both attributes on the document
+  element:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="rtlBinding" language="angular-ts" />

@@ -42,6 +42,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/getting-started/accessibility'),
   },
   {
+    path: 'getting-started/internationalization',
+    title: 'Internationalization · bootstrap-ng',
+    loadComponent: () => import('./pages/getting-started/internationalization'),
+  },
+  {
     path: 'components',
     loadChildren: () => import('./pages/components/components.routes'),
   },
