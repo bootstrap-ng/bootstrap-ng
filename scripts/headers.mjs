@@ -18,9 +18,9 @@ const { values } = parseArgs({
 /** Hashes of the inline scripts in `html`, such as the color mode script. */
 function inlineScriptHashes(html) {
   const hashes = new Set();
-  for (const [, attributes, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
+  for (const [, attributes, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
     // External scripts are covered by 'self', and data blocks such as ng-state don't run.
-    if (/\ssrc=/.test(attributes) || /\stype="(?!module"|text\/javascript")/.test(attributes)) {
+    if (/\ssrc=/i.test(attributes) || /\stype="(?!module"|text\/javascript")/i.test(attributes)) {
       continue;
     }
     hashes.add(`'sha256-${createHash('sha256').update(body).digest('base64')}'`);
