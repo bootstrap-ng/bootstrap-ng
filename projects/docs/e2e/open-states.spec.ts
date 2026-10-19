@@ -111,6 +111,17 @@ const STATES: {
     },
   },
   {
+    name: 'an open datepicker with week numbers',
+    path: 'forms/datepicker',
+    include: ['[role="dialog"]', '[aria-expanded="true"]'],
+    open: async (page) => {
+      await example(page, 'week-numbers')
+        .getByRole('combobox', { name: 'ISO week numbers' })
+        .click();
+      await expect(page.getByRole('rowheader').first()).toBeVisible();
+    },
+  },
+  {
     name: 'a file dropzone with files and a rejection',
     path: 'forms/file-dropzone',
     include: ['[bsFileDropzone]'],

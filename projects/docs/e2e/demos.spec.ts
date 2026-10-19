@@ -165,6 +165,14 @@ test('a datepicker follows the page color mode, not the system one', async ({ pa
   await expect(calendar).toHaveCSS('background-color', 'rgb(255, 255, 255)');
 });
 
+test('a datepicker shows week numbers', async ({ page }) => {
+  await page.goto('forms/datepicker/');
+  await example(page, 'week-numbers').getByRole('combobox', { name: 'ISO week numbers' }).click();
+  const calendar = page.getByRole('dialog', { name: 'Choose date' });
+  await expect(calendar.getByRole('columnheader', { name: 'Week' })).toBeVisible();
+  await expect(calendar.getByRole('rowheader').first()).toHaveText(/^\s*\d+\s*$/);
+});
+
 test('a menu opens with the keyboard and moves focus between items', async ({ page }) => {
   await page.goto('components/menu/');
   const demo = example(page, 'basic');

@@ -29,6 +29,7 @@ import {
   BsCalendar,
   BsDateSelectionMode,
   BsDateValue,
+  BsWeekNumbering,
   parseIsoDate,
   selectedDates,
 } from './calendar';
@@ -101,6 +102,10 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
   readonly firstWeekday = input(1, { transform: numberAttribute });
   /** Number of months shown side by side. */
   readonly monthsCount = input(1, { transform: numberAttribute });
+  /** Shows the week numbers before each week. */
+  readonly weekNumbers = input(false, { transform: booleanAttribute });
+  /** How weeks are numbered: ISO 8601 or from 1 January. */
+  readonly weekNumbering = input<BsWeekNumbering>('iso');
   /** Locale for dates and month and day names, such as `en-US`. Defaults to the browser's. */
   readonly locale = input<string | undefined>(undefined);
   /** How selected dates are shown. Defaults to the locale's short date. */
@@ -306,6 +311,8 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
       dateDisabled: this.dateDisabled(),
       firstWeekday: this.firstWeekday(),
       monthsCount: this.monthsCount(),
+      weekNumbers: this.weekNumbers(),
+      weekNumbering: this.weekNumbering(),
       locale: this.locale(),
       colorMode: this.colorMode(),
       disabled: this.isDisabled(),

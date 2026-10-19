@@ -1,0 +1,29 @@
+<div class="d-flex flex-wrap gap-3">
+  <div>
+    <label bsFormLabel for="datepickerWeekIso">ISO week numbers</label>
+    <input
+      type="text"
+      bsFormControl
+      bsDatepicker
+      id="datepickerWeekIso"
+      class="w-12"
+      autocomplete="off"
+      weekNumbers
+      placeholder="Select a date" />
+  </div>
+  <div>
+    <label bsFormLabel for="datepickerWeekSimple">Weeks from 1 January</label>
+    <input
+      type="text"
+      bsFormControl
+      bsDatepicker
+      id="datepickerWeekSimple"
+      class="w-12"
+      autocomplete="off"
+      weekNumbers
+      weekNumbering="simple"
+      firstWeekday="0"
+      locale="en-US"
+      placeholder="Select a date" />
+  </div>
+</div>
