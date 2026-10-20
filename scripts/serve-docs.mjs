@@ -18,6 +18,7 @@ const TYPES = {
   '.ico': 'image/x-icon',
   '.js': 'text/javascript',
   '.json': 'application/json',
+  '.map': 'application/json',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
   '.wasm': 'application/wasm',

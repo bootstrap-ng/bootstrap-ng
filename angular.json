@@ -97,6 +97,11 @@
                 },
                 "fonts": true
               },
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "outputHashing": "all"
             },
             "development": {
