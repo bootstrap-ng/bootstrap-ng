@@ -346,6 +346,43 @@ test('examples show their source and copy it', async ({ page, context }) => {
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('@Component');
 });
 
+/** Clicks an example's StackBlitz button and returns the form fields it posts to StackBlitz. */
+async function openInStackBlitz(page: Page, section: string): Promise<URLSearchParams> {
+  const context = page.context();
+  await context.route('https://stackblitz.com/**', (route) =>
+    route.fulfill({ body: 'StackBlitz', contentType: 'text/plain' }),
+  );
+  const submitted = context.waitForEvent('request', (request) =>
+    request.url().startsWith('https://stackblitz.com/run?'),
+  );
+  await page
+    .locator(`h2#${section} ~ docs-example`)
+    .first()
+    .getByRole('button', { name: 'Open in StackBlitz' })
+    .click();
+  const request = await submitted;
+  expect(request.method()).toBe('POST');
+  return new URLSearchParams(request.postData() ?? '');
+}
+
+test('examples open in StackBlitz', async ({ page }) => {
+  await page.goto('components/alert/');
+  const fields = await openInStackBlitz(page, 'dismissible');
+  expect(fields.get('project[template]')).toBe('node');
+  expect(fields.get('project[files][src/app/dismissible.ts]')).toContain('AlertDismissibleExample');
+  expect(fields.get('project[files][src/app/dismissible.html]')).toContain('bsAlert');
+  expect(fields.get('project[files][package.json]')).toContain('"bootstrap-ng": "next"');
+});
+
+test('examples with helper components open the example in StackBlitz', async ({ page }) => {
+  await page.goto('components/dialog/');
+  const fields = await openInStackBlitz(page, 'service');
+  expect(fields.get('project[files][src/main.ts]')).toContain(
+    'bootstrapApplication(DialogServiceExample',
+  );
+  expect(fields.get('project[files][src/app/service.ts]')).toContain('class ConfirmDelete');
+});
+
 test('home page copies the install command', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('');

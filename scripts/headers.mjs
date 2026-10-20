@@ -48,7 +48,8 @@ const csp = (scriptHashes) => ({
   'connect-src': ["'self'", JSDELIVR, 'https://cloudflareinsights.com'],
   'object-src': ["'none'"],
   'base-uri': ["'self'"],
-  'form-action': ["'self'"],
+  // "Open in StackBlitz" posts the example's files to StackBlitz in a form.
+  'form-action': ["'self'", 'https://stackblitz.com'],
   'frame-ancestors': ["'none'"],
   'upgrade-insecure-requests': [],
 });

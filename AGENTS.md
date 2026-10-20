@@ -45,6 +45,7 @@ Squash a pull request's commits into one before it is reviewed or merged. When y
 - Each component has a page in `projects/docs/src/app/pages/components/<name>/` with an `examples/` folder.
 - Each example is a small component whose `.html` (and `.ts` when it has logic) is also imported as text with `with { loader: 'text' }`, so the source shown on the page is the code that runs.
 - Routes are lazy loaded with `loadComponent` / `loadChildren`.
+- `scripts/stackblitz.mjs` turns every example into a StackBlitz project (an Angular CLI app that installs `bootstrap-ng@next`) in `projects/docs/public/stackblitz/`, which git ignores. `npm start` and `npm run build` run it first. It finds an example by its `selector`, `templateUrl: './…'` and `./` imports, so keep examples self-contained in their `examples/` folder.
 - `scripts/headers.mjs` writes the Cloudflare Pages `_headers` file with the security headers, including a Content-Security-Policy per page that allows its inline scripts by hash. When the docs start loading from a new host, add it to the policy there; the e2e tests fail on any CSP violation.
 
 ## TypeScript Best Practices

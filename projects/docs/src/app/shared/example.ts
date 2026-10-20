@@ -2,6 +2,7 @@ import { NgComponentOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, signal, Type } from '@angular/core';
 import { BsButton } from 'bootstrap-ng';
 import { DocsCopyButton } from './copy-button';
+import { DocsStackBlitzButton } from './stackblitz-button';
 import { DocsCode } from './code';
 import { DocsCodeLanguage } from './highlighter';
 
@@ -14,7 +15,7 @@ export interface DocsExampleSource {
 /** Shows a live example component above its source code. */
 @Component({
   selector: 'docs-example',
-  imports: [NgComponentOutlet, BsButton, DocsCode, DocsCopyButton],
+  imports: [NgComponentOutlet, BsButton, DocsCode, DocsCopyButton, DocsStackBlitzButton],
   host: {
     class: 'd-block mt-5 mb-9 border rounded-5 overflow-hidden',
     '(click)': 'ignoreEmptyLinks($event)',
@@ -47,7 +48,10 @@ export interface DocsExampleSource {
         } @else {
           <span class="font-monospace text-uppercase fs-xs fg-3">{{ sources()[0]?.label }}</span>
         }
-        <docs-copy-button [text]="code()" />
+        <div class="d-flex gap-1">
+          <docs-stackblitz-button [component]="component()" />
+          <docs-copy-button [text]="code()" />
+        </div>
       </div>
       <docs-code [code]="code()" [language]="language()" />
     </div>
