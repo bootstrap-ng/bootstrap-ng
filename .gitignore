@@ -6,6 +6,9 @@
 /out-tsc
 /bazel-out
 
+# StackBlitz projects for the docs examples, written by scripts/stackblitz.mjs
+/projects/docs/public/stackblitz
+
 # Node
 /node_modules
 npm-debug.log
