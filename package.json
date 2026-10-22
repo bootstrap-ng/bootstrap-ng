@@ -79,7 +79,7 @@
     "prettier": "3.9.10",
     "shiki": "^4.5.0",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.71.1",
+    "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.5"
   },
   "bundlewatch": {
