@@ -81,6 +81,9 @@ module.exports = defineConfig([
       '@typescript-eslint/require-array-sort-compare': 'error',
       '@typescript-eslint/no-loop-func': 'error',
       '@typescript-eslint/default-param-last': 'error',
+      // A leading underscore marks a parameter a signature needs but the body doesn't use,
+      // e.g. the directive argument of Angular's ngTemplateContextGuard.
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       curly: 'error',
       yoda: 'error',
       'no-alert': 'error',
