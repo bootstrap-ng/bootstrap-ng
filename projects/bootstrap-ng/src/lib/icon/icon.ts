@@ -14,8 +14,8 @@ import { BsIconRegistry } from './icon-registry';
 
 /**
  * An SVG icon from an icon library, inlined so it takes the text's size and color.
- * Bootstrap Icons is the default library; Modus Icons, Font Awesome and Material Symbols are
- * built in, and you can register your own with `BsIconRegistry` or `provideBsIcons()`.
+ * Bootstrap Icons is the default library; Font Awesome, Material Symbols, Modus Icons and
+ * Phosphor Icons are built in, and you can register your own with `BsIconRegistry` or `provideBsIcons()`.
  *
  * Icons are decorative (hidden from screen readers) unless you give them a `label`.
  *
