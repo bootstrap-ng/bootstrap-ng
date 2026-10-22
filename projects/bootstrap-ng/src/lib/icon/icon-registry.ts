@@ -45,15 +45,6 @@ export function bootstrapIcons(options: BsIconLibraryOptions = {}): BsIconLibrar
 }
 
 /**
- * [Modus Icons](https://modus-icons.trimble.com/). Variants: `'solid'` (default) and
- * `'outlined'`.
- */
-export function modusIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
-  const base = options.baseUrl ?? `${JSDELIVR}/@trimble-oss/modus-icons@1.21.0/dist`;
-  return { resolver: (name, variant) => `${base}/modus-${variant ?? 'solid'}/svg/${name}.svg` };
-}
-
-/**
  * [Font Awesome Free](https://fontawesome.com/search?ic=free). Variants: `'solid'` (default),
  * `'regular'` and `'brands'`.
  */
@@ -71,6 +62,29 @@ export function materialSymbols(options: BsIconLibraryOptions = {}): BsIconLibra
   return { resolver: (name, variant) => `${base}/${variant ?? 'outlined'}/${name}.svg` };
 }
 
+/**
+ * [Modus Icons](https://modus-icons.trimble.com/). Variants: `'solid'` (default) and
+ * `'outlined'`.
+ */
+export function modusIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
+  const base = options.baseUrl ?? `${JSDELIVR}/@trimble-oss/modus-icons@1.21.0/dist`;
+  return { resolver: (name, variant) => `${base}/modus-${variant ?? 'solid'}/svg/${name}.svg` };
+}
+
+/**
+ * [Phosphor Icons](https://phosphoricons.com/). Variants: `'regular'` (default), `'thin'`,
+ * `'light'`, `'bold'`, `'fill'` and `'duotone'`.
+ */
+export function phosphorIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
+  const base = options.baseUrl ?? `${JSDELIVR}/@phosphor-icons/core@2.1.1/assets`;
+  return {
+    resolver: (name, variant) =>
+      !variant || variant === 'regular'
+        ? `${base}/regular/${name}.svg`
+        : `${base}/${variant}/${name}-${variant}.svg`,
+  };
+}
+
 const BS_ICON_CONFIG = new InjectionToken<BsIconConfig>('BS_ICON_CONFIG');
 
 /**
@@ -86,16 +100,17 @@ export function provideBsIcons(config: BsIconConfig): EnvironmentProviders {
 
 /**
  * The icon libraries that `bs-icon` loads from, and a cache of the icons it has loaded.
- * `bootstrap` (the default), `modus`, `font-awesome` and `material` are built in.
+ * `bootstrap` (the default), `font-awesome`, `material`, `modus` and `phosphor` are built in.
  */
 @Service()
 export class BsIconRegistry {
   private readonly config = inject(BS_ICON_CONFIG, { optional: true });
   private readonly libraries = signal<Readonly<Record<string, BsIconLibrary>>>({
     bootstrap: bootstrapIcons(),
-    modus: modusIcons(),
     'font-awesome': fontAwesomeIcons(),
     material: materialSymbols(),
+    modus: modusIcons(),
+    phosphor: phosphorIcons(),
     ...this.config?.libraries,
   });
   private readonly cache = new Map<string, Promise<SVGSVGElement>>();

@@ -396,7 +396,7 @@ test('home page copies the install command', async ({ page, context }) => {
 test('icons load from their libraries and labelled icons are images', async ({ page }) => {
   await page.goto('components/icon/');
   const demo = example(page, 'libraries');
-  await expect(demo.locator('bs-icon > svg')).toHaveCount(16);
+  await expect(demo.locator('bs-icon > svg')).toHaveCount(20);
   const basic = example(page, 'basic');
   await expect(basic.getByRole('img', { name: 'Notifications' }).locator('svg')).toHaveCount(1);
   await expect(basic.locator('bs-icon[aria-hidden="true"]')).toHaveCount(3);

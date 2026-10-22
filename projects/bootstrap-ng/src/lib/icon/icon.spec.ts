@@ -7,6 +7,7 @@ import {
   fontAwesomeIcons,
   materialSymbols,
   modusIcons,
+  phosphorIcons,
   provideBsIcons,
 } from './icon-registry';
 
@@ -182,14 +183,17 @@ describe('BsIconRegistry', () => {
     expect(registry.get('bootstrap')!.resolver('heart', null)).toBe(
       'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/icons/heart.svg',
     );
-    expect(registry.get('modus')!.resolver('heart', null)).toMatch(
-      /modus-icons@[\d.]+\/dist\/modus-solid\/svg\/heart\.svg$/,
-    );
     expect(registry.get('font-awesome')!.resolver('github', 'brands')).toMatch(
       /fontawesome-free@[\d.]+\/svgs\/brands\/github\.svg$/,
     );
     expect(registry.get('material')!.resolver('home', 'rounded')).toMatch(
       /svg-400@[\d.]+\/rounded\/home\.svg$/,
+    );
+    expect(registry.get('modus')!.resolver('heart', null)).toMatch(
+      /modus-icons@[\d.]+\/dist\/modus-solid\/svg\/heart\.svg$/,
+    );
+    expect(registry.get('phosphor')!.resolver('heart', null)).toMatch(
+      /@phosphor-icons\/core@[\d.]+\/assets\/regular\/heart\.svg$/,
     );
   });
 
@@ -204,6 +208,12 @@ describe('BsIconRegistry', () => {
     );
     expect(materialSymbols({ baseUrl }).resolver('home-fill', null)).toBe(
       '/assets/icons/outlined/home-fill.svg',
+    );
+    expect(phosphorIcons({ baseUrl }).resolver('heart', 'regular')).toBe(
+      '/assets/icons/regular/heart.svg',
+    );
+    expect(phosphorIcons({ baseUrl }).resolver('heart', 'duotone')).toBe(
+      '/assets/icons/duotone/heart-duotone.svg',
     );
   });
 });
