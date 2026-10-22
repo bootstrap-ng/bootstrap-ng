@@ -34,11 +34,12 @@
 <h2 class="mt-11" id="icon-registry" docsHeading>BsIconRegistry</h2>
 <p>
   The icon libraries that <code>bs-icon</code> loads from, and a cache of the icons it has loaded.
-  <code>bootstrap</code> (the default), <code>modus</code>, <code>font-awesome</code> and
-  <code>material</code> are built in and load from jsDelivr. Set the default library and add your
-  own with <code>provideBsIcons()</code>, or self-host a built-in set by passing a
-  <code>baseUrl</code> to its factory, such as <code>bootstrapIcons()</code>,
-  <code>modusIcons()</code>, <code>fontAwesomeIcons()</code> or <code>materialSymbols()</code>.
+  <code>bootstrap</code> (the default), <code>font-awesome</code>, <code>material</code>,
+  <code>modus</code> and <code>phosphor</code> are built in and load from jsDelivr. Set the default
+  library and add your own with <code>provideBsIcons()</code>, or self-host a built-in set by
+  passing a <code>baseUrl</code> to its factory, such as <code>bootstrapIcons()</code>,
+  <code>fontAwesomeIcons()</code>, <code>materialSymbols()</code>, <code>modusIcons()</code> or
+  <code>phosphorIcons()</code>.
 </p>
 <docs-code class="mb-5 rounded-5 bg-1" [code]="icons" language="angular-ts" />
 <docs-api-table [entries]="iconMethods" [showDefault]="false" label="BsIconRegistry methods" />

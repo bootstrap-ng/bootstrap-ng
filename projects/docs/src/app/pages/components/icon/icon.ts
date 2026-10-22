@@ -15,7 +15,7 @@ import customTs from './examples/custom.ts' with { loader: 'text' };
 
 const PAGE: DocsPageData = {
   title: 'Icon',
-  lead: 'SVG icons from Bootstrap Icons, Modus Icons, Font Awesome, Material Symbols or your own icon set, loaded one at a time and sized and colored like text.',
+  lead: 'SVG icons from Bootstrap Icons, Font Awesome, Material Symbols, Modus Icons, Phosphor Icons or your own icon set, loaded one at a time and sized and colored like text.',
   sections: [
     {
       id: 'basic',
@@ -37,7 +37,7 @@ const PAGE: DocsPageData = {
       id: 'libraries',
       title: 'Icon libraries',
       description:
-        'Set <code>library</code> to <code>modus</code>, <code>font-awesome</code> or <code>material</code> for the other built-in sets, and <code>variant</code> for a style within one: Modus Icons has <code>solid</code> and <code>outlined</code>, Font Awesome Free has <code>solid</code>, <code>regular</code> and <code>brands</code>, and Material Symbols has <code>outlined</code>, <code>rounded</code> and <code>sharp</code>, with filled icons named <code>…-fill</code>. Use each set’s own icon names, such as <code>cloud_upload</code> in Material Symbols.',
+        'Set <code>library</code> to <code>font-awesome</code>, <code>material</code>, <code>modus</code> or <code>phosphor</code> for the other built-in sets, and <code>variant</code> for a style within one: Font Awesome Free has <code>solid</code>, <code>regular</code> and <code>brands</code>, Material Symbols has <code>outlined</code>, <code>rounded</code> and <code>sharp</code>, with filled icons named <code>…-fill</code>, Modus Icons has <code>solid</code> and <code>outlined</code>, and Phosphor Icons has <code>regular</code>, <code>thin</code>, <code>light</code>, <code>bold</code>, <code>fill</code> and <code>duotone</code>. Use each set’s own icon names, such as <code>cloud_upload</code> in Material Symbols.',
       example: IconLibrariesExample,
       html: librariesHtml,
     },
