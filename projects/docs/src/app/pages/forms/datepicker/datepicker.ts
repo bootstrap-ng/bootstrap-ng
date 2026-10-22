@@ -65,7 +65,7 @@ const PAGE: DocsPageData = {
       id: 'with-icon',
       title: 'With icon',
       description:
-        'Put the input in a <a href="forms/form-adorn">form adorn</a> for a calendar icon. The calendar lines up with the adorn.',
+        'Put the input in a <a href="forms/form-adorn">form adorn</a> with <code>end</code> for a calendar icon on the right. The calendar lines up with the adorn.',
       example: DatepickerIconExample,
       html: iconHtml,
     },
