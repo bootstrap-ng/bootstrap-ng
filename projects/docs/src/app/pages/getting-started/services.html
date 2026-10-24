@@ -36,12 +36,28 @@
   The icon libraries that <code>bs-icon</code> loads from, and a cache of the icons it has loaded.
   <code>bootstrap</code> (the default), <code>font-awesome</code>, <code>material</code>,
   <code>modus</code> and <code>phosphor</code> are built in and load from jsDelivr. Set the default
-  library and add your own with <code>provideBsIcons()</code>, or self-host a built-in set by
-  passing a <code>baseUrl</code> to its factory, such as <code>bootstrapIcons()</code>,
+  library and add your own with <code>provideBsIcons()</code>, self-host a built-in set by passing a
+  <code>baseUrl</code> to its factory, such as <code>bootstrapIcons()</code>,
   <code>fontAwesomeIcons()</code>, <code>materialSymbols()</code>, <code>modusIcons()</code> or
-  <code>phosphorIcons()</code>.
+  <code>phosphorIcons()</code>, or bundle icons as SVG markup in a library’s <code>icons</code>.
+  Bundled icons need no request and render on the server; each factory takes <code>icons</code>
+  too, which are used before its files.
 </p>
 <docs-code class="mb-5 rounded-5 bg-1" [code]="icons" language="angular-ts" />
+<p>
+  To self-host, install the icon set’s npm package and copy its SVG files into your build with an
+  <code>assets</code> entry in <code>angular.json</code>, then pass the output path as
+  <code>baseUrl</code>. Use the package folder that holds the set’s variant folders:
+  <code>bootstrap-icons/icons</code>, <code>&#64;fortawesome/fontawesome-free/svgs</code>,
+  <code>&#64;material-symbols/svg-400</code>, <code>&#64;trimble-oss/modus-icons/dist</code> or
+  <code>&#64;phosphor-icons/core/assets</code>, with <code>**/*.svg</code> as the glob for sets that
+  have variants.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="iconAssets" language="json" />
+<p>
+  To import an SVG file as text, as <code>logo.svg</code> above, declare its type once in your app.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="iconTypes" language="angular-ts" />
 <docs-api-table [entries]="iconMethods" [showDefault]="false" label="BsIconRegistry methods" />
 <p>See <a routerLink="/components/icon">Icon</a> for every built-in library and its variants.</p>
 

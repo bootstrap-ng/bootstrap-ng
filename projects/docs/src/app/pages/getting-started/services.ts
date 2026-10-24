@@ -67,6 +67,8 @@ export class Search {
 
   protected readonly icons = `import { ApplicationConfig } from '@angular/core';
 import { bootstrapIcons, provideBsIcons } from 'bootstrap-ng';
+// Bundled into your app as text, so it shows without a request.
+import logo from './logo.svg' with { loader: 'text' };
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -74,22 +76,41 @@ export const appConfig: ApplicationConfig = {
       // Icons without a library come from Font Awesome.
       defaultLibrary: 'font-awesome',
       libraries: {
-        // Serve Bootstrap Icons from your own site, copied from node_modules/bootstrap-icons/icons.
+        // Serve Bootstrap Icons from your own site (see the assets entry below).
         bootstrap: bootstrapIcons({ baseUrl: '/icons/bootstrap' }),
         // Any icon set with an SVG file per icon.
         lucide: {
           resolver: (name) => \`https://cdn.jsdelivr.net/npm/lucide-static@1.48.0/icons/\${name}.svg\`,
         },
+        // Icons bundled as SVG markup: <bs-icon library="app" name="logo" />.
+        app: { icons: { logo } },
       },
     }),
   ],
 };`;
+
+  protected readonly iconAssets = `"assets": [
+  { "glob": "**/*", "input": "public" },
+  { "glob": "*.svg", "input": "node_modules/bootstrap-icons/icons", "output": "icons/bootstrap" }
+]`;
+
+  protected readonly iconTypes = `// src/svg.d.ts: types for importing SVG files as text.
+declare module '*.svg' {
+  const content: string;
+  export default content;
+}`;
 
   protected readonly iconMethods: DocsApiEntry[] = [
     {
       name: 'register(name, library)',
       type: 'void',
       description: 'Adds an icon library, or replaces the one with the same name.',
+    },
+    {
+      name: 'addIcons(library, icons)',
+      type: 'void',
+      description:
+        'Adds icons, as SVG markup by name, to a library, creating it when it does not exist. They show without a request and render on the server.',
     },
     {
       name: 'get(name)',
@@ -100,6 +121,12 @@ export const appConfig: ApplicationConfig = {
       name: 'load(url)',
       type: 'Promise<SVGSVGElement>',
       description: 'Fetches an SVG once, removes scripts and event handlers, and returns a copy.',
+    },
+    {
+      name: 'parse(markup)',
+      type: 'SVGSVGElement',
+      description:
+        'Parses SVG markup, cleaned like a loaded SVG, and returns a copy. Throws when it is not an SVG.',
     },
     {
       name: 'defaultLibrary',

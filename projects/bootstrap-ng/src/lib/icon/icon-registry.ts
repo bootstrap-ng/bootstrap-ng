@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import {
   EnvironmentProviders,
   inject,
@@ -9,11 +10,20 @@ import {
 
 /**
  * A set of SVG icons. The resolver turns an icon's name and variant into the URL of its SVG
- * file, so icons load one at a time and no icon data ships in your bundle.
+ * file, so icons load one at a time and no icon data ships in your bundle. Icons in `icons`
+ * are bundled instead: they show at once, need no network and render on the server.
  */
 export interface BsIconLibrary {
-  /** Returns the URL of the SVG file of an icon. `variant` is `null` when none is set. */
-  resolver: (name: string, variant: string | null) => string;
+  /**
+   * Returns the URL of the SVG file of an icon. `variant` is `null` when none is set. Leave it
+   * out when every icon of the library is in `icons`.
+   */
+  resolver?: (name: string, variant: string | null) => string;
+  /**
+   * SVG markup of icons, by name, used before the resolver whatever the variant. Give each
+   * variant its own name, such as `heart-fill`.
+   */
+  icons?: Readonly<Record<string, string>>;
 }
 
 /** Options of the built-in icon libraries. */
@@ -23,6 +33,8 @@ export interface BsIconLibraryOptions {
    * the npm package on jsDelivr. Point it at your own copy to self-host the icons.
    */
   baseUrl?: string;
+  /** SVG markup of icons, by name, to bundle instead of loading. See `BsIconLibrary.icons`. */
+  icons?: Readonly<Record<string, string>>;
 }
 
 /** Configuration passed to `provideBsIcons()`. */
@@ -41,7 +53,10 @@ const JSDELIVR = 'https://cdn.jsdelivr.net/npm';
  */
 export function bootstrapIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
   const base = options.baseUrl ?? `${JSDELIVR}/bootstrap-icons@1.13.1/icons`;
-  return { resolver: (name) => `${base}/${name}.svg` };
+  return {
+    ...(options.icons && { icons: options.icons }),
+    resolver: (name) => `${base}/${name}.svg`,
+  };
 }
 
 /**
@@ -50,7 +65,10 @@ export function bootstrapIcons(options: BsIconLibraryOptions = {}): BsIconLibrar
  */
 export function fontAwesomeIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
   const base = options.baseUrl ?? `${JSDELIVR}/@fortawesome/fontawesome-free@7.3.1/svgs`;
-  return { resolver: (name, variant) => `${base}/${variant ?? 'solid'}/${name}.svg` };
+  return {
+    ...(options.icons && { icons: options.icons }),
+    resolver: (name, variant) => `${base}/${variant ?? 'solid'}/${name}.svg`,
+  };
 }
 
 /**
@@ -59,7 +77,10 @@ export function fontAwesomeIcons(options: BsIconLibraryOptions = {}): BsIconLibr
  */
 export function materialSymbols(options: BsIconLibraryOptions = {}): BsIconLibrary {
   const base = options.baseUrl ?? `${JSDELIVR}/@material-symbols/svg-400@0.47.5`;
-  return { resolver: (name, variant) => `${base}/${variant ?? 'outlined'}/${name}.svg` };
+  return {
+    ...(options.icons && { icons: options.icons }),
+    resolver: (name, variant) => `${base}/${variant ?? 'outlined'}/${name}.svg`,
+  };
 }
 
 /**
@@ -68,7 +89,10 @@ export function materialSymbols(options: BsIconLibraryOptions = {}): BsIconLibra
  */
 export function modusIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
   const base = options.baseUrl ?? `${JSDELIVR}/@trimble-oss/modus-icons@1.21.0/dist`;
-  return { resolver: (name, variant) => `${base}/modus-${variant ?? 'solid'}/svg/${name}.svg` };
+  return {
+    ...(options.icons && { icons: options.icons }),
+    resolver: (name, variant) => `${base}/modus-${variant ?? 'solid'}/svg/${name}.svg`,
+  };
 }
 
 /**
@@ -78,6 +102,7 @@ export function modusIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
 export function phosphorIcons(options: BsIconLibraryOptions = {}): BsIconLibrary {
   const base = options.baseUrl ?? `${JSDELIVR}/@phosphor-icons/core@2.1.1/assets`;
   return {
+    ...(options.icons && { icons: options.icons }),
     resolver: (name, variant) =>
       !variant || variant === 'regular'
         ? `${base}/regular/${name}.svg`
@@ -105,6 +130,7 @@ export function provideBsIcons(config: BsIconConfig): EnvironmentProviders {
 @Service()
 export class BsIconRegistry {
   private readonly config = inject(BS_ICON_CONFIG, { optional: true });
+  private readonly document = inject(DOCUMENT);
   private readonly libraries = signal<Readonly<Record<string, BsIconLibrary>>>({
     bootstrap: bootstrapIcons(),
     'font-awesome': fontAwesomeIcons(),
@@ -114,6 +140,7 @@ export class BsIconRegistry {
     ...this.config?.libraries,
   });
   private readonly cache = new Map<string, Promise<SVGSVGElement>>();
+  private readonly parsed = new Map<string, SVGSVGElement>();
 
   /** Name of the library that icons without a `library` use. */
   readonly defaultLibrary = signal(this.config?.defaultLibrary ?? 'bootstrap');
@@ -121,6 +148,17 @@ export class BsIconRegistry {
   /** Adds an icon library, or replaces the one with the same name. */
   register(name: string, library: BsIconLibrary): void {
     this.libraries.update((libraries) => ({ ...libraries, [name]: library }));
+  }
+
+  /**
+   * Adds icons, as SVG markup by name, to a library, which is created when it doesn't exist.
+   * These icons are bundled: they show at once, need no network and render on the server.
+   */
+  addIcons(library: string, icons: Readonly<Record<string, string>>): void {
+    this.libraries.update((libraries) => ({
+      ...libraries,
+      [library]: { ...libraries[library], icons: { ...libraries[library]?.icons, ...icons } },
+    }));
   }
 
   /** Returns the library registered under `name`, if any. */
@@ -142,6 +180,25 @@ export class BsIconRegistry {
     }
     return (await svg).cloneNode(true) as SVGSVGElement;
   }
+
+  /**
+   * Parses SVG markup, such as an icon from a library's `icons`, and returns a copy of it,
+   * cleaned like a loaded SVG. Works on the server too. Throws when the markup isn't an SVG.
+   */
+  parse(markup: string): SVGSVGElement {
+    let svg = this.parsed.get(markup);
+    if (!svg) {
+      // A template's content is inert: nothing in it loads or runs while it is cleaned.
+      const template = this.document.createElement('template');
+      template.innerHTML = markup;
+      const element = Array.from(template.content.childNodes).find(
+        (node): node is Element => node.nodeType === 1,
+      );
+      svg = clean(element, 'Inline icon');
+      this.parsed.set(markup, svg);
+    }
+    return svg.cloneNode(true) as SVGSVGElement;
+  }
 }
 
 async function fetchSvg(url: string): Promise<SVGSVGElement> {
@@ -150,9 +207,14 @@ async function fetchSvg(url: string): Promise<SVGSVGElement> {
     throw new Error(`Icon ${url} failed to load (${String(response.status)}).`);
   }
   const doc = new DOMParser().parseFromString(await response.text(), 'image/svg+xml');
-  const svg = doc.documentElement;
-  if (!(svg instanceof SVGSVGElement)) {
-    throw new Error(`Icon ${url} is not an SVG.`);
+  return clean(doc.documentElement, `Icon ${url}`);
+}
+
+/** Removes scripts and event handlers from an SVG, and sizes and colors it like text. */
+function clean(svg: Element | undefined, description: string): SVGSVGElement {
+  // Checked by name, since the server has no SVGSVGElement class.
+  if (svg?.localName !== 'svg' || svg.namespaceURI !== 'http://www.w3.org/2000/svg') {
+    throw new Error(`${description} is not an SVG.`);
   }
   for (const element of Array.from(svg.querySelectorAll('script, foreignObject'))) {
     element.remove();
@@ -172,5 +234,5 @@ async function fetchSvg(url: string): Promise<SVGSVGElement> {
   }
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
-  return svg;
+  return svg as SVGSVGElement;
 }
