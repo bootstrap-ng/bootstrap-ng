@@ -7,13 +7,14 @@ import { BsToast, BsToastClose } from './toast';
   imports: [BsToast, BsToastClose],
   template: `
     <div
+      #el
       bsToast
       style="position: fixed; top: -1000px"
       [(open)]="open"
       [autohide]="autohide()"
       [delay]="50"
       [live]="live()"
-      (shown)="shown = shown + 1"
+      (shown)="shown = shown + 1; showClassWhenShown = el.classList.contains('show')"
       (hidden)="hidden = hidden + 1">
       <div class="toast-header">
         <button type="button" bsToastClose>Close</button>
@@ -28,6 +29,7 @@ class Host {
   readonly live = signal<'polite' | 'assertive'>('polite');
   shown = 0;
   hidden = 0;
+  showClassWhenShown = false;
 }
 
 // The toasts sit off screen so the test runner's pointer never pauses them.
@@ -57,8 +59,9 @@ describe('BsToast', () => {
     const { fixture, host, toast } = await setup();
     host.open.set(true);
     await fixture.whenStable();
-    expect(toast.classList).toContain('show');
+    // The 50ms delay may already be over here, so check the class as the toast is shown.
     await vi.waitFor(() => expect(host.shown).toBe(1));
+    expect(host.showClassWhenShown).toBe(true);
     await vi.waitFor(() => expect(host.open()).toBe(false));
     await fixture.whenStable();
     expect(toast.classList).not.toContain('show');
@@ -77,10 +80,11 @@ describe('BsToast', () => {
 
   it('pauses the timer while the pointer is over it', async () => {
     const { fixture, host, toast } = await setup();
+    // Hover first: the 50ms delay can run out before a test sees the toast shown.
+    toast.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     host.open.set(true);
     await fixture.whenStable();
     await vi.waitFor(() => expect(host.shown).toBe(1));
-    toast.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(host.open()).toBe(true);
     toast.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
@@ -128,12 +132,14 @@ describe('BsToast', () => {
 
   it('resumes autohide when shown again after closing while focused', async () => {
     const { fixture, host, toast } = await setup();
+    // Browsers do not always fire focusout when a focused toast is hidden. Focus and hover
+    // before showing it, so the 50ms delay can't hide it first.
+    toast.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    toast.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     host.open.set(true);
     await fixture.whenStable();
     await vi.waitFor(() => expect(host.shown).toBe(1));
-    // Browsers do not always fire focusout when a focused toast is hidden.
-    toast.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
-    toast.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    expect(host.open()).toBe(true);
     host.open.set(false);
     await fixture.whenStable();
     await vi.waitFor(() => expect(host.hidden).toBe(1));
@@ -149,7 +155,9 @@ describe('BsToast', () => {
     const warn = vi.spyOn(console, 'warn');
     toast.style.transition = 'opacity 0.05s';
     host.open.set(true);
-    await fixture.whenStable();
+    // Render synchronously, so the toast is destroyed before its transition can end.
+    fixture.detectChanges();
+    expect(toast.classList).toContain('show');
     fixture.destroy();
     // Longer than the transition plus the 50ms delay.
     await new Promise((resolve) => setTimeout(resolve, 200));

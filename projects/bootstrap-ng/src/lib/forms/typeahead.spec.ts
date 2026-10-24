@@ -11,15 +11,19 @@ interface Fruit {
 
 @Component({
   imports: [BsTypeahead, ReactiveFormsModule],
+  // Off screen, so the suggestions never open under the test runner's pointer, whose
+  // pointermove would change the active suggestion.
   template: `
-    <input
-      aria-label="Fruit"
-      [bsTypeahead]="search()"
-      [debounce]="debounce()"
-      [minLength]="minLength()"
-      [formatter]="formatter()"
-      [formControl]="control"
-      (itemSelect)="picked.set($event)" />
+    <div style="position: fixed; top: -1000px">
+      <input
+        aria-label="Fruit"
+        [bsTypeahead]="search()"
+        [debounce]="debounce()"
+        [minLength]="minLength()"
+        [formatter]="formatter()"
+        [formControl]="control"
+        (itemSelect)="picked.set($event)" />
+    </div>
   `,
 })
 class Host {

@@ -156,7 +156,17 @@ test.describe('after a redeploy', () => {
     await page.goto('components/alert/');
     await page.evaluate(() => Object.assign(window, { staleTab: true }));
     // A tab opened before a deploy asks for chunk file names the new deploy no longer has.
-    await page.route('**/chunk-*.js', (route) => route.fulfill({ status: 404 }), { times: 1 });
+    // Every chunk is missing until the full page load, since a chunk the page loads late on
+    // its own would otherwise use up a single 404 and let the navigation succeed.
+    let reloaded = false;
+    page.on('request', (request) => {
+      if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+        reloaded = true;
+      }
+    });
+    await page.route('**/chunk-*.js', (route) =>
+      reloaded ? route.fallback() : route.fulfill({ status: 404 }),
+    );
 
     await page.locator('.docs-sidebar').getByRole('link', { name: 'Badge' }).click();
     await expect(page.locator('h1')).toHaveText('Badge');

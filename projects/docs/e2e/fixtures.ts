@@ -12,6 +12,9 @@ export { expect, type Page } from '@playwright/test';
  *
  * Every test also fails if the page breaks the Content-Security-Policy that the test server
  * sends from the _headers file.
+ *
+ * `page.goto` also waits for Angular to hydrate the prerendered page. Until then the page looks
+ * ready but its controls do nothing, so a test that types or picks files straight away can fail.
  */
 const ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8"/></svg>';
@@ -45,6 +48,13 @@ export const test = base.extend({
         report(`${event.effectiveDirective} blocked ${event.blockedURI || 'inline'}`);
       });
     });
+    const goto = page.goto.bind(page);
+    page.goto = async (...args) => {
+      const response = await goto(...args);
+      // Hydration removes the `ngh` attribute from each component it takes over.
+      await page.waitForFunction(() => !document.querySelector('[ngh]'));
+      return response;
+    };
     await use(page);
     expect(violations, 'Content-Security-Policy violations').toEqual([]);
   },
