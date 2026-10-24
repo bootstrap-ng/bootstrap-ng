@@ -1,0 +1,18 @@
+<div
+  class="table-responsive border rounded"
+  tabindex="0"
+  role="region"
+  aria-label="Employees, scrolls sideways">
+  <table
+    bsTable
+    [data]="employees"
+    [(columns)]="columns"
+    selection="multiple"
+    [rowKey]="rowKey"
+    hover
+    class="mb-0 text-nowrap">
+    <caption class="visually-hidden">
+      Employees with pinned columns
+    </caption>
+  </table>
+</div>

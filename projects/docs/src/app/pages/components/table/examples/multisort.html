@@ -1,0 +1,13 @@
+<table bsTable [data]="employees" [(columns)]="columns" [(sorts)]="sorts" multiSort hover>
+  <caption>
+    Employees, sortable by several columns
+  </caption>
+</table>
+<p class="mb-0">
+  @for (sort of sorts(); track sort.key) {
+    {{ $first ? 'Sorted by' : 'then' }} {{ sort.key }},
+    {{ sort.direction === 'asc' ? 'ascending' : 'descending' }}{{ $last ? '' : ',' }}
+  } @empty {
+    Not sorted
+  }
+</p>

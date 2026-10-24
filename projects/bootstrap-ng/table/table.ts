@@ -31,7 +31,7 @@ import {
 /** Direction of a sorted column. */
 export type BsSortDirection = 'asc' | 'desc';
 
-/** The sorted column and its direction. */
+/** A sorted column and its direction. */
 export interface BsTableSort {
   key: string;
   direction: BsSortDirection;
@@ -75,6 +75,11 @@ export interface BsTableColumn<T> {
   headerClass?: string;
   /** Classes added to each cell. */
   cellClass?: string;
+  /**
+   * Keeps the column in view while the table scrolls sideways, at the start or the end.
+   * Pinned columns move to that side of the table.
+   */
+  pinned?: 'start' | 'end';
 }
 
 /** Context of a `bsTableCell` template. */
@@ -241,6 +246,7 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
   host: {
     '[class]': 'classes()',
     '[attr.aria-busy]': 'loading() ? "true" : null',
+    '[attr.aria-rowcount]': 'virtualScroll() ? rows().length + 1 : null',
   },
   styles: `
     .bs-table-sort {
@@ -267,18 +273,34 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
     .bs-table-resizer:focus-visible {
       background-color: var(--bs-border-color);
     }
+    .bs-table-pinned {
+      position: sticky;
+      z-index: 1;
+    }
+    .bs-table-pin-edge::after {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      content: '';
+      border-inline-end: 1px solid var(--bs-border-color);
+    }
+    .bs-table-pin-edge-end::after {
+      inset-inline: 0 auto;
+      border-inline-start: 1px solid var(--bs-border-color);
+      border-inline-end: 0;
+    }
   `,
   template: `
     <ng-content select="caption" />
     <thead [class.sticky-top]="stickyHeader()">
       <tr>
         @if (detail()) {
-          <th scope="col">
+          <th scope="col" [class]="pinClass(detailKey)" [style]="pinStyle(detailKey)">
             <span class="visually-hidden">{{ detailHeader() }}</span>
           </th>
         }
         @if (selection() === 'multiple') {
-          <th scope="col">
+          <th scope="col" [class]="pinClass(selectKey)" [style]="pinStyle(selectKey)">
             <input
               type="checkbox"
               bsCheck
@@ -289,7 +311,7 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
               (change)="toggleAll()" />
           </th>
         } @else if (selection() === 'single') {
-          <th scope="col">
+          <th scope="col" [class]="pinClass(selectKey)" [style]="pinStyle(selectKey)">
             <span class="visually-hidden">{{ selectHeader() }}</span>
           </th>
         }
@@ -297,11 +319,12 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
           <th
             #th
             scope="col"
-            [class]="column.headerClass ?? ''"
+            [class]="(column.headerClass ?? '') + ' ' + pinClass(column.key)"
             [class.text-center]="column.align === 'center'"
             [class.text-end]="column.align === 'end'"
-            [class.position-relative]="isResizable(column)"
+            [class.position-relative]="isResizable(column) && !column.pinned"
             [class.table-active]="dropTarget() === column.key"
+            [style]="pinStyle(column.key)"
             [style.width.px]="column.width"
             [attr.aria-sort]="ariaSort(column)"
             [attr.draggable]="reorderable() ? 'true' : null"
@@ -338,6 +361,9 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
                     }
                   }
                 </svg>
+                @if (sortOrder().length > 1 && sortIndex(column); as priority) {
+                  <small class="fg-3">{{ priority }}</small>
+                }
               </button>
             } @else {
               {{ column.header }}
@@ -368,10 +394,22 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
           </td>
         </tr>
       } @else {
-        @for (row of rows(); track key(row); let i = $index) {
-          <tr [class.table-active]="isSelected(row)">
+        @if (virtualScroll() && range().start > 0) {
+          <tr hidden></tr>
+          <tr aria-hidden="true">
+            <td
+              class="p-0 border-0"
+              [attr.colspan]="colspan()"
+              [style.height.px]="range().start * rowSize()"></td>
+          </tr>
+        }
+        @for (row of renderedRows(); track key(row); let n = $index) {
+          @let i = range().start + n;
+          <tr
+            [class.table-active]="isSelected(row)"
+            [attr.aria-rowindex]="virtualScroll() ? i + 2 : null">
             @if (detail()) {
-              <td>
+              <td [class]="pinClass(detailKey)" [style]="pinStyle(detailKey)">
                 <button
                   type="button"
                   class="btn btn-sm btn-text btn-icon"
@@ -399,7 +437,7 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
               </td>
             }
             @if (selection() === 'multiple') {
-              <td>
+              <td [class]="pinClass(selectKey)" [style]="pinStyle(selectKey)">
                 <input
                   type="checkbox"
                   bsCheck
@@ -408,7 +446,7 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
                   (change)="toggleSelected(row)" />
               </td>
             } @else if (selection() === 'single') {
-              <td>
+              <td [class]="pinClass(selectKey)" [style]="pinStyle(selectKey)">
                 <input
                   type="radio"
                   bsRadio
@@ -420,9 +458,10 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
             }
             @for (column of visibleColumns(); track column.key) {
               <td
-                [class]="column.cellClass ?? ''"
+                [class]="(column.cellClass ?? '') + ' ' + pinClass(column.key)"
                 [class.text-center]="column.align === 'center'"
                 [class.text-end]="column.align === 'end'"
+                [style]="pinStyle(column.key)"
                 [attr.data-cell]="column.header">
                 @if (cellTemplates().get(column.key); as cell) {
                   <ng-container
@@ -456,6 +495,14 @@ export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
             </td>
           </tr>
         }
+        @if (virtualScroll() && range().end < rows().length) {
+          <tr aria-hidden="true">
+            <td
+              class="p-0 border-0"
+              [attr.colspan]="colspan()"
+              [style.height.px]="(rows().length - range().end) * rowSize()"></td>
+          </tr>
+        }
       }
     </tbody>
     <ng-content select="tfoot" />
@@ -482,6 +529,13 @@ export class BsTable<T> {
 
   /** Sorted column and direction, or `null`. Supports `[(sort)]`. */
   readonly sort = model<BsTableSort | null>(null);
+  /**
+   * Sorts by several columns: each sort button adds its column to `sorts`, or cycles it
+   * there, and keeps the others. Use `[(sorts)]` instead of `[(sort)]`.
+   */
+  readonly multiSort = input(false, { transform: booleanAttribute });
+  /** Sorted columns, most important first, with `multiSort`. Supports `[(sorts)]`. */
+  readonly sorts = model<BsTableSort[]>([]);
   /** Text filter matched against the text of every filterable, visible column. */
   readonly filter = input('');
   /** Custom filter, called with each row and the trimmed `filter` text. */
@@ -511,6 +565,14 @@ export class BsTable<T> {
   readonly reorderable = input(false, { transform: booleanAttribute });
   /** Keeps the header visible while the table scrolls inside its container. */
   readonly stickyHeader = input(this.config.stickyHeader ?? false, { transform: booleanAttribute });
+  /**
+   * Renders only the rows in view, plus a few around them, so long tables stay fast.
+   * Put the table in a scroll container with a height, or let the page scroll. Rows
+   * should all be the same height.
+   */
+  readonly virtualScroll = input(false, { transform: booleanAttribute });
+  /** Height of each row in pixels with `virtualScroll`. Measured from the first row when not set. */
+  readonly rowHeight = input<number | null>(null);
   /** Shows a loading row instead of the rows and sets `aria-busy`. */
   readonly loading = input(false, { transform: booleanAttribute });
 
@@ -570,8 +632,24 @@ export class BsTable<T> {
     () => new Map(this.cells().map((cell) => [cell.key(), cell.template] as const)),
   );
 
-  /** Columns that aren't hidden, in order. */
-  readonly visibleColumns = computed(() => this.columns().filter((column) => !column.hidden));
+  /** Columns that aren't hidden, in display order: pinned to the start, unpinned, pinned to the end. */
+  readonly visibleColumns = computed(() => {
+    const columns = this.columns().filter((column) => !column.hidden);
+    const rank = (column: BsTableColumn<T>) =>
+      column.pinned === 'start' ? 0 : column.pinned === 'end' ? 2 : 1;
+    return columns.some((column) => column.pinned)
+      ? [...columns].sort((a, b) => rank(a) - rank(b))
+      : columns;
+  });
+
+  /** Sorted columns, most important first. */
+  protected readonly sortOrder = computed<readonly BsTableSort[]>(() => {
+    if (this.multiSort()) {
+      return this.sorts();
+    }
+    const sort = this.sort();
+    return sort ? [sort] : [];
+  });
 
   /** Rows matching the filter, before sorting and paging. */
   readonly filteredRows = computed<readonly T[]>(() => {
@@ -593,24 +671,32 @@ export class BsTable<T> {
 
   private readonly sortedRows = computed<readonly T[]>(() => {
     const rows = this.filteredRows();
-    const sort = this.sort();
-    const column = sort && this.columns().find((c) => c.key === sort.key);
-    if (this.manual() || !sort || !column) {
+    const sorts = this.sortOrder().flatMap((sort) => {
+      const column = this.columns().find((c) => c.key === sort.key);
+      return column ? [{ column, factor: sort.direction === 'asc' ? 1 : -1 }] : [];
+    });
+    if (this.manual() || sorts.length === 0) {
       return rows;
     }
-    const factor = sort.direction === 'asc' ? 1 : -1;
-    const compare = column.compare;
     return [...rows].sort((a, b) => {
-      if (compare) {
-        return compare(a, b) * factor;
+      for (const { column, factor } of sorts) {
+        let result: number;
+        if (column.compare) {
+          result = column.compare(a, b) * factor;
+        } else {
+          const x = this.valueOf(a, column);
+          const y = this.valueOf(b, column);
+          // Empty values go last in both directions.
+          result =
+            isBlank(x) || isBlank(y)
+              ? Number(isBlank(x)) - Number(isBlank(y))
+              : compareValues(x, y) * factor;
+        }
+        if (result) {
+          return result;
+        }
       }
-      const x = this.valueOf(a, column);
-      const y = this.valueOf(b, column);
-      // Empty values go last in both directions.
-      if (isBlank(x) || isBlank(y)) {
-        return Number(isBlank(x)) - Number(isBlank(y));
-      }
-      return compareValues(x, y) * factor;
+      return 0;
     });
   });
 
@@ -637,6 +723,29 @@ export class BsTable<T> {
     }
     const start = (this.currentPage() - 1) * size;
     return rows.slice(start, start + size);
+  });
+
+  /** Rows of the page that are in view and rendered, with `virtualScroll`. */
+  private readonly rowRange = signal({ start: 0, end: initialRows });
+  /** Measured row height, when `rowHeight` isn't set. */
+  private readonly measuredRowHeight = signal(estimatedRowHeight);
+
+  protected readonly rowSize = computed(() => this.rowHeight() ?? this.measuredRowHeight());
+
+  /** Range of rendered rows, within the rows of the page. */
+  protected readonly range = computed(() => {
+    const count = this.rows().length;
+    if (!this.virtualScroll()) {
+      return { start: 0, end: count };
+    }
+    const { start, end } = this.rowRange();
+    return { start: Math.min(start, count), end: Math.min(end, count) };
+  });
+
+  protected readonly renderedRows = computed(() => {
+    const { start, end } = this.range();
+    const rows = this.rows();
+    return start === 0 && end === rows.length ? rows : rows.slice(start, end);
   });
 
   private readonly selectedKeys = computed(() => new Set(this.selected().map(this.rowKey())));
@@ -675,10 +784,73 @@ export class BsTable<T> {
 
   /** Measured widths of resizable columns that have no `width`, for `aria-valuenow`. */
   private readonly measured = signal<Readonly<Record<string, number>>>({});
+  protected readonly detailKey = '#detail';
+  protected readonly selectKey = '#select';
+  /** Pinned cells by key: their side and offset from that side, and whether they're the edge. */
+  private readonly pins = signal<
+    ReadonlyMap<string, { side: 'start' | 'end'; offset: number; edge: boolean }>
+  >(new Map());
   protected readonly dropTarget = signal<string | null>(null);
   private dragged: string | null = null;
 
   constructor() {
+    // Pinned columns stick at the summed widths of the pinned cells before them.
+    afterRenderEffect((onCleanup) => {
+      const keys = this.cellKeys();
+      const sides = keys.map((key) => this.pinSide(key));
+      if (!sides.some(Boolean) || typeof ResizeObserver === 'undefined') {
+        untracked(() => this.pins.set(new Map()));
+        return;
+      }
+      const cells = Array.from(
+        this.element.querySelectorAll<HTMLElement>(':scope > thead > tr > th[scope="col"]'),
+      );
+      const measure = () => {
+        const widths = cells.map((cell) => cell.getBoundingClientRect().width);
+        const pins = new Map<string, { side: 'start' | 'end'; offset: number; edge: boolean }>();
+        let offset = 0;
+        const lastStart = sides.lastIndexOf('start');
+        for (let i = 0; i <= lastStart; i++) {
+          pins.set(keys[i] ?? '', { side: 'start', offset, edge: i === lastStart });
+          offset += widths[i] ?? 0;
+        }
+        offset = 0;
+        const firstEnd = sides.indexOf('end');
+        if (firstEnd >= 0) {
+          for (let i = keys.length - 1; i >= firstEnd; i--) {
+            pins.set(keys[i] ?? '', { side: 'end', offset, edge: i === firstEnd });
+            offset += widths[i] ?? 0;
+          }
+        }
+        this.pins.set(pins);
+      };
+      const observer = new ResizeObserver(measure);
+      cells.forEach((cell) => observer.observe(cell));
+      onCleanup(() => observer.disconnect());
+    });
+
+    // With virtualScroll, renders the rows that the scroll container or the window shows.
+    afterRenderEffect((onCleanup) => {
+      if (!this.virtualScroll()) {
+        return;
+      }
+      const update = () => this.updateRange();
+      const view = this.element.ownerDocument.defaultView;
+      view?.addEventListener('scroll', update, { capture: true, passive: true });
+      view?.addEventListener('resize', update, { passive: true });
+      onCleanup(() => {
+        view?.removeEventListener('scroll', update, { capture: true });
+        view?.removeEventListener('resize', update);
+      });
+    });
+    afterRenderEffect(() => {
+      if (this.virtualScroll()) {
+        this.rows();
+        this.rowSize();
+        untracked(() => this.updateRange());
+      }
+    });
+
     afterRenderEffect(() => {
       const keys = this.visibleColumns()
         .filter((column) => this.isResizable(column) && column.width === undefined)
@@ -762,12 +934,24 @@ export class BsTable<T> {
 
   /**
    * Cycles a sortable column through ascending, descending and unsorted, goes to page 1
-   * and announces the new sort to screen readers.
+   * and announces the new sort to screen readers. With `multiSort` the other sorted
+   * columns stay sorted, and a newly sorted column comes after them.
    */
   toggleSort(column: BsTableColumn<T>): void {
     const current = this.sortOf(column);
     const direction = current === 'asc' ? 'desc' : current === 'desc' ? null : 'asc';
-    this.sort.set(direction && { key: column.key, direction });
+    const sort: BsTableSort | null = direction && { key: column.key, direction };
+    if (this.multiSort()) {
+      this.sorts.update((sorts) => {
+        const index = sorts.findIndex((s) => s.key === column.key);
+        if (!sort) {
+          return sorts.filter((s) => s.key !== column.key);
+        }
+        return index < 0 ? [...sorts, sort] : sorts.map((s, i) => (i === index ? sort : s));
+      });
+    } else {
+      this.sort.set(sort);
+    }
     this.page.set(1);
     const message = this.sortAnnouncement()(column.header, direction);
     if (message) {
@@ -842,16 +1026,92 @@ export class BsTable<T> {
   }
 
   protected sortOf(column: BsTableColumn<T>): BsSortDirection | null {
-    const sort = this.sort();
-    return sort?.key === column.key ? sort.direction : null;
+    return this.sortOrder().find((sort) => sort.key === column.key)?.direction ?? null;
+  }
+
+  /** Position of a column in the sort order, from 1, or 0 when it isn't sorted. */
+  protected sortIndex(column: BsTableColumn<T>): number {
+    return this.sortOrder().findIndex((sort) => sort.key === column.key) + 1;
   }
 
   protected ariaSort(column: BsTableColumn<T>): string | null {
-    const direction = this.sortOf(column);
-    if (!column.sortable || !direction) {
+    // ARIA allows aria-sort on one header at a time, so only the first sort gets it.
+    const sort = this.sortOrder().at(0);
+    if (!column.sortable || sort?.key !== column.key) {
       return null;
     }
-    return direction === 'asc' ? 'ascending' : 'descending';
+    return sort.direction === 'asc' ? 'ascending' : 'descending';
+  }
+
+  /** Keys of the header cells in order, including the expand and selection columns. */
+  private readonly cellKeys = computed(() => [
+    ...(this.detail() ? [this.detailKey] : []),
+    ...(this.selection() === 'none' ? [] : [this.selectKey]),
+    ...this.visibleColumns().map((column) => column.key),
+  ]);
+
+  /** Side a cell is pinned to. The expand and selection columns follow start-pinned columns. */
+  private pinSide(key: string): 'start' | 'end' | null {
+    if (key === this.detailKey || key === this.selectKey) {
+      return this.visibleColumns().some((column) => column.pinned === 'start') ? 'start' : null;
+    }
+    return this.visibleColumns().find((column) => column.key === key)?.pinned ?? null;
+  }
+
+  protected pinClass(key: string): string {
+    const pin = this.pins().get(key);
+    if (!pin) {
+      return '';
+    }
+    return pin.edge
+      ? `bs-table-pinned bs-table-pin-edge${pin.side === 'end' ? ' bs-table-pin-edge-end' : ''}`
+      : 'bs-table-pinned';
+  }
+
+  protected pinStyle(key: string): Record<string, string> | null {
+    const pin = this.pins().get(key);
+    return pin ? { [`inset-inline-${pin.side}`]: `${pin.offset}px` } : null;
+  }
+
+  /** Works out which rows the scroll container or the window shows, and renders those. */
+  private updateRange(): void {
+    const body = this.element.tBodies[0];
+    const view = this.element.ownerDocument.defaultView;
+    if (!body || !view) {
+      return;
+    }
+    const row = body.querySelector<HTMLElement>(':scope > tr[aria-rowindex]');
+    if (row && this.rowHeight() === null) {
+      const height = row.getBoundingClientRect().height;
+      if (height > 0 && Math.abs(height - this.measuredRowHeight()) > 0.5) {
+        this.measuredRowHeight.set(height);
+      }
+    }
+    let top = 0;
+    let bottom = view.innerHeight;
+    for (let parent = this.element.parentElement; parent; parent = parent.parentElement) {
+      if (/auto|scroll/.test(getComputedStyle(parent).overflowY)) {
+        const rect = parent.getBoundingClientRect();
+        top = Math.max(top, rect.top);
+        bottom = Math.min(bottom, rect.bottom);
+        break;
+      }
+    }
+    const size = Math.max(this.rowSize(), 1);
+    const count = this.rows().length;
+    const bodyTop = body.getBoundingClientRect().top;
+    // Starts on an even row so the hidden spacer row keeps the stripes in step.
+    let start = Math.floor((top - bodyTop) / size) - overscan;
+    start = Math.max(0, Math.min(start - (start % 2), count));
+    // Keeps at least the first rows rendered while the table is out of view, as on the server.
+    const end = Math.min(
+      Math.max(start + initialRows, Math.ceil((bottom - bodyTop) / size) + overscan),
+      count,
+    );
+    const current = this.rowRange();
+    if (current.start !== start || current.end !== end) {
+      this.rowRange.set({ start, end });
+    }
   }
 
   protected isResizable(column: BsTableColumn<T>): boolean {
@@ -957,6 +1217,13 @@ export class BsTable<T> {
     return first ? this.display(row, first) : this.selectHeader();
   }
 }
+
+/** Rows rendered with `virtualScroll` before the table is measured, as on the server. */
+const initialRows = 20;
+/** Rows rendered above and below the visible ones with `virtualScroll`. */
+const overscan = 8;
+/** Row height before a row is measured: a `.table` row with one line of text. */
+const estimatedRowHeight = 41;
 
 function stackedClass(stacked: BsTableStacked | null): string {
   if (!stacked) {
