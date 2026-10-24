@@ -103,11 +103,8 @@ describe('BsToaster', () => {
     // The toaster opens the toast in a timeout; run right after it, before rendering.
     await new Promise((resolve) => setTimeout(resolve));
     ref.hide();
-    const settled = await Promise.race([
-      ref.afterHidden.then(() => true),
-      new Promise((resolve) => setTimeout(() => resolve(false), 200)),
-    ]);
-    expect(settled).toBe(true);
+    // A toast that never settles fails the test by timing out.
+    await ref.afterHidden;
     await vi.waitFor(() => expect(toasts().length).toBe(0));
   });
 });

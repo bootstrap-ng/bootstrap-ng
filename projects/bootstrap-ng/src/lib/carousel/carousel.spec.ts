@@ -28,7 +28,7 @@ import {
         [(active)]="active"
         [ends]="ends()"
         [autoplay]="autoplay()"
-        [interval]="50">
+        [interval]="interval()">
         <div class="carousel-indicators">
           @for (i of [0, 1, 2]; track i) {
             <button
@@ -53,6 +53,7 @@ class Host {
   readonly active = signal(0);
   readonly ends = signal<'loop' | 'wrap' | 'stop'>('wrap');
   readonly autoplay = signal(false);
+  readonly interval = signal(50);
 }
 
 @Component({
@@ -267,6 +268,9 @@ describe('BsCarousel', () => {
     const { fixture, host, q } = await setup((h) => h.autoplay.set(true));
     await vi.waitFor(() => expect(host.active()).toBeGreaterThan(0));
     expect(announce).not.toHaveBeenCalled();
+    // Keep autoplay on but stop it stepping again before the clicks below.
+    host.interval.set(60_000);
+    await fixture.whenStable();
     host.active.set(0);
     await fixture.whenStable();
     expect(announce).not.toHaveBeenCalled();
@@ -406,6 +410,11 @@ describe('BsCarousel', () => {
   });
 
   describe('with several slides visible', () => {
+    // A scroll syncs the active slide from the scroll position 100ms later. Wait for that
+    // before navigating, or it could reset the slide just picked before it scrolls there.
+    const scrollSynced = () =>
+      new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 150)));
+
     async function setupMulti(init?: (host: MultiHost) => void) {
       const fixture = TestBed.createComponent(MultiHost);
       init?.(fixture.componentInstance);
@@ -423,6 +432,7 @@ describe('BsCarousel', () => {
       await fixture.whenStable();
       expect(host.active()).toBe(2);
       await vi.waitFor(() => expect(inner.scrollLeft).toBe(200));
+      await scrollSynced();
       q('.next').click();
       await fixture.whenStable();
       expect(host.active()).toBe(0);
@@ -435,6 +445,7 @@ describe('BsCarousel', () => {
       await fixture.whenStable();
       expect(host.active()).toBe(2);
       await vi.waitFor(() => expect(inner.scrollLeft).toBe(200));
+      await scrollSynced();
       await fixture.whenStable();
       expect(q('.next').disabled).toBe(true);
       q('.prev').click();
