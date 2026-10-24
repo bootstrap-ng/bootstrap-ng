@@ -1,14 +1,15 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
-  afterRenderEffect,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
   output,
   PLATFORM_ID,
   resource,
+  untracked,
 } from '@angular/core';
 import { BsIconRegistry } from './icon-registry';
 
@@ -16,6 +17,8 @@ import { BsIconRegistry } from './icon-registry';
  * An SVG icon from an icon library, inlined so it takes the text's size and color.
  * Bootstrap Icons is the default library; Font Awesome, Material Symbols, Modus Icons and
  * Phosphor Icons are built in, and you can register your own with `BsIconRegistry` or `provideBsIcons()`.
+ * Icons load from jsDelivr by default; self-host them with a library's `baseUrl`, or bundle
+ * them as SVG markup in its `icons`, which also renders them on the server.
  *
  * Icons are decorative (hidden from screen readers) unless you give them a `label`.
  *
@@ -63,8 +66,8 @@ export class BsIcon {
   /** Emits when the icon fails to load, such as for an unknown name or library. */
   readonly loadError = output<unknown>();
 
-  /** URL of the SVG to show, or an error for an unknown library. */
-  private readonly url = computed<string | Error | undefined>(() => {
+  /** URL of the SVG to show, the markup of an inline icon, or an error. */
+  private readonly source = computed<string | { markup: string } | Error | undefined>(() => {
     const src = this.src();
     if (src) {
       return src;
@@ -75,31 +78,65 @@ export class BsIcon {
     }
     const libraryName = this.library() ?? this.registry.defaultLibrary();
     const library = this.registry.get(libraryName);
-    return library
+    if (!library) {
+      return new Error(`Unknown icon library "${libraryName}".`);
+    }
+    const markup = library.icons?.[name];
+    if (markup !== undefined) {
+      return { markup };
+    }
+    return library.resolver
       ? library.resolver(name, this.variant())
-      : new Error(`Unknown icon library "${libraryName}".`);
+      : new Error(`Unknown icon "${name}" in library "${libraryName}".`);
   });
 
-  // Icons load in the browser only: server-rendered pages keep the empty, sized element,
-  // so nothing shifts when the icon arrives.
+  /** The SVG of an inline icon, parsed at once so it renders on the server too. */
+  private readonly inline = computed<SVGSVGElement | Error | undefined>(() => {
+    const source = this.source();
+    if (source === undefined || typeof source === 'string') {
+      return undefined;
+    }
+    if (source instanceof Error) {
+      return source;
+    }
+    try {
+      return this.registry.parse(source.markup);
+    } catch (error) {
+      return error instanceof Error ? error : new Error(String(error));
+    }
+  });
+
+  // Icons from URLs load in the browser only: server-rendered pages keep the empty, sized
+  // element, so nothing shifts when the icon arrives.
   private readonly svg = resource({
-    params: () => (this.isBrowser ? this.url() : undefined),
-    loader: ({ params }) =>
-      params instanceof Error ? Promise.reject(params) : this.registry.load(params),
+    params: () => {
+      const source = this.source();
+      return this.isBrowser && typeof source === 'string' ? source : undefined;
+    },
+    loader: ({ params }) => this.registry.load(params),
   });
 
   constructor() {
-    afterRenderEffect({
-      write: () => {
-        const svg = this.svg.hasValue() ? this.svg.value() : null;
-        this.host.replaceChildren(...(svg ? [svg] : []));
-        const status = this.svg.status();
+    // A plain effect rather than afterRenderEffect, which doesn't run on the server.
+    effect(() => {
+      const inline = this.inline();
+      const svg =
+        inline instanceof Error
+          ? null
+          : (inline ?? (this.svg.hasValue() ? this.svg.value() : null));
+      this.host.textContent = '';
+      if (svg) {
+        this.host.appendChild(svg);
+      }
+      const error = inline instanceof Error ? inline : this.svg.error();
+      const status = inline ? (error ? 'error' : 'resolved') : this.svg.status();
+      untracked(() => {
         if (status === 'resolved') {
           this.loaded.emit();
         } else if (status === 'error') {
-          this.loadError.emit(this.svg.error());
+          this.loadError.emit(error);
         }
-      },
+      });
     });
   }
 }

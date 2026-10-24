@@ -152,9 +152,79 @@ describe('BsIcon', () => {
     expect(icon.querySelector('rect.custom')).not.toBeNull();
     expect(TestBed.inject(BsIconRegistry).defaultLibrary()).toBe('custom');
   });
+
+  it('shows inline icons at once, before the resolver, without fetching', () => {
+    const fetchSpy = vi.spyOn(window, 'fetch');
+    TestBed.configureTestingModule({
+      providers: [
+        provideBsIcons({
+          libraries: {
+            bootstrap: bootstrapIcons({
+              icons: { heart: '<svg viewBox="0 0 16 16"><path class="inline" d="M0 0"/></svg>' },
+            }),
+          },
+        }),
+      ],
+    });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.library.set(null);
+    fixture.componentInstance.name.set('heart');
+    fixture.detectChanges();
+    const icon: HTMLElement = fixture.nativeElement.querySelector('bs-icon');
+    const svg = icon.querySelector('svg')!;
+    expect(svg.namespaceURI).toBe('http://www.w3.org/2000/svg');
+    expect(svg.querySelector('path.inline')).not.toBeNull();
+    expect(svg.getAttribute('fill')).toBe('currentColor');
+    expect(fixture.componentInstance.loads).toBe(1);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
+  it('cleans inline icons and reports ones that are not SVGs or are missing', async () => {
+    const { host, icon, settle } = await setup();
+    const registry = TestBed.inject(BsIconRegistry);
+    registry.addIcons('inline', {
+      bad: '<svg onload="alert(1)"><script>alert(2)</script><path onclick="alert(3)"/></svg>',
+      text: '<p>Not an icon</p>',
+    });
+    host.library.set('inline');
+    host.name.set('bad');
+    await settle();
+    const svg = icon.querySelector('svg')!;
+    expect(svg.hasAttribute('onload')).toBe(false);
+    expect(svg.querySelector('script')).toBeNull();
+    expect(svg.querySelector('path')!.hasAttribute('onclick')).toBe(false);
+
+    host.name.set('text');
+    await settle();
+    expect(icon.childElementCount).toBe(0);
+    expect(String(host.error)).toContain('Inline icon is not an SVG');
+
+    host.name.set('missing');
+    await settle();
+    expect(String(host.error)).toContain('Unknown icon "missing" in library "inline"');
+  });
 });
 
 describe('BsIconRegistry', () => {
+  it('adds inline icons to a library and keeps its resolver', () => {
+    const registry = TestBed.inject(BsIconRegistry);
+    registry.addIcons('bootstrap', { logo: '<svg/>' });
+    registry.addIcons('bootstrap', { mark: '<svg/>' });
+    const library = registry.get('bootstrap')!;
+    expect(Object.keys(library.icons!)).toEqual(['logo', 'mark']);
+    expect(library.resolver!('heart', null)).toContain('bootstrap-icons');
+  });
+
+  it('parses markup into a fresh copy each time', () => {
+    const registry = TestBed.inject(BsIconRegistry);
+    const first = registry.parse('<svg><path d="M0 0"/></svg>');
+    const second = registry.parse('<svg><path d="M0 0"/></svg>');
+    expect(first).toBeInstanceOf(SVGSVGElement);
+    expect(first).not.toBe(second);
+    expect(() => registry.parse('nothing')).toThrow('is not an SVG');
+  });
+
   it('fetches each URL once and returns copies', async () => {
     const registry = TestBed.inject(BsIconRegistry);
     const url = svgUrl('<svg xmlns="http://www.w3.org/2000/svg"/>');
@@ -180,39 +250,39 @@ describe('BsIconRegistry', () => {
   it('has the built-in libraries', () => {
     const registry = TestBed.inject(BsIconRegistry);
     expect(registry.defaultLibrary()).toBe('bootstrap');
-    expect(registry.get('bootstrap')!.resolver('heart', null)).toBe(
+    expect(registry.get('bootstrap')!.resolver!('heart', null)).toBe(
       'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/icons/heart.svg',
     );
-    expect(registry.get('font-awesome')!.resolver('github', 'brands')).toMatch(
+    expect(registry.get('font-awesome')!.resolver!('github', 'brands')).toMatch(
       /fontawesome-free@[\d.]+\/svgs\/brands\/github\.svg$/,
     );
-    expect(registry.get('material')!.resolver('home', 'rounded')).toMatch(
+    expect(registry.get('material')!.resolver!('home', 'rounded')).toMatch(
       /svg-400@[\d.]+\/rounded\/home\.svg$/,
     );
-    expect(registry.get('modus')!.resolver('heart', null)).toMatch(
+    expect(registry.get('modus')!.resolver!('heart', null)).toMatch(
       /modus-icons@[\d.]+\/dist\/modus-solid\/svg\/heart\.svg$/,
     );
-    expect(registry.get('phosphor')!.resolver('heart', null)).toMatch(
+    expect(registry.get('phosphor')!.resolver!('heart', null)).toMatch(
       /@phosphor-icons\/core@[\d.]+\/assets\/regular\/heart\.svg$/,
     );
   });
 
   it('builds URLs from a custom baseUrl', () => {
     const baseUrl = '/assets/icons';
-    expect(bootstrapIcons({ baseUrl }).resolver('heart', null)).toBe('/assets/icons/heart.svg');
-    expect(modusIcons({ baseUrl }).resolver('heart', 'outlined')).toBe(
+    expect(bootstrapIcons({ baseUrl }).resolver!('heart', null)).toBe('/assets/icons/heart.svg');
+    expect(modusIcons({ baseUrl }).resolver!('heart', 'outlined')).toBe(
       '/assets/icons/modus-outlined/svg/heart.svg',
     );
-    expect(fontAwesomeIcons({ baseUrl }).resolver('bell', null)).toBe(
+    expect(fontAwesomeIcons({ baseUrl }).resolver!('bell', null)).toBe(
       '/assets/icons/solid/bell.svg',
     );
-    expect(materialSymbols({ baseUrl }).resolver('home-fill', null)).toBe(
+    expect(materialSymbols({ baseUrl }).resolver!('home-fill', null)).toBe(
       '/assets/icons/outlined/home-fill.svg',
     );
-    expect(phosphorIcons({ baseUrl }).resolver('heart', 'regular')).toBe(
+    expect(phosphorIcons({ baseUrl }).resolver!('heart', 'regular')).toBe(
       '/assets/icons/regular/heart.svg',
     );
-    expect(phosphorIcons({ baseUrl }).resolver('heart', 'duotone')).toBe(
+    expect(phosphorIcons({ baseUrl }).resolver!('heart', 'duotone')).toBe(
       '/assets/icons/duotone/heart-duotone.svg',
     );
   });

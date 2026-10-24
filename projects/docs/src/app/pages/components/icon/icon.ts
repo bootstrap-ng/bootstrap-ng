@@ -12,6 +12,10 @@ import { IconCustomExample } from './examples/custom';
 import customHtml from './examples/custom.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
 import customTs from './examples/custom.ts' with { loader: 'text' };
+import { IconBundledExample } from './examples/bundled';
+import bundledHtml from './examples/bundled.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import bundledTs from './examples/bundled.ts' with { loader: 'text' };
 
 const PAGE: DocsPageData = {
   title: 'Icon',
@@ -57,6 +61,15 @@ const PAGE: DocsPageData = {
       example: IconCustomExample,
       html: customHtml,
       ts: customTs,
+    },
+    {
+      id: 'self-hosting',
+      title: 'Self-hosting and bundled icons',
+      description:
+        'The built-in libraries load from jsDelivr, which a strict Content Security Policy, an offline app or a firewall can block. Self-host a set by copying its SVG files from <code>node_modules</code> into your app and passing their path as the <code>baseUrl</code> of its factory, such as <code>bootstrapIcons()</code>. To make no requests at all, bundle the icons you use as SVG markup with <code>BsIconRegistry.addIcons()</code> or a library’s <code>icons</code>. Bundled icons show at once and are in server-rendered and prerendered pages, while icons from URLs load in the browser after hydration. <a href="getting-started/services#icon-registry">Services and helpers</a> shows both in an app config.',
+      example: IconBundledExample,
+      html: bundledHtml,
+      ts: bundledTs,
     },
   ],
   api: [
