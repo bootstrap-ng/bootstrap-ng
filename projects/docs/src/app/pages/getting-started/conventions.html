@@ -39,6 +39,13 @@
   <code>BOOTSTRAP_NG</code> contains everything:
 </p>
 <docs-code class="mb-5 rounded-5 bg-1" [code]="all" language="angular-ts" />
+<p>
+  Each component also has its own entry point, named after its folder, such as
+  <code>bootstrap-ng/button</code> or <code>bootstrap-ng/datepicker</code>. Importing from
+  <code>bootstrap-ng</code> gives the same bundle: a component that only lazy routes use is loaded
+  with those routes, not up front.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="entryPoints" language="angular-ts" />
 
 <h2 class="mt-11" id="accessibility" docsHeading>Accessibility</h2>
 <p>
