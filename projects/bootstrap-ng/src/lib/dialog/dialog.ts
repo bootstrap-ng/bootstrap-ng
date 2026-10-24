@@ -1,7 +1,39 @@
-import { booleanAttribute, Directive, input } from '@angular/core';
+import { booleanAttribute, Directive, inject, input, Provider } from '@angular/core';
+import { configToken, provideConfig } from '../util/config';
 import { BsDialogBase } from './dialog-base';
 
 export { BsDialogClose } from './dialog-base';
+
+/**
+ * Defaults for the inputs of dialogs, including those opened with `BsDialogService`.
+ * Inputs and options set on a dialog win over them.
+ */
+export interface BsDialogConfig {
+  /**
+   * `true` closes on a backdrop click. `'static'` keeps it open and plays a short
+   * bounce. `false` ignores backdrop clicks.
+   */
+  backdrop: boolean | 'static';
+  /** Closes on Escape. */
+  keyboard: boolean;
+  /** Animates opening and closing. */
+  animation: boolean;
+}
+
+/** The defaults set with `provideBsDialogConfig()`. */
+export const BS_DIALOG_CONFIG = configToken<BsDialogConfig>('BS_DIALOG_CONFIG');
+
+/**
+ * Sets defaults for the inputs of dialogs, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsDialogConfig({ backdrop: 'static' })]
+ * ```
+ */
+export function provideBsDialogConfig(config: Partial<BsDialogConfig>): Provider {
+  return provideConfig(BS_DIALOG_CONFIG, config);
+}
 
 /**
  * Dialog built on the native `<dialog>` element. Modal dialogs render in the top
@@ -34,6 +66,10 @@ export class BsDialog extends BsDialogBase {
   protected readonly prefix = 'dialog';
   protected readonly deferClose = true;
   protected override readonly nonmodalClass = 'dialog-nonmodal';
+
+  protected injectConfig(): Partial<BsDialogConfig> {
+    return inject(BS_DIALOG_CONFIG);
+  }
 
   protected isModal(): boolean {
     return this.modal();

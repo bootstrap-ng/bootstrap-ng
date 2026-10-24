@@ -1,5 +1,14 @@
-import { Component, contentChild, Directive, input, TemplateRef } from '@angular/core';
+import {
+  Component,
+  contentChild,
+  Directive,
+  inject,
+  input,
+  Provider,
+  TemplateRef,
+} from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { configToken, provideConfig } from '../util/config';
 
 /** One page in a `bsBreadcrumb` trail. */
 export interface BsBreadcrumbItem {
@@ -33,6 +42,29 @@ export class BsBreadcrumbLink {
   ): context is BsBreadcrumbLinkContext {
     return true;
   }
+}
+
+/** Defaults for the inputs of breadcrumbs. Inputs set on a component win over them. */
+export interface BsBreadcrumbConfig {
+  /** Divider text. Empty uses Bootstrap's chevron icon. */
+  divider: string;
+  /** Accessible name of the navigation landmark. */
+  label: string;
+}
+
+/** The defaults set with `provideBsBreadcrumbConfig()`. */
+export const BS_BREADCRUMB_CONFIG = configToken<BsBreadcrumbConfig>('BS_BREADCRUMB_CONFIG');
+
+/**
+ * Sets defaults for the inputs of breadcrumbs, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsBreadcrumbConfig({ label: 'Fil d’Ariane' })]
+ * ```
+ */
+export function provideBsBreadcrumbConfig(config: Partial<BsBreadcrumbConfig>): Provider {
+  return provideConfig(BS_BREADCRUMB_CONFIG, config);
 }
 
 /**
@@ -70,12 +102,13 @@ export class BsBreadcrumbLink {
   `,
 })
 export class BsBreadcrumb {
+  private readonly config = inject(BS_BREADCRUMB_CONFIG);
   /** Pages from the top level down to the current page. */
   readonly items = input.required<readonly BsBreadcrumbItem[]>();
   /** Divider text. Empty uses Bootstrap's chevron icon. */
-  readonly divider = input('');
+  readonly divider = input(this.config.divider ?? '');
   /** Accessible name of the navigation landmark. */
-  readonly label = input('Breadcrumb');
+  readonly label = input(this.config.label ?? 'Breadcrumb');
 
   protected readonly link = contentChild(BsBreadcrumbLink, { read: TemplateRef });
 }

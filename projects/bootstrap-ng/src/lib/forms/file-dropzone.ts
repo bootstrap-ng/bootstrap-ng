@@ -13,6 +13,7 @@ import {
   model,
   numberAttribute,
   output,
+  Provider,
   signal,
   viewChild,
 } from '@angular/core';
@@ -21,6 +22,7 @@ import { BsCloseButton } from '../close-button/close-button';
 import { BsLiveAnnouncer } from '../util/announcer';
 import { BsControl } from './control';
 import { BS_CONTROL_HOST, BsValueControl } from './value-control';
+import { configToken, provideConfig } from '../util/config';
 
 /** Size of a file dropzone. */
 export type BsFileDropzoneSize = 'sm' | 'md' | 'lg';
@@ -123,6 +125,41 @@ function droppedFiles(data: DataTransfer): Promise<File[]> {
       return entry ? readEntry(entry) : Promise.resolve(file ? [file] : []);
     }),
   ).then((lists) => lists.flat());
+}
+
+/** Defaults for the inputs of file dropzones. Inputs set on a component win over them. */
+export interface BsFileDropzoneConfig {
+  /** Maximum size of each file in bytes, or `null` for no limit. */
+  maxFileSize: number | null;
+  /** Lists the selected files under the zone. */
+  fileList: boolean;
+  /** Shows a preview of selected images in the file list. */
+  thumbnails: boolean;
+  /** Padding of the zone. */
+  size: BsFileDropzoneSize;
+  /** Start of the remove buttons’ accessible names, followed by the file name. */
+  removeLabel: string;
+  /** Accessible name of the file list. */
+  fileListLabel: string;
+  /** Formats a file size. Override it to change units or translate. */
+  formatSize: (bytes: number) => string;
+  /** Text shown and announced for a file that wasn’t added. Override it to translate. */
+  rejectionText: (rejection: BsFileRejection) => string;
+}
+
+/** The defaults set with `provideBsFileDropzoneConfig()`. */
+export const BS_FILE_DROPZONE_CONFIG = configToken<BsFileDropzoneConfig>('BS_FILE_DROPZONE_CONFIG');
+
+/**
+ * Sets defaults for the inputs of file dropzones, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsFileDropzoneConfig({ maxFileSize: 10_000_000, removeLabel: 'Retirer' })]
+ * ```
+ */
+export function provideBsFileDropzoneConfig(config: Partial<BsFileDropzoneConfig>): Provider {
+  return provideConfig(BS_FILE_DROPZONE_CONFIG, config);
 }
 
 /**
@@ -261,6 +298,7 @@ function droppedFiles(data: DataTransfer): Promise<File[]> {
   },
 })
 export class BsFileDropzone extends BsValueControl<File[]> {
+  private readonly config = inject(BS_FILE_DROPZONE_CONFIG);
   private readonly announcer = inject(BsLiveAnnouncer);
   private readonly locale = inject(LOCALE_ID);
 
@@ -275,7 +313,9 @@ export class BsFileDropzone extends BsValueControl<File[]> {
   /** Maximum number of files, or `null` for no limit. */
   readonly maxFiles = input<number | null, unknown>(null, { transform: optionalNumber });
   /** Maximum size of each file in bytes, or `null` for no limit. */
-  readonly maxFileSize = input<number | null, unknown>(null, { transform: optionalNumber });
+  readonly maxFileSize = input<number | null, unknown>(this.config.maxFileSize ?? null, {
+    transform: optionalNumber,
+  });
   /** Maximum size of all files together in bytes, or `null` for no limit. */
   readonly maxTotalSize = input<number | null, unknown>(null, { transform: optionalNumber });
   /** Maximum length of a file name in characters, or `null` for no limit. */
@@ -287,26 +327,26 @@ export class BsFileDropzone extends BsValueControl<File[]> {
   /** Camera to use on mobile devices, like the native `capture` attribute. */
   readonly capture = input<'user' | 'environment' | null>(null);
   /** Lists the selected files under the zone. */
-  readonly fileList = input(true, { transform: booleanAttribute });
+  readonly fileList = input(this.config.fileList ?? true, { transform: booleanAttribute });
   /** Shows a preview of selected images in the file list. */
-  readonly thumbnails = input(true, { transform: booleanAttribute });
+  readonly thumbnails = input(this.config.thumbnails ?? true, { transform: booleanAttribute });
   /** Padding of the zone. */
-  readonly size = input<BsFileDropzoneSize>('md');
+  readonly size = input<BsFileDropzoneSize>(this.config.size ?? 'md');
   /** Accessible name of the input, when it has no visible label. */
   readonly ariaLabel = input<string | null>(null, { alias: 'aria-label' });
   /** Validation styles of the zone. See `BsControl`. */
   readonly validation = input<'auto' | 'valid' | 'invalid' | 'none'>('auto');
   /** Start of the remove buttons’ accessible names, followed by the file name. */
-  readonly removeLabel = input('Remove');
+  readonly removeLabel = input(this.config.removeLabel ?? 'Remove');
   /** Accessible name of the file list. */
-  readonly fileListLabel = input('Selected files');
+  readonly fileListLabel = input(this.config.fileListLabel ?? 'Selected files');
   /** Formats a file size. Override it to change units or translate. */
-  readonly formatSize = input<(bytes: number) => string>((bytes) =>
-    formatFileSize(bytes, this.locale),
+  readonly formatSize = input<(bytes: number) => string>(
+    this.config.formatSize ?? ((bytes) => formatFileSize(bytes, this.locale)),
   );
   /** Text shown and announced for a file that wasn’t added. Override it to translate. */
-  readonly rejectionText = input<(rejection: BsFileRejection) => string>((rejection) =>
-    this.defaultRejectionText(rejection),
+  readonly rejectionText = input<(rejection: BsFileRejection) => string>(
+    this.config.rejectionText ?? ((rejection) => this.defaultRejectionText(rejection)),
   );
 
   /** Emits the files that were left out of a selection or drop, and why. */

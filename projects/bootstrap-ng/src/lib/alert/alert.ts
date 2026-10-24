@@ -7,11 +7,38 @@ import {
   inject,
   input,
   output,
+  Provider,
   signal,
 } from '@angular/core';
 import { adjacentTabbable } from '../util/focus';
 import { BsTheme, themeClass } from '../util/theme';
 import { waitForTransition } from '../util/transition';
+import { configToken, provideConfig } from '../util/config';
+
+/** Defaults for the inputs of alerts. Inputs set on a component win over them. */
+export interface BsAlertConfig {
+  /** Shows a close button that dismisses the alert. */
+  dismissible: boolean;
+  /** Accessible label of the close button. */
+  closeLabel: string;
+  /** Fades the alert out when it closes. */
+  animation: boolean;
+}
+
+/** The defaults set with `provideBsAlertConfig()`. */
+export const BS_ALERT_CONFIG = configToken<BsAlertConfig>('BS_ALERT_CONFIG');
+
+/**
+ * Sets defaults for the inputs of alerts, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsAlertConfig({ closeLabel: 'Fermer' })]
+ * ```
+ */
+export function provideBsAlertConfig(config: Partial<BsAlertConfig>): Provider {
+  return provideConfig(BS_ALERT_CONFIG, config);
+}
 
 /**
  * Contextual feedback message. It has `role="alert"`, so screen readers read it out when
@@ -47,16 +74,17 @@ import { waitForTransition } from '../util/transition';
   },
 })
 export class BsAlert {
+  private readonly config = inject(BS_ALERT_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   /** Theme color of the alert. */
   readonly theme = input<BsTheme | null>(null);
   /** Shows a close button that dismisses the alert. */
-  readonly dismissible = input(false, { transform: booleanAttribute });
+  readonly dismissible = input(this.config.dismissible ?? false, { transform: booleanAttribute });
   /** Accessible label of the close button. */
-  readonly closeLabel = input('Close');
+  readonly closeLabel = input(this.config.closeLabel ?? 'Close');
   /** Fades the alert out when it closes. */
-  readonly animation = input(true, { transform: booleanAttribute });
+  readonly animation = input(this.config.animation ?? true, { transform: booleanAttribute });
 
   /** Emits when the alert starts to close. */
   readonly closing = output();

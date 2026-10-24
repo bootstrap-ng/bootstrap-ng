@@ -36,6 +36,7 @@ Squash a pull request's commits into one before it is reviewed or merged. When y
 - Set `exportAs` on components that expose state or methods to templates (e.g. `#alert="bsAlert"`).
 - Use `booleanAttribute` / `numberAttribute` transforms on boolean and numeric inputs so static attributes like `dismissible` work.
 - Open/closed state (collapse, accordion item, dialog) uses an `open` input aliased from `openInput`, an `openChange` output, and a `linkedSignal` exposed read-only as `isOpen`. This is the one exception to the `model()` rule below, because `model()` cannot take a `booleanAttribute` transform for a static `open` attribute.
+- Built-in labels and inputs that apps commonly set the same way everywhere take their default from the component's config (`BS_*_CONFIG`, made with `configToken()` from `src/lib/util/config.ts` and set with a `provideBs*Config()` function): `input(this.config.name ?? default)`. Add new ones to the table on the Global configuration docs page.
 - Wait for Bootstrap's CSS transitions with `waitForTransition` from `src/lib/util` before emitting "after" events such as `shown`, `hidden` and `closed`.
 - Every component has a `*.spec.ts` next to it. Add or update tests with every behavior change.
 - When a docs demo gains behavior, cover it in `projects/docs/e2e/demos.spec.ts`. New pages get the render and axe checks automatically once they are in `nav.ts`.

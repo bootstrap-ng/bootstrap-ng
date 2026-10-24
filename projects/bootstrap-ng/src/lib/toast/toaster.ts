@@ -12,9 +12,9 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { BsCloseButton } from '../close-button/close-button';
+import { BS_CLOSE_BUTTON_CONFIG, BsCloseButton } from '../close-button/close-button';
 import { BsTheme, themeClass } from '../util/theme';
-import { BsToast, BsToastClose } from './toast';
+import { BS_TOAST_CONFIG, BsToast, BsToastClose } from './toast';
 
 /** Where `BsToaster` stacks its toasts on the screen, such as `'bottom-end'`. */
 export type BsToastPlacement = `${'top' | 'bottom'}-${'start' | 'center' | 'end'}`;
@@ -96,7 +96,7 @@ const PLACEMENT_CLASSES: Record<BsToastPlacement, string> = {
             <button
               bsCloseButton
               bsToastClose
-              [attr.aria-label]="toast.options.closeLabel ?? 'Close'"></button>
+              [aria-label]="toast.options.closeLabel ?? closeLabel"></button>
           </div>
           <div class="toast-body">
             <ng-container
@@ -118,7 +118,7 @@ const PLACEMENT_CLASSES: Record<BsToastPlacement, string> = {
               bsCloseButton
               bsToastClose
               class="me-2 m-auto"
-              [attr.aria-label]="toast.options.closeLabel ?? 'Close'"></button>
+              [aria-label]="toast.options.closeLabel ?? closeLabel"></button>
           </div>
         }
       </div>
@@ -126,6 +126,7 @@ const PLACEMENT_CLASSES: Record<BsToastPlacement, string> = {
   `,
 })
 export class BsToasterContainer {
+  protected readonly closeLabel = inject(BS_CLOSE_BUTTON_CONFIG).label ?? 'Close';
   readonly placement = signal<BsToastPlacement>('bottom-end');
   readonly toasts = signal<readonly ToastEntry[]>([]);
 
@@ -163,6 +164,7 @@ export class BsToaster {
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(EnvironmentInjector);
   private readonly document = inject(DOCUMENT);
+  private readonly config = inject(BS_TOAST_CONFIG);
   private container: ComponentRef<BsToasterContainer> | null = null;
 
   /** Where the toasts stack on the screen. Defaults to `'bottom-end'`. */
@@ -189,7 +191,7 @@ export class BsToaster {
       },
       afterHidden,
     };
-    const entry: ToastEntry = { options, ref, open, removed };
+    const entry: ToastEntry = { options: { ...this.config, ...options }, ref, open, removed };
     const drop = () => {
       container.toasts.update((toasts) => toasts.filter((t) => t !== entry));
       removed();

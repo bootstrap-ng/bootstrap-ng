@@ -11,6 +11,7 @@ import {
   inject,
   input,
   model,
+  Provider,
   signal,
   untracked,
 } from '@angular/core';
@@ -19,6 +20,7 @@ import { BsMenu } from '../menu/menu';
 import { BsControl } from './control';
 import { BsFormControlSize } from './form-control';
 import { BsValueControl } from './value-control';
+import { configToken, provideConfig } from '../util/config';
 
 /** Lowercases text and strips accents, for search matching. */
 function normalize(text: string): string {
@@ -236,6 +238,29 @@ export class BsComboboxNoResults {
   protected readonly menu = inject(BsComboboxMenu);
 }
 
+/** Defaults for the inputs of comboboxes. Inputs set on a component win over them. */
+export interface BsComboboxConfig {
+  /** Size of the button. */
+  size: BsFormControlSize;
+  /** Text shown when several options are selected. */
+  countText: (count: number) => string;
+}
+
+/** The defaults set with `provideBsComboboxConfig()`. */
+export const BS_COMBOBOX_CONFIG = configToken<BsComboboxConfig>('BS_COMBOBOX_CONFIG');
+
+/**
+ * Sets defaults for the inputs of comboboxes, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsComboboxConfig({ countText: (count) => `${count} sélectionnés` })]
+ * ```
+ */
+export function provideBsComboboxConfig(config: Partial<BsComboboxConfig>): Provider {
+  return provideConfig(BS_COMBOBOX_CONFIG, config);
+}
+
 /**
  * A select-like button that opens a `bsComboboxMenu` of rich options, with optional
  * search and multiple selection. Bind its value with `[formControl]`, `[(ngModel)]`,
@@ -291,6 +316,7 @@ export class BsComboboxNoResults {
   },
 })
 export class BsCombobox extends BsValueControl<unknown> {
+  private readonly config = inject(BS_COMBOBOX_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly control = inject(BsControl, { self: true });
 
@@ -309,11 +335,11 @@ export class BsCombobox extends BsValueControl<unknown> {
   /** Name of a hidden input that submits the value with a native form. */
   readonly name = input<string | null>(null);
   /** Size of the button. */
-  readonly size = input<BsFormControlSize>('md');
+  readonly size = input<BsFormControlSize>(this.config.size ?? 'md');
   /** Compares option values with the selected value. */
   readonly compareWith = input<(a: unknown, b: unknown) => boolean>(Object.is);
   /** Text shown when several options are selected. */
-  readonly countText = input((count: number) => `${count} selected`);
+  readonly countText = input(this.config.countText ?? ((count: number) => `${count} selected`));
 
   /** Element id, used for the menu's `aria-labelledby`. */
   readonly id = computed(() => this.control.id());

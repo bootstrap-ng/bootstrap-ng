@@ -1,0 +1,79 @@
+<h1>Global configuration</h1>
+<p class="fs-lg fg-2">
+  Set default values for component inputs once, for the whole app or for part of it.
+</p>
+
+<h2 class="mt-11" id="overview" docsHeading>Overview</h2>
+<p>
+  Each component with inputs that apps commonly set the same way everywhere, such as tooltip
+  placement, the carousel interval or a translated label, has a <code>provideBs*Config()</code>
+  function. Add it to your application's providers to change the defaults of every instance:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="appConfig" language="angular-ts" />
+<p>
+  An input you set on a component always wins over the configuration, and options you leave out keep
+  their built-in defaults. Components read their configuration when they are created, so set it
+  before they render, not while the app is running.
+</p>
+
+<h2 class="mt-11" id="part-of-an-app" docsHeading>For part of an app</h2>
+<p>
+  The same functions work in a component's or a route's <code>providers</code>. Components in that
+  part of the app use those defaults, merged over the app's own, so you only list what changes:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="componentConfig" language="angular-ts" />
+<p>
+  Popups that services create, such as dialogs from <code>BsDialogService</code> and toasts from
+  <code>BsToaster</code>, use the app's configuration, and the options you pass when opening them
+  win over it. The calendar that a datepicker opens also uses the app's calendar configuration.
+</p>
+
+<h2 class="mt-11" id="dates" docsHeading>Calendars and datepickers</h2>
+<p>
+  Calendars and datepickers format dates in Angular's <code>LOCALE_ID</code> unless you give them a
+  <code>locale</code>. Datepickers use the calendar configuration too, so one
+  <code>provideBsCalendarConfig()</code> sets the locale, first day of the week and week numbers of
+  both. Use <code>provideBsDatepickerConfig()</code> for datepicker-only options, or to set the
+  shared ones differently for datepickers:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="dateConfig" language="angular-ts" />
+<p>
+  See <a routerLink="/getting-started/internationalization">Internationalization</a> for locales and
+  the labels to translate.
+</p>
+
+<h2 class="mt-11" id="options" docsHeading>Configuration functions</h2>
+<p>
+  Each function takes some of the inputs of its component, with the same names and types. Each
+  configuration also has an interface, such as <code>BsAlertConfig</code>, and an injection token,
+  such as <code>BS_ALERT_CONFIG</code>, for components of your own that want to read it.
+</p>
+<!-- Focusable so keyboard users can scroll the table on narrow screens. -->
+<div class="overflow-auto" tabindex="0" role="region" aria-label="Configuration functions">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Function</th>
+        <th scope="col">Inputs</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of configs; track row.fn) {
+        <tr>
+          <td class="text-nowrap">
+            <a [routerLink]="row.path" fragment="api"
+              ><code>{{ row.fn }}()</code></a
+            >
+          </td>
+          <td>{{ row.inputs }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  Icons have their own setup: set the default icon library and add libraries with
+  <a routerLink="/getting-started/services" fragment="icon-registry"
+    ><code>provideBsIcons()</code></a
+  >.
+</p>

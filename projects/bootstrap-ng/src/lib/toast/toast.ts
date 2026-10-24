@@ -9,10 +9,46 @@ import {
   numberAttribute,
   OnDestroy,
   output,
+  Provider,
 } from '@angular/core';
 import { BsLiveAnnouncer } from '../util/announcer';
 import { adjacentTabbable } from '../util/focus';
 import { waitForTransition } from '../util/transition';
+import { configToken, provideConfig } from '../util/config';
+
+/** Defaults for the inputs of toasts. Inputs set on a component win over them. */
+export interface BsToastConfig {
+  /** Hides the toast after `delay`. */
+  autohide: boolean;
+  /** Time in milliseconds before the toast hides. */
+  delay: number;
+  /** Fades the toast in and out. */
+  animation: boolean;
+  /**
+   * How urgently screen readers announce the toast when it is shown: `'polite'` waits
+   * for the screen reader to finish, `'assertive'` interrupts it, for errors. The text
+   * is read out through `BsLiveAnnouncer`, because screen readers often miss a live
+   * region that appears together with its text.
+   */
+  live: 'polite' | 'assertive';
+  /** Accessible label of the close button of toasts shown with `BsToaster`. */
+  closeLabel: string;
+}
+
+/** The defaults set with `provideBsToastConfig()`. */
+export const BS_TOAST_CONFIG = configToken<BsToastConfig>('BS_TOAST_CONFIG');
+
+/**
+ * Sets defaults for the inputs of toasts, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsToastConfig({ delay: 8000 })]
+ * ```
+ */
+export function provideBsToastConfig(config: Partial<BsToastConfig>): Provider {
+  return provideConfig(BS_TOAST_CONFIG, config);
+}
 
 /**
  * Lightweight notification. Toasts hide on their own after `delay` unless `autohide`
@@ -42,6 +78,7 @@ import { waitForTransition } from '../util/transition';
   },
 })
 export class BsToast implements OnDestroy {
+  private readonly config = inject(BS_TOAST_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly announcer = inject(BsLiveAnnouncer);
 
@@ -54,18 +91,18 @@ export class BsToast implements OnDestroy {
   /** Current open state. */
   readonly isOpen = this.openState.asReadonly();
   /** Hides the toast after `delay`. */
-  readonly autohide = input(true, { transform: booleanAttribute });
+  readonly autohide = input(this.config.autohide ?? true, { transform: booleanAttribute });
   /** Time in milliseconds before the toast hides. */
-  readonly delay = input(5000, { transform: numberAttribute });
+  readonly delay = input(this.config.delay ?? 5000, { transform: numberAttribute });
   /** Fades the toast in and out. */
-  readonly animation = input(true, { transform: booleanAttribute });
+  readonly animation = input(this.config.animation ?? true, { transform: booleanAttribute });
   /**
    * How urgently screen readers announce the toast when it is shown: `'polite'` waits
    * for the screen reader to finish, `'assertive'` interrupts it, for errors. The text
    * is read out through `BsLiveAnnouncer`, because screen readers often miss a live
    * region that appears together with its text.
    */
-  readonly live = input<'polite' | 'assertive'>('polite');
+  readonly live = input<'polite' | 'assertive'>(this.config.live ?? 'polite');
 
   /** Emits after the toast is shown and its transition has finished. */
   readonly shown = output();

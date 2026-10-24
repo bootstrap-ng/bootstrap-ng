@@ -11,6 +11,7 @@ import {
   output,
 } from '@angular/core';
 import { waitForTransition } from '../util/transition';
+import type { BsDialogConfig } from './dialog';
 
 const CLASS_NAME_OPEN = 'dialog-open';
 const CLASS_NAME_HIDING = 'hiding';
@@ -35,6 +36,7 @@ const scrollLocks = new WeakMap<Document, Set<BsDialogBase>>();
 export abstract class BsDialogBase implements OnDestroy {
   protected readonly element = inject<ElementRef<HTMLDialogElement>>(ElementRef).nativeElement;
   protected readonly document = inject(DOCUMENT);
+  private readonly config = this.injectConfig();
 
   /** Whether the element is open. Supports two-way binding with `[(open)]`. */
   // eslint-disable-next-line @angular-eslint/no-input-rename -- `open` state pattern, see AGENTS.md
@@ -48,11 +50,11 @@ export abstract class BsDialogBase implements OnDestroy {
    * `true` closes on a backdrop click. `'static'` keeps it open and plays a short
    * bounce. `false` ignores backdrop clicks.
    */
-  readonly backdrop = input<boolean | 'static'>(true);
+  readonly backdrop = input<boolean | 'static'>(this.config.backdrop ?? true);
   /** Closes on Escape. */
-  readonly keyboard = input(true, { transform: booleanAttribute });
+  readonly keyboard = input(this.config.keyboard ?? true, { transform: booleanAttribute });
   /** Animates opening and closing. */
-  readonly animation = input(true, { transform: booleanAttribute });
+  readonly animation = input(this.config.animation ?? true, { transform: booleanAttribute });
 
   /** Emits after the element is shown and its transition has finished. */
   readonly shown = output();
@@ -69,6 +71,8 @@ export abstract class BsDialogBase implements OnDestroy {
   protected abstract locksScroll(): boolean;
   /** Keeps a modal element in the top layer until its exit transition ends. */
   protected abstract readonly deferClose: boolean;
+  /** Injects the defaults of this kind of element. Runs before the subclass's own fields exist. */
+  protected abstract injectConfig(): Partial<BsDialogConfig>;
   /** Class added while open inline, if any. */
   protected readonly nonmodalClass: string | null = null;
 

@@ -9,14 +9,17 @@ import {
   inject,
   input,
   linkedSignal,
+  LOCALE_ID,
   model,
   numberAttribute,
   output,
+  Provider,
   signal,
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { uniqueId } from '../util/id';
 import { BsValueControl } from './value-control';
+import { configToken, provideConfig } from '../util/config';
 
 /** How a calendar selects dates. `range` selects a start and an end date. */
 export type BsDateSelectionMode = 'single' | 'multiple' | 'range';
@@ -130,6 +133,43 @@ export function weekNumber(
 /** Dates of a value, as an array. */
 export function selectedDates(value: BsDateValue): string[] {
   return (Array.isArray(value) ? value : value ? [value] : []).filter((iso) => parseIsoDate(iso));
+}
+
+/** Defaults for the inputs of calendars. Inputs set on a component win over them. */
+export interface BsCalendarConfig {
+  /** First day of the week: 0 for Sunday, 1 for Monday. */
+  firstWeekday: number;
+  /** Number of months shown side by side. */
+  monthsCount: number;
+  /** Locale for month and day names, such as `en-US`, instead of `LOCALE_ID`. */
+  locale: string;
+  /** Accessible name of the previous month button. */
+  prevLabel: string;
+  /** Accessible name of the next month button. */
+  nextLabel: string;
+  /** Hides the neighboring months' days. */
+  hideOutsideDays: boolean;
+  /** Shows the week numbers before each week. */
+  weekNumbers: boolean;
+  /** How weeks are numbered: ISO 8601 or from 1 January. */
+  weekNumbering: BsWeekNumbering;
+  /** Accessible name of the week numbers column. */
+  weekLabel: string;
+}
+
+/** The defaults set with `provideBsCalendarConfig()`. */
+export const BS_CALENDAR_CONFIG = configToken<BsCalendarConfig>('BS_CALENDAR_CONFIG');
+
+/**
+ * Sets defaults for the inputs of calendars, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsCalendarConfig({ firstWeekday: 0, weekNumbers: true })]
+ * ```
+ */
+export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Provider {
+  return provideConfig(BS_CALENDAR_CONFIG, config);
 }
 
 /**
@@ -260,6 +300,8 @@ export function selectedDates(value: BsDateValue): string[] {
   },
 })
 export class BsCalendar extends BsValueControl<BsDateValue> {
+  private readonly config = inject(BS_CALENDAR_CONFIG);
+  private readonly localeId = inject(LOCALE_ID);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   /** The selected date or dates. Supports two-way binding with `[(value)]`. */
@@ -277,25 +319,30 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   /** Returns true for dates that can't be selected, such as weekends. */
   readonly dateDisabled = input<((iso: string) => boolean) | null>(null);
   /** First day of the week: 0 for Sunday, 1 for Monday. */
-  readonly firstWeekday = input(1, { transform: numberAttribute });
+  readonly firstWeekday = input(this.config.firstWeekday ?? 1, { transform: numberAttribute });
   /** Number of months shown side by side. */
-  readonly monthsCount = input(1, { transform: numberAttribute });
-  /** Locale for month and day names, such as `en-US`. Defaults to the browser's. */
-  readonly locale = input<string | undefined>(undefined);
+  readonly monthsCount = input(this.config.monthsCount ?? 1, { transform: numberAttribute });
+  /**
+   * Locale for month and day names, such as `en-US`. Defaults to Angular's `LOCALE_ID`;
+   * `undefined` uses the browser's language.
+   */
+  readonly locale = input<string | undefined>(this.config.locale ?? this.localeId);
   /** Forces a color mode for the calendar: `light` or `dark`. */
   readonly colorMode = input<'light' | 'dark' | null>(null);
   /** Accessible name of the previous month button. */
-  readonly prevLabel = input('Previous month');
+  readonly prevLabel = input(this.config.prevLabel ?? 'Previous month');
   /** Accessible name of the next month button. */
-  readonly nextLabel = input('Next month');
+  readonly nextLabel = input(this.config.nextLabel ?? 'Next month');
   /** Hides the neighboring months' days. */
-  readonly hideOutsideDays = input(false, { transform: booleanAttribute });
+  readonly hideOutsideDays = input(this.config.hideOutsideDays ?? false, {
+    transform: booleanAttribute,
+  });
   /** Shows the week numbers before each week. */
-  readonly weekNumbers = input(false, { transform: booleanAttribute });
+  readonly weekNumbers = input(this.config.weekNumbers ?? false, { transform: booleanAttribute });
   /** How weeks are numbered: ISO 8601 or from 1 January. */
-  readonly weekNumbering = input<BsWeekNumbering>('iso');
+  readonly weekNumbering = input<BsWeekNumbering>(this.config.weekNumbering ?? 'iso');
   /** Accessible name of the week numbers column. */
-  readonly weekLabel = input('Week');
+  readonly weekLabel = input(this.config.weekLabel ?? 'Week');
 
   /** Emits when the user completes a selection: a date, or a range's end date. */
   readonly selectionComplete = output<BsDateValue>();

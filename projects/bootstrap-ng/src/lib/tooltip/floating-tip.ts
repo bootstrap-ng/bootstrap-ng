@@ -26,6 +26,24 @@ import { waitForTransition } from '../util/transition';
 /** Content of a tooltip or popover: plain text, or a template for rich content. */
 export type BsTipContent = string | TemplateRef<unknown> | null | undefined;
 
+/**
+ * Defaults for the inputs of tooltips or popovers, set with `provideBsTooltipConfig()` or
+ * `provideBsPopoverConfig()`. Inputs set on a component win over them.
+ */
+export interface BsTipConfig {
+  /** Where the tip appears. `start` and `end` follow the text direction. */
+  placement: BsPlacement;
+  /**
+   * Space-separated events that show the tip: `hover`, `focus`, `click`, or `manual`
+   * to only open it with `show()`.
+   */
+  trigger: string | null;
+  /** Delay in milliseconds before showing and hiding. */
+  delay: number;
+  /** Fades the tip in and out. */
+  animation: boolean;
+}
+
 type TriggerKind = 'hover' | 'focus' | 'click';
 
 /** Extra time before a hover-triggered tip hides, so the pointer can move onto it. */
@@ -56,18 +74,19 @@ export abstract class BsFloatingTip implements OnDestroy {
   private readonly ownDescribedBy = inject(new HostAttributeToken('aria-describedby'), {
     optional: true,
   });
+  private readonly config = this.injectConfig();
 
   /** Where the tip appears. `start` and `end` follow the text direction. */
-  readonly placement = input<BsPlacement>('top');
+  readonly placement = input<BsPlacement>(this.config.placement ?? 'top');
   /**
    * Space-separated events that show the tip: `hover`, `focus`, `click`, or `manual`
    * to only open it with `show()`.
    */
-  readonly trigger = input<string | null>(null);
+  readonly trigger = input<string | null>(this.config.trigger ?? null);
   /** Delay in milliseconds before showing and hiding. */
-  readonly delay = input(0, { transform: numberAttribute });
+  readonly delay = input(this.config.delay ?? 0, { transform: numberAttribute });
   /** Fades the tip in and out. */
-  readonly animation = input(true, { transform: booleanAttribute });
+  readonly animation = input(this.config.animation ?? true, { transform: booleanAttribute });
 
   /** Emits after the tip is shown and its transition has finished. */
   readonly shown = output();
@@ -97,6 +116,8 @@ export abstract class BsFloatingTip implements OnDestroy {
   protected abstract hasContent(): boolean;
   /** Builds the children of the tip element, arrow included. */
   protected abstract buildContent(): Node[];
+  /** Injects the defaults of this kind of tip. Runs before the subclass's own fields exist. */
+  protected abstract injectConfig(): Partial<BsTipConfig>;
 
   private tip: HTMLElement | null = null;
   private tipIdValue?: string;

@@ -218,8 +218,9 @@ const PAGE: DocsPageData = {
         {
           name: 'locale',
           type: 'string | undefined',
-          default: 'undefined',
-          description: 'Locale for dates and month and day names. Defaults to the browser’s.',
+          default: 'LOCALE_ID',
+          description:
+            'Locale for dates and month and day names. Set undefined to use the browser’s language.',
         },
         {
           name: 'colorMode',
@@ -361,8 +362,9 @@ const PAGE: DocsPageData = {
         {
           name: 'locale',
           type: 'string | undefined',
-          default: 'undefined',
-          description: 'Locale for dates and month and day names. Defaults to the browser’s.',
+          default: 'LOCALE_ID',
+          description:
+            'Locale for dates and month and day names. Set undefined to use the browser’s language.',
         },
         {
           name: 'colorMode',

@@ -16,10 +16,15 @@
   libraries alike.
 </p>
 <ul>
-  <li>Built-in labels default to English and each has an input to replace it.</li>
+  <li>
+    Built-in labels default to English. Each has an input to replace it, and you can translate them
+    for the whole app with the
+    <a routerLink="/getting-started/configuration">global configuration</a>.
+  </li>
   <li>
     The calendar and datepicker format month names, weekdays and dates with
-    <code>Intl.DateTimeFormat</code> in the locale you give them.
+    <code>Intl.DateTimeFormat</code> in Angular's <code>LOCALE_ID</code>, or in the locale you give
+    them.
   </li>
   <li>
     Bootstrap 6's CSS uses logical properties, so one stylesheet works for both left-to-right and
@@ -35,9 +40,12 @@
 </p>
 <docs-example [component]="localesExample" [html]="localesHtml" />
 <p>
-  Without <code>locale</code>, the calendar uses the browser's language, not Angular's
-  <code>LOCALE_ID</code>. To match the rest of your app, such as dates shown with
-  <code>DatePipe</code>, pass <code>LOCALE_ID</code> in:
+  Without <code>locale</code>, calendars and datepickers use Angular's <code>LOCALE_ID</code>, so
+  they show dates in the same language as the rest of your app, such as dates shown with
+  <code>DatePipe</code>. <code>LOCALE_ID</code> is <code>en-US</code> unless your app or a localized
+  build sets it. To use another locale for every calendar and datepicker, set it in the
+  <a routerLink="/getting-started/configuration">global configuration</a>, or bind
+  <code>[locale]="undefined"</code> on one to follow the browser's language:
 </p>
 <docs-code class="mb-5 rounded-5 bg-1" [code]="localeId" language="angular-ts" />
 <p>
@@ -72,6 +80,11 @@
   as a rating's "3 out of 5" or the number of typeahead suggestions, are functions:
 </p>
 <docs-example [component]="labelsExample" [html]="labelsHtml" [ts]="labelsTs" />
+<p>
+  To translate them once for the whole app instead of on every component, provide them with the
+  <a routerLink="/getting-started/configuration">global configuration</a>:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="labelsConfig" language="angular-ts" />
 <p>These are the inputs to translate, with links to each component's API:</p>
 <!-- Focusable so keyboard users can scroll the table on narrow screens. -->
 <div class="overflow-auto" tabindex="0">
@@ -114,12 +127,13 @@
 </p>
 <docs-code class="mb-5 rounded-5 bg-1" [code]="localize" language="angular-ts" />
 <p>
-  A localized build sets <code>LOCALE_ID</code> for each language, so passing it to the
-  <code>locale</code> input, as shown <a routerLink="." fragment="dates">above</a>, keeps calendars
-  in the same language as the rest of the build. The
-  <a routerLink="/forms/file-dropzone">file dropzone</a> already formats file sizes with
-  <code>LOCALE_ID</code>. With a runtime library such as Transloco or ngx-translate, bind the same
-  inputs to its translated strings instead.
+  A localized build sets <code>LOCALE_ID</code> for each language, so calendars, datepickers and the
+  <a routerLink="/forms/file-dropzone">file dropzone</a>'s file sizes are already in the same
+  language as the rest of the build. Translate the labels of the
+  <a routerLink="/getting-started/configuration">global configuration</a> with
+  <code>$localize</code> too, so every component's built-in text is translated in one place. With a
+  runtime library such as Transloco or ngx-translate, bind the same inputs to its translated strings
+  instead.
 </p>
 
 <h2 class="mt-11" id="rtl" docsHeading>Right to left</h2>

@@ -7,8 +7,10 @@ import {
   inject,
   input,
   numberAttribute,
+  Provider,
 } from '@angular/core';
 import { BsTheme, themeClass } from '../util/theme';
+import { configToken, provideConfig } from '../util/config';
 
 /**
  * Groups several `bs-progress` bars into one stacked bar.
@@ -25,6 +27,31 @@ import { BsTheme, themeClass } from '../util/theme';
   host: { class: 'progress-stacked' },
 })
 export class BsProgressStacked {}
+
+/** Defaults for the inputs of progress bars. Inputs set on a component win over them. */
+export interface BsProgressConfig {
+  /** Maximum value. */
+  max: number;
+  /** Adds stripes to the bar. */
+  striped: boolean;
+  /** Animates the stripes. Implies `striped`. */
+  animated: boolean;
+}
+
+/** The defaults set with `provideBsProgressConfig()`. */
+export const BS_PROGRESS_CONFIG = configToken<BsProgressConfig>('BS_PROGRESS_CONFIG');
+
+/**
+ * Sets defaults for the inputs of progress bars, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsProgressConfig({ striped: true })]
+ * ```
+ */
+export function provideBsProgressConfig(config: Partial<BsProgressConfig>): Provider {
+  return provideConfig(BS_PROGRESS_CONFIG, config);
+}
 
 /**
  * Progress bar. Content inside the element is shown as the bar's label.
@@ -54,6 +81,7 @@ export class BsProgressStacked {}
   },
 })
 export class BsProgress {
+  private readonly config = inject(BS_PROGRESS_CONFIG);
   protected readonly stacked = inject(BsProgressStacked, { optional: true }) !== null;
 
   /** Current value. */
@@ -61,13 +89,13 @@ export class BsProgress {
   /** Minimum value. */
   readonly min = input(0, { transform: numberAttribute });
   /** Maximum value. */
-  readonly max = input(100, { transform: numberAttribute });
+  readonly max = input(this.config.max ?? 100, { transform: numberAttribute });
   /** Theme color of the bar. */
   readonly theme = input<BsTheme | null>(null);
   /** Adds stripes to the bar. */
-  readonly striped = input(false, { transform: booleanAttribute });
+  readonly striped = input(this.config.striped ?? false, { transform: booleanAttribute });
   /** Animates the stripes. Implies `striped`. */
-  readonly animated = input(false, { transform: booleanAttribute });
+  readonly animated = input(this.config.animated ?? false, { transform: booleanAttribute });
   /** Human-readable value for screen readers, such as "3 of 8 files". */
   readonly valueText = input<string | null>(null);
 

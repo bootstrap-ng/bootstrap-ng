@@ -9,9 +9,36 @@ import {
   input,
   linkedSignal,
   output,
+  Provider,
 } from '@angular/core';
 import { uniqueId } from '../util/id';
 import { BsTheme, themeClass } from '../util/theme';
+import { configToken, provideConfig } from '../util/config';
+
+/** Defaults for the inputs of accordions. Inputs set on a component win over them. */
+export interface BsAccordionConfig {
+  /** Accordion size. */
+  size: 'sm' | 'md';
+  /** Removes the outer borders and rounded corners. */
+  flush: boolean;
+  /** Allows only one item to be open at a time. */
+  exclusive: boolean;
+}
+
+/** The defaults set with `provideBsAccordionConfig()`. */
+export const BS_ACCORDION_CONFIG = configToken<BsAccordionConfig>('BS_ACCORDION_CONFIG');
+
+/**
+ * Sets defaults for the inputs of accordions, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsAccordionConfig({ exclusive: false })]
+ * ```
+ */
+export function provideBsAccordionConfig(config: Partial<BsAccordionConfig>): Provider {
+  return provideConfig(BS_ACCORDION_CONFIG, config);
+}
 
 /**
  * Accordion built on native `<details>` and `<summary>` elements. The browser handles
@@ -35,14 +62,15 @@ import { BsTheme, themeClass } from '../util/theme';
   },
 })
 export class BsAccordion {
+  private readonly config = inject(BS_ACCORDION_CONFIG);
   /** Theme color of open items. */
   readonly theme = input<BsTheme | null>(null);
   /** Accordion size. */
-  readonly size = input<'sm' | 'md'>('md');
+  readonly size = input<'sm' | 'md'>(this.config.size ?? 'md');
   /** Removes the outer borders and rounded corners. */
-  readonly flush = input(false, { transform: booleanAttribute });
+  readonly flush = input(this.config.flush ?? false, { transform: booleanAttribute });
   /** Allows only one item to be open at a time. */
-  readonly exclusive = input(true, { transform: booleanAttribute });
+  readonly exclusive = input(this.config.exclusive ?? true, { transform: booleanAttribute });
   /** Group name shared by the `<details>` elements. Generated when not set. */
   readonly name = input(uniqueId('bs-accordion'));
 

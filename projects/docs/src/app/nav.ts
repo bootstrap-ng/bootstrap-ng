@@ -73,6 +73,7 @@ export const NAV: DocsNavSection[] = [
       { title: 'Quickstart', path: 'getting-started/quickstart' },
       { title: 'Conventions', path: 'getting-started/conventions' },
       { title: 'Theming', path: 'getting-started/theming' },
+      { title: 'Global configuration', path: 'getting-started/configuration' },
       { title: 'Services and helpers', path: 'getting-started/services' },
       { title: 'Server-side rendering', path: 'getting-started/server-rendering' },
       { title: 'Accessibility', path: 'getting-started/accessibility' },
