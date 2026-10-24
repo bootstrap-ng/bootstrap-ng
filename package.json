@@ -85,8 +85,8 @@
   "bundlewatch": {
     "files": [
       {
-        "path": "./dist/bootstrap-ng/fesm2022/bootstrap-ng.mjs",
-        "maxSize": "80kB"
+        "path": "./dist/bootstrap-ng/fesm2022/*.mjs",
+        "maxSize": "12kB"
       }
     ]
   },

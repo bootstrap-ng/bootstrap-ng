@@ -32,7 +32,7 @@ Use an [EditorConfig](https://editorconfig.org) plugin in your editor so indenta
 
 | Path                    | What it is                                                                                                                               |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `projects/bootstrap-ng` | The library, published to npm as `bootstrap-ng`. Every public symbol is exported from `src/public-api.ts`.                               |
+| `projects/bootstrap-ng` | The library, published to npm as `bootstrap-ng`. Each component folder is an entry point, such as `bootstrap-ng/button`, re-exported from `src/public-api.ts`. |
 | `projects/docs`         | The documentation site, an Angular app. It imports `bootstrap-ng` from the library source, so library changes show up without a rebuild. |
 | `projects/docs/e2e`     | Playwright end-to-end and accessibility tests for the docs site.                                                                         |
 | `scripts`               | Build helpers, such as generating `llms.txt` and `sitemap.xml` and serving the built docs for e2e tests.                                 |
@@ -70,11 +70,11 @@ The e2e tests read the pages from `projects/docs/src/app/nav.ts`, so every page 
 
 - Don't use Bootstrap's JavaScript. All behavior is written in Angular.
 - Use attribute selectors on the element Bootstrap's CSS expects, such as `[bsAlert]` or `details[bsAccordionItem]`, so the rendered DOM matches Bootstrap's markup exactly. Set Bootstrap classes and ARIA attributes in the decorator's `host` object, not with `@HostBinding` or `@HostListener`.
-- Selectors use the `bs` prefix and class names start with `Bs`, such as `BsAlert`. Export every public symbol from `projects/bootstrap-ng/src/public-api.ts`.
+- Selectors use the `bs` prefix and class names start with `Bs`, such as `BsAlert`. Each component folder in `projects/bootstrap-ng` is a secondary entry point (`bootstrap-ng/button`) with an `ng-package.json` and an `index.ts` that exports its public symbols. A new folder also needs an `export *` line in `src/public-api.ts`. Import from another folder through its entry point (`import { BsMenu } from 'bootstrap-ng/menu'`), never with a relative path; ng-packagr fails the build on relative imports between entry points, and entry points can't import each other in a cycle.
 - Set `exportAs` on components that expose state or methods to templates, for example `#alert="bsAlert"`.
 - Use `booleanAttribute` and `numberAttribute` transforms on boolean and numeric inputs so static attributes like `dismissible` work.
 - Open and closed state (collapse, accordion item, dialog) uses an `open` input aliased from `openInput`, an `openChange` output, and a `linkedSignal` exposed read-only as `isOpen`. Other two-way bound properties use `model()`.
-- Wait for Bootstrap's CSS transitions with `waitForTransition` from `src/lib/util` before emitting "after" events such as `shown`, `hidden` and `closed`.
+- Wait for Bootstrap's CSS transitions with `waitForTransition` from `bootstrap-ng/util` before emitting "after" events such as `shown`, `hidden` and `closed`.
 - Use standalone components, signals, `input()`, `output()` and `computed()`, and native control flow (`@if`, `@for`, `@switch`). Don't set `standalone: true`, and don't use `ngClass` or `ngStyle`.
 - Every component has a `*.spec.ts` next to it. Add or update tests with every behavior change.
 - Components must pass every axe check and meet WCAG AA minimums, including focus management, color contrast and ARIA attributes.

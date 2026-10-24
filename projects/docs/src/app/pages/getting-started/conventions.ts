@@ -26,4 +26,7 @@ export default class Conventions {
   imports: [BOOTSTRAP_NG],
   …
 })`;
+
+  protected readonly entryPoints = `import { BsButton } from 'bootstrap-ng/button';
+import { BsDatepicker } from 'bootstrap-ng/datepicker';`;
 }

@@ -5,5 +5,5 @@
     "types": ["vitest/globals"],
     "noUncheckedIndexedAccess": false
   },
-  "include": ["src/**/*.d.ts", "src/**/*.spec.ts"]
+  "include": ["**/*.d.ts", "**/*.spec.ts"]
 }

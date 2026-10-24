@@ -10,7 +10,7 @@
     "bootstrap-ng": {
       "projectType": "library",
       "root": "projects/bootstrap-ng",
-      "sourceRoot": "projects/bootstrap-ng/src",
+      "sourceRoot": "projects/bootstrap-ng",
       "prefix": "bs",
       "architect": {
         "build": {

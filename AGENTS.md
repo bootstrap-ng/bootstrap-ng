@@ -6,7 +6,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 bootstrap-ng is an Angular 22+ component library for Bootstrap 6. See `README.md` for the user-facing overview.
 
-- `projects/bootstrap-ng`: the library, published to npm as `bootstrap-ng`. The selector prefix is `bs` and class names start with `Bs` (e.g. `BsAlert`). Every public symbol is exported from `src/public-api.ts`.
+- `projects/bootstrap-ng`: the library, published to npm as `bootstrap-ng`. The selector prefix is `bs` and class names start with `Bs` (e.g. `BsAlert`). Each component folder (`button/`, `datepicker/`, …) is a secondary entry point (`bootstrap-ng/button`) with an `ng-package.json` and an `index.ts` that exports its public symbols, and `src/public-api.ts` re-exports them all as `bootstrap-ng`. Add new folders there too. Import across folders through the entry point (`'bootstrap-ng/menu'`), never a relative path, and never in a cycle; ng-packagr fails the build on both. Entry points let apps with lazy routes load only the components each route uses.
 - `projects/docs`: the documentation site, an Angular app. It imports `bootstrap-ng` from the library source through a `tsconfig.json` path, so library changes need no rebuild.
 - Bootstrap 6 is pinned to an exact pre-release from npm (`bootstrap@6.0.0-alpha.1`, published under the `next` tag) in `package.json`. The docs site loads the same version's CSS from jsDelivr in `projects/docs/src/index.html` with an SRI hash; bump both together. Check Bootstrap 6 markup and class names in `node_modules/bootstrap` or the [v6 docs](https://getbootstrap.com/docs/6.0/), not from Bootstrap 5 knowledge: v6 uses `.btn-solid`/`.btn-outline`/`.btn-subtle` with `.theme-*`, native `<dialog class="dialog">`, and `<details>` accordions.
 
@@ -19,7 +19,7 @@ Node.js 22.22.3+ or 24.15+ (see `.nvmrc`).
 - `npm run test:coverage`: unit tests with coverage; fails under the thresholds in `angular.json`
 - `npm run build`: builds the library, then the docs
 - `npm run e2e`: Playwright tests in `projects/docs/e2e` against the built docs (run `npm run build` first). They cover every page in `nav.ts`, including axe checks in light and dark mode
-- `npm run bundlewatch`: checks the gzipped size of the library FESM bundle against the limit under `bundlewatch` in `package.json` (run `npm run build:lib` first). Raise the limit in the same PR when growth is intended
+- `npm run bundlewatch`: checks the gzipped size of each entry point's FESM bundle (`dist/bootstrap-ng/fesm2022/*.mjs`) against the per-file limit under `bundlewatch` in `package.json` (run `npm run build:lib` first). Raise the limit in the same PR when growth is intended
 - `npm run format` / `npm run format:check`: Prettier
 - `npm run lint`: ESLint on the library and docs, configured in `eslint.config.js`. It is type-aware and strict (typescript-eslint `strictTypeChecked` and `stylisticTypeChecked`, all angular-eslint rules, plus extra rules such as `eqeqeq`, `curly`, `switch-exhaustiveness-check` and `prefer-readonly`, `@vitest/eslint-plugin` on unit tests and `eslint-plugin-playwright` on e2e tests), so type `ElementRef` as `inject<ElementRef<HTMLElement>>(ElementRef)` and mark promises you intentionally don't await with `void`. Unused `eslint-disable` comments are errors. It then type-checks `projects/docs/e2e` with `tsc`, which Playwright itself skips.
 
@@ -36,8 +36,8 @@ Squash a pull request's commits into one before it is reviewed or merged. When y
 - Set `exportAs` on components that expose state or methods to templates (e.g. `#alert="bsAlert"`).
 - Use `booleanAttribute` / `numberAttribute` transforms on boolean and numeric inputs so static attributes like `dismissible` work.
 - Open/closed state (collapse, accordion item, dialog) uses an `open` input aliased from `openInput`, an `openChange` output, and a `linkedSignal` exposed read-only as `isOpen`. This is the one exception to the `model()` rule below, because `model()` cannot take a `booleanAttribute` transform for a static `open` attribute.
-- Built-in labels and inputs that apps commonly set the same way everywhere take their default from the component's config (`BS_*_CONFIG`, made with `configToken()` from `src/lib/util/config.ts` and set with a `provideBs*Config()` function): `input(this.config.name ?? default)`. Add new ones to the table on the Global configuration docs page.
-- Wait for Bootstrap's CSS transitions with `waitForTransition` from `src/lib/util` before emitting "after" events such as `shown`, `hidden` and `closed`.
+- Built-in labels and inputs that apps commonly set the same way everywhere take their default from the component's config (`BS_*_CONFIG`, made with `configToken()` from `util/config.ts` and set with a `provideBs*Config()` function): `input(this.config.name ?? default)`. Add new ones to the table on the Global configuration docs page.
+- Wait for Bootstrap's CSS transitions with `waitForTransition` from `bootstrap-ng/util` before emitting "after" events such as `shown`, `hidden` and `closed`.
 - Every component has a `*.spec.ts` next to it. Add or update tests with every behavior change.
 - When a docs demo gains behavior, cover it in `projects/docs/e2e/demos.spec.ts`. New pages get the render and axe checks automatically once they are in `nav.ts`.
 
