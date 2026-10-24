@@ -523,3 +523,183 @@ describe('BsTable templates', () => {
     expect(box.getAttribute('aria-label')).toBe('Select');
   });
 });
+
+describe('BsTable multi-sort', () => {
+  @Component({
+    imports: [BsTable],
+    template: `<table
+      bsTable
+      [data]="data"
+      [(columns)]="columns"
+      [(sorts)]="sorts"
+      multiSort></table>`,
+  })
+  class MultiSortHost {
+    readonly data = [
+      { name: 'Bob', team: 'B' },
+      { name: 'Ann', team: 'A' },
+      { name: 'Cat', team: 'B' },
+      { name: 'Dan', team: 'A' },
+    ];
+    readonly columns = signal<BsTableColumn<{ name: string; team: string }>[]>([
+      { key: 'name', header: 'Name', sortable: true },
+      { key: 'team', header: 'Team', sortable: true },
+    ]);
+    readonly sorts = signal<BsTableSort[]>([]);
+  }
+
+  it('sorts by several columns in order', async () => {
+    const fixture = TestBed.createComponent(MultiSortHost);
+    await fixture.whenStable();
+    const host = fixture.componentInstance;
+    const table: HTMLTableElement = fixture.nativeElement.querySelector('table');
+    const [name, team] = Array.from(table.querySelectorAll<HTMLButtonElement>('th button'));
+    const names = () =>
+      Array.from(table.querySelectorAll('tbody tr')).map((tr) =>
+        tr.querySelector('td')!.textContent.trim(),
+      );
+
+    team.click();
+    await fixture.whenStable();
+    expect(host.sorts()).toEqual([{ key: 'team', direction: 'asc' }]);
+    // One sorted column shows no priority number.
+    expect(team.textContent.trim()).toBe('Team');
+
+    name.click();
+    name.click();
+    await fixture.whenStable();
+    expect(host.sorts()).toEqual([
+      { key: 'team', direction: 'asc' },
+      { key: 'name', direction: 'desc' },
+    ]);
+    expect(names()).toEqual(['Dan', 'Ann', 'Cat', 'Bob']);
+    expect(team.textContent.replace(/\s+/g, ' ').trim()).toBe('Team 1');
+    expect(name.textContent.replace(/\s+/g, ' ').trim()).toBe('Name 2');
+    // Only the first sort gets aria-sort.
+    expect(team.closest('th')!.getAttribute('aria-sort')).toBe('ascending');
+    expect(name.closest('th')!.hasAttribute('aria-sort')).toBe(false);
+
+    team.click();
+    team.click();
+    await fixture.whenStable();
+    expect(host.sorts()).toEqual([{ key: 'name', direction: 'desc' }]);
+    expect(names()).toEqual(['Dan', 'Cat', 'Bob', 'Ann']);
+  });
+});
+
+describe('BsTable virtual scroll and pinned columns', () => {
+  interface Item {
+    id: number;
+    label: string;
+  }
+  const ITEMS: Item[] = Array.from({ length: 1000 }, (_, i) => ({ id: i, label: `Item ${i}` }));
+
+  @Component({
+    imports: [BsTable],
+    template: `
+      <div #scroller style="height: 200px; width: 300px; overflow: auto">
+        <table
+          bsTable
+          striped
+          [data]="data()"
+          [(columns)]="columns"
+          [rowKey]="rowKey"
+          [selection]="selection()"
+          [virtualScroll]="virtual()"
+          [rowHeight]="rowHeight()"
+          style="width: 900px"></table>
+      </div>
+    `,
+  })
+  class VirtualHost {
+    readonly data = signal(ITEMS);
+    readonly virtual = signal(true);
+    readonly rowHeight = signal<number | null>(null);
+    readonly selection = signal<BsTableSelection>('none');
+    readonly columns = signal<BsTableColumn<Item>[]>([
+      { key: 'label', header: 'Label' },
+      { key: 'id', header: 'ID', pinned: 'start', width: 80 },
+      { key: 'more', header: 'More', value: () => 'x', pinned: 'end' },
+    ]);
+    readonly rowKey = (row: Item) => row.id;
+  }
+
+  async function setup() {
+    const fixture = TestBed.createComponent(VirtualHost);
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+    const scroller = element.querySelector('div')!;
+    const table = element.querySelector('table')!;
+    const dataRows = () => Array.from(table.querySelectorAll('tbody tr[aria-rowindex]'));
+    const settle = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      await fixture.whenStable();
+    };
+    return { fixture, host: fixture.componentInstance, scroller, table, dataRows, settle };
+  }
+
+  it('renders only the rows in view', async () => {
+    const { host, scroller, table, dataRows, settle } = await setup();
+    await settle();
+    expect(table.getAttribute('aria-rowcount')).toBe('1001');
+    const first = dataRows();
+    expect(first.length).toBeGreaterThan(4);
+    expect(first.length).toBeLessThan(40);
+    expect(first[0].getAttribute('aria-rowindex')).toBe('2');
+    const height = first[0].getBoundingClientRect().height;
+    // Spacer rows keep the full scroll height.
+    expect(scroller.scrollHeight).toBeGreaterThan(height * 990);
+
+    scroller.scrollTop = height * 500;
+    scroller.dispatchEvent(new Event('scroll'));
+    await settle();
+    const rows = dataRows();
+    const start = Number(rows[0].getAttribute('aria-rowindex')) - 2;
+    expect(start).toBeGreaterThan(480);
+    expect(start).toBeLessThan(500);
+    // Starts on an even row after the hidden row, so stripes stay in step.
+    expect(start % 2).toBe(0);
+    expect(table.querySelector<HTMLElement>('tbody > tr')!.hidden).toBe(true);
+    const visible = rows.find((row) => row.textContent.includes('Item 500'));
+    expect(visible).toBeDefined();
+
+    host.rowHeight.set(20);
+    host.data.set(ITEMS.slice(0, 3));
+    await settle();
+    expect(dataRows().length).toBe(3);
+    expect(table.querySelectorAll('tbody tr[aria-hidden]').length).toBe(0);
+
+    host.virtual.set(false);
+    host.data.set(ITEMS.slice(0, 50));
+    await settle();
+    expect(table.querySelectorAll('tbody tr').length).toBe(50);
+    expect(table.hasAttribute('aria-rowcount')).toBe(false);
+  });
+
+  it('pins columns to the start and the end', async () => {
+    const { fixture, host, table, settle } = await setup();
+    host.selection.set('multiple');
+    await settle();
+    const headers = Array.from(table.querySelectorAll<HTMLElement>('thead th'));
+    expect(headers.map((th) => th.textContent.trim())).toEqual(['', 'ID', 'Label', 'More']);
+    const [select, id, label, more] = headers;
+    expect(select.classList).toContain('bs-table-pinned');
+    expect(select.style.insetInlineStart).toBe('0px');
+    expect(id.classList).toContain('bs-table-pin-edge');
+    expect(parseFloat(id.style.insetInlineStart)).toBeCloseTo(
+      select.getBoundingClientRect().width,
+      1,
+    );
+    expect(label.classList).not.toContain('bs-table-pinned');
+    expect(more.classList).toContain('bs-table-pin-edge-end');
+    expect(more.style.insetInlineEnd).toBe('0px');
+    const cell = table.querySelector<HTMLElement>('tbody tr[aria-rowindex] td:nth-child(2)')!;
+    expect(cell.classList).toContain('bs-table-pinned');
+    expect(getComputedStyle(cell).position).toBe('sticky');
+
+    host.columns.update((columns) => columns.map(({ pinned: _pinned, ...column }) => column));
+    await settle();
+    expect(table.querySelector('.bs-table-pinned')).toBeNull();
+    fixture.destroy();
+  });
+});

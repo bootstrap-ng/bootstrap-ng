@@ -48,10 +48,22 @@ import { TableStackedExample } from './examples/stacked';
 import stackedHtml from './examples/stacked.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
 import stackedTs from './examples/stacked.ts' with { loader: 'text' };
+import { TableMultisortExample } from './examples/multisort';
+import multisortHtml from './examples/multisort.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import multisortTs from './examples/multisort.ts' with { loader: 'text' };
+import { TableVirtualExample } from './examples/virtual';
+import virtualHtml from './examples/virtual.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import virtualTs from './examples/virtual.ts' with { loader: 'text' };
+import { TablePinnedExample } from './examples/pinned';
+import pinnedHtml from './examples/pinned.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import pinnedTs from './examples/pinned.ts' with { loader: 'text' };
 
 const PAGE: DocsPageData = {
   title: 'Table',
-  lead: 'Data tables on Bootstrap’s table styles, with sorting, search, pagination, row selection, expandable rows and resizable, reorderable columns.',
+  lead: 'Data tables on Bootstrap’s table styles, with sorting by one or several columns, search, pagination, row selection, expandable rows, virtual scrolling, and pinned, resizable and reorderable columns.',
   bootstrapDocs: 'https://getbootstrap.com/docs/6.0/content/tables/',
   sections: [
     {
@@ -80,6 +92,15 @@ const PAGE: DocsPageData = {
       example: TableSortingExample,
       html: sortingHtml,
       ts: sortingTs,
+    },
+    {
+      id: 'multi-sort',
+      title: 'Sorting by several columns',
+      description:
+        'Add <code>multiSort</code> and bind <code>[(sorts)]</code>, a list of sorts with the most important first, instead of <code>[(sort)]</code>. Each sort button then cycles its own column and leaves the others sorted, and a newly sorted column comes last. While more than one column is sorted, each sort button shows its position. Only the first sorted column gets <code>aria-sort</code>, because ARIA allows it on one header at a time.',
+      example: TableMultisortExample,
+      html: multisortHtml,
+      ts: multisortTs,
     },
     {
       id: 'search-and-pagination',
@@ -134,6 +155,24 @@ const PAGE: DocsPageData = {
       example: TableStickyExample,
       html: stickyHtml,
       ts: stickyTs,
+    },
+    {
+      id: 'virtual-scroll',
+      title: 'Virtual scrolling',
+      description:
+        'Set <code>virtualScroll</code> for long tables: the table renders only the rows in view, plus a few above and below, and spacer rows keep the scroll height. It works inside a scroll container with a height, as here, or with the page’s own scroll. Rows should all be the same height; the table measures the first one, or you can set <code>rowHeight</code>. Give columns a <code>width</code> so they don’t change size as different rows come into view. The table gets <code>aria-rowcount</code> and each row <code>aria-rowindex</code>, so screen readers still know where they are. Sorting, search, selection and paging work on all the rows. Expandable rows and <code>stacked</code> change row heights, so don’t combine them with it.',
+      example: TableVirtualExample,
+      html: virtualHtml,
+      ts: virtualTs,
+    },
+    {
+      id: 'pinned-columns',
+      title: 'Pinned columns',
+      description:
+        'Set a column’s <code>pinned</code> to <code>start</code> or <code>end</code> to keep it in view while a wide table scrolls sideways in <code>.table-responsive</code>. Pinned columns move to that side of the table, and a line marks where they end. When columns are pinned to the start, the selection and expand columns are pinned too. Pinning follows the writing direction, so start is on the right in right-to-left pages.',
+      example: TablePinnedExample,
+      html: pinnedHtml,
+      ts: pinnedTs,
     },
     {
       id: 'loading-and-empty',
@@ -194,6 +233,18 @@ const PAGE: DocsPageData = {
           type: 'BsTableSort | null',
           default: 'null',
           description: 'Sorted column and direction. Supports [(sort)].',
+        },
+        {
+          name: 'multiSort',
+          type: 'boolean',
+          default: 'false',
+          description: 'Sorts by several columns, with sorts instead of sort.',
+        },
+        {
+          name: 'sorts',
+          type: 'BsTableSort[]',
+          default: '[]',
+          description: 'Sorted columns, most important first, with multiSort. Supports [(sorts)].',
         },
         {
           name: 'filter',
@@ -266,6 +317,18 @@ const PAGE: DocsPageData = {
           type: 'boolean',
           default: 'false',
           description: 'Keeps the header in view while the table scrolls in its container.',
+        },
+        {
+          name: 'virtualScroll',
+          type: 'boolean',
+          default: 'false',
+          description: 'Renders only the rows in view, for long tables.',
+        },
+        {
+          name: 'rowHeight',
+          type: 'number | null',
+          default: 'null',
+          description: 'Row height in pixels with virtualScroll. Measured when not set.',
         },
         {
           name: 'loading',
@@ -383,6 +446,11 @@ const PAGE: DocsPageData = {
           description: 'Emits the new sort.',
         },
         {
+          name: 'sortsChange',
+          type: 'BsTableSort[]',
+          description: 'Emits the new sorts, with multiSort.',
+        },
+        {
           name: 'pageChange',
           type: 'number',
           description: 'Emits the new page.',
@@ -412,7 +480,7 @@ const PAGE: DocsPageData = {
         {
           name: 'visibleColumns()',
           type: 'BsTableColumn<T>[]',
-          description: 'Columns that are not hidden.',
+          description: 'Columns that are not hidden, with pinned columns moved to their side.',
         },
         {
           name: 'totalRows()',
@@ -448,7 +516,7 @@ const PAGE: DocsPageData = {
           name: 'toggleSort(column)',
           type: 'void',
           description:
-            'Cycles a column through ascending, descending and unsorted, and announces the new sort.',
+            'Cycles a column through ascending, descending and unsorted, and announces the new sort. With multiSort, other sorted columns stay sorted.',
         },
         {
           name: 'moveColumn(key, index)',
@@ -525,6 +593,11 @@ const PAGE: DocsPageData = {
           name: 'headerClass / cellClass',
           type: 'string',
           description: 'Classes added to the header cell and each cell.',
+        },
+        {
+          name: 'pinned',
+          type: "'start' | 'end'",
+          description: 'Keeps the column in view while the table scrolls sideways.',
         },
       ],
     },
