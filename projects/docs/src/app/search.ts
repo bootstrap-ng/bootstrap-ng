@@ -71,7 +71,7 @@ const MAX_RESULTS = 8;
     <dialog
       bsDialog
       #dialog="bsDialog"
-      class="docs-search-dialog"
+      class="docs-search-dialog mt-12"
       aria-labelledby="docs-search-title"
       (shown)="input.focus()">
       <div class="dialog-header">
