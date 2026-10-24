@@ -3,10 +3,13 @@ import {
   Component,
   computed,
   effect,
+  inject,
   input,
   numberAttribute,
+  Provider,
   signal,
 } from '@angular/core';
+import { configToken, provideConfig } from '../util/config';
 
 /** A password strength level. */
 export type BsStrengthLevel = 'weak' | 'fair' | 'good' | 'strong';
@@ -77,6 +80,40 @@ export function passwordScore(
 }
 
 /**
+ * Defaults for the inputs of password strength meters. Inputs set on a component win over
+ * them.
+ */
+export interface BsStrengthConfig {
+  /** Four segments, or a single bar. */
+  variant: 'segments' | 'bar';
+  /** Minimum length that earns the first point. */
+  minLength: number;
+  /** Points per criterion of the default scoring. */
+  weights: Partial<BsStrengthWeights>;
+  /** Highest scores that count as weak, fair and good. Higher scores are strong. */
+  thresholds: [number, number, number];
+  /** Text for each level. */
+  messages: Partial<Record<BsStrengthLevel, string>>;
+  /** Accessible name of the meter. */
+  ariaLabel: string;
+}
+
+/** The defaults set with `provideBsStrengthConfig()`. */
+export const BS_STRENGTH_CONFIG = configToken<BsStrengthConfig>('BS_STRENGTH_CONFIG');
+
+/**
+ * Sets defaults for the inputs of password strength meters, for the whole app in
+ * `bootstrapApplication()`, or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsStrengthConfig({ minLength: 12 })]
+ * ```
+ */
+export function provideBsStrengthConfig(config: Partial<BsStrengthConfig>): Provider {
+  return provideConfig(BS_STRENGTH_CONFIG, config);
+}
+
+/**
  * A password strength meter, as four segments or a single bar. Point it at a password
  * input with `[input]`, or pass the password with `[password]`, and it scores it as the
  * user types. For a static meter, set the level: `bsStrength="good"`.
@@ -112,26 +149,27 @@ export function passwordScore(
   },
 })
 export class BsStrength {
+  private readonly config = inject(BS_STRENGTH_CONFIG);
   /** A fixed level, for a static meter. Leave empty to score a password. */
   readonly level = input<BsStrengthLevel | '' | null>(null, { alias: 'bsStrength' });
   /** Four segments, or a single bar. */
-  readonly variant = input<'segments' | 'bar'>('segments');
+  readonly variant = input<'segments' | 'bar'>(this.config.variant ?? 'segments');
   /** Password input to score as the user types. */
   readonly input = input<HTMLInputElement | null>(null);
   /** Password to score. Takes precedence over `input`. */
   readonly password = input<string | null>(null);
   /** Minimum length that earns the first point. */
-  readonly minLength = input(8, { transform: numberAttribute });
+  readonly minLength = input(this.config.minLength ?? 8, { transform: numberAttribute });
   /** Points per criterion of the default scoring. */
-  readonly weights = input<Partial<BsStrengthWeights>>({});
+  readonly weights = input<Partial<BsStrengthWeights>>(this.config.weights ?? {});
   /** Highest scores that count as weak, fair and good. Higher scores are strong. */
-  readonly thresholds = input<[number, number, number]>([2, 4, 6]);
+  readonly thresholds = input<[number, number, number]>(this.config.thresholds ?? [2, 4, 6]);
   /** Custom scoring, which replaces the default criteria. */
   readonly scorer = input<((password: string) => number) | null>(null);
   /** Text for each level. */
-  readonly messages = input<Partial<Record<BsStrengthLevel, string>>>({});
+  readonly messages = input<Partial<Record<BsStrengthLevel, string>>>(this.config.messages ?? {});
   /** Accessible name of the meter. */
-  readonly ariaLabel = input('Password strength', { alias: 'aria-label' });
+  readonly ariaLabel = input(this.config.ariaLabel ?? 'Password strength', { alias: 'aria-label' });
 
   protected readonly levels = LEVELS;
   private readonly typed = signal('');

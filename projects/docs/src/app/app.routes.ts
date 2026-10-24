@@ -27,6 +27,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/getting-started/theming'),
   },
   {
+    path: 'getting-started/configuration',
+    title: 'Global configuration · bootstrap-ng',
+    loadComponent: () => import('./pages/getting-started/configuration'),
+  },
+  {
     path: 'getting-started/services',
     title: 'Services and helpers · bootstrap-ng',
     loadComponent: () => import('./pages/getting-started/services'),

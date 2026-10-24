@@ -1,5 +1,21 @@
-import { Directive, input } from '@angular/core';
-import { BsFloatingTip, BsTipContent } from '../tooltip/floating-tip';
+import { Directive, inject, input, Provider } from '@angular/core';
+import { configToken, provideConfig } from '../util/config';
+import { BsFloatingTip, BsTipConfig, BsTipContent } from '../tooltip/floating-tip';
+
+/** The defaults set with `provideBsPopoverConfig()`. */
+export const BS_POPOVER_CONFIG = configToken<BsTipConfig>('BS_POPOVER_CONFIG');
+
+/**
+ * Sets defaults for the inputs of popovers, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsPopoverConfig({ placement: 'end' })]
+ * ```
+ */
+export function provideBsPopoverConfig(config: Partial<BsTipConfig>): Provider {
+  return provideConfig(BS_POPOVER_CONFIG, config);
+}
 
 /**
  * Popover with an optional header, toggled by clicking its trigger. Takes plain text or
@@ -24,6 +40,10 @@ export class BsPopover extends BsFloatingTip {
   protected readonly name = 'popover';
   protected readonly defaultTrigger = 'click';
   protected readonly offset = 8;
+
+  protected injectConfig(): Partial<BsTipConfig> {
+    return inject(BS_POPOVER_CONFIG);
+  }
 
   protected readContent(): unknown {
     return [this.content(), this.popoverTitle()];

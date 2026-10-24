@@ -16,9 +16,9 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { BsDrawer } from '../drawer/drawer';
+import { BS_DRAWER_CONFIG, BsDrawer } from '../drawer/drawer';
 import { uniqueId } from '../util/id';
-import { BsDialog } from './dialog';
+import { BS_DIALOG_CONFIG, BsDialog } from './dialog';
 import { BsDialogBase } from './dialog-base';
 
 /** Width of a dialog opened by `BsDialogService`. */
@@ -184,6 +184,8 @@ export class BsDialogService {
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(EnvironmentInjector);
   private readonly document = inject(DOCUMENT);
+  private readonly dialogConfig = inject(BS_DIALOG_CONFIG);
+  private readonly drawerConfig = inject(BS_DRAWER_CONFIG);
   private readonly openRefs = new Set<BsDialogRef>();
 
   /** Opens a modal dialog with a component or template as its content. */
@@ -224,7 +226,9 @@ export class BsDialogService {
     const container = createComponent(BsDialogContainer, { environmentInjector: this.injector });
     const instance = container.instance;
     instance.kind.set(kind);
-    instance.options.set(options);
+    // Options win over the app's defaults, which the dialog's own inputs would otherwise apply.
+    const defaults = kind === 'drawer' ? this.drawerConfig : this.dialogConfig;
+    instance.options.set({ ...defaults, ...options });
     this.appRef.attachView(container.hostView);
     this.document.body.appendChild(container.location.nativeElement);
     container.changeDetectorRef.detectChanges();

@@ -14,11 +14,13 @@ import {
   input,
   numberAttribute,
   output,
+  Provider,
   signal,
   viewChild,
 } from '@angular/core';
 import { BsMenu, BsMenuToggle } from '../menu/menu';
 import { BsBreakpoint } from '../drawer/drawer';
+import { configToken, provideConfig } from '../util/config';
 
 /** @internal The "More" item that holds the overflowing links of a `bsNavOverflow`. */
 @Component({
@@ -59,6 +61,31 @@ export class BsNavOverflowMore {
   readonly menuElement = viewChild.required(BsMenu, { read: ElementRef });
 }
 
+/** Defaults for the inputs of overflowing navs. Inputs set on a component win over them. */
+export interface BsNavOverflowConfig {
+  /** Visible text of the "More" toggle. Empty shows only the icon. */
+  moreText: string;
+  /** Accessible label of the toggle when `moreText` is empty. */
+  moreLabel: string;
+  /** Puts the icon after the text. */
+  iconPlacement: 'start' | 'end';
+}
+
+/** The defaults set with `provideBsNavOverflowConfig()`. */
+export const BS_NAV_OVERFLOW_CONFIG = configToken<BsNavOverflowConfig>('BS_NAV_OVERFLOW_CONFIG');
+
+/**
+ * Sets defaults for the inputs of overflowing navs, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsNavOverflowConfig({ moreText: 'Plus', moreLabel: 'Plus' })]
+ * ```
+ */
+export function provideBsNavOverflowConfig(config: Partial<BsNavOverflowConfig>): Provider {
+  return provideConfig(BS_NAV_OVERFLOW_CONFIG, config);
+}
+
 /**
  * Moves the links of a `.nav` that do not fit into a "More" menu (the Priority+
  * pattern). Put it on a wrapper around the `.nav`: the wrapper's width decides what
@@ -81,17 +108,18 @@ export class BsNavOverflowMore {
   host: { class: 'nav-overflow nav-overflow-initialized' },
 })
 export class BsNavOverflow {
+  private readonly config = inject(BS_NAV_OVERFLOW_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly document = inject(DOCUMENT);
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(EnvironmentInjector);
 
   /** Visible text of the "More" toggle. Empty shows only the icon. */
-  readonly moreText = input('More');
+  readonly moreText = input(this.config.moreText ?? 'More');
   /** Accessible label of the toggle when `moreText` is empty. */
-  readonly moreLabel = input('More');
+  readonly moreLabel = input(this.config.moreLabel ?? 'More');
   /** Puts the icon after the text. */
-  readonly iconPlacement = input<'start' | 'end'>('start');
+  readonly iconPlacement = input<'start' | 'end'>(this.config.iconPlacement ?? 'start');
   /** Keeps at least this many items visible before moving the rest into the menu. */
   readonly threshold = input(0, { transform: numberAttribute });
   /** Moves every item into the menu below this width: a breakpoint or a number of pixels. */

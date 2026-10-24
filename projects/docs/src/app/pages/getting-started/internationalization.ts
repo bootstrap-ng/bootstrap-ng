@@ -36,17 +36,28 @@ export default class Internationalization {
   protected readonly rtlHtml: string = rtlHtml;
   protected readonly rtlTs: string = rtlTs;
 
-  protected readonly localeId = `import { Component, inject, LOCALE_ID } from '@angular/core';
-import { BsDatepicker, BsFormControl } from 'bootstrap-ng';
+  protected readonly localeId = `import { ApplicationConfig, LOCALE_ID } from '@angular/core';
+import { provideBsCalendarConfig } from 'bootstrap-ng';
 
-@Component({
-  selector: 'app-due-date',
-  imports: [BsDatepicker, BsFormControl],
-  template: \`<input type="text" bsFormControl bsDatepicker [locale]="locale" aria-label="Due date" />\`,
-})
-export class DueDate {
-  protected readonly locale = inject(LOCALE_ID);
-}`;
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // Calendars, datepickers and the rest of the app follow LOCALE_ID…
+    { provide: LOCALE_ID, useValue: 'fr-FR' },
+    // …unless calendars and datepickers are given a locale of their own.
+    provideBsCalendarConfig({ locale: 'fr-CA', firstWeekday: 0 }),
+  ],
+};`;
+
+  protected readonly labelsConfig = `import { ApplicationConfig } from '@angular/core';
+import { provideBsCloseButtonConfig, provideBsPaginationConfig, provideBsTableConfig } from 'bootstrap-ng';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBsCloseButtonConfig({ label: $localize\`Close\` }),
+    provideBsPaginationConfig({ previousText: $localize\`Previous\`, nextText: $localize\`Next\` }),
+    provideBsTableConfig({ emptyText: $localize\`No results\` }),
+  ],
+};`;
 
   protected readonly dateFormat = `<!-- Intl.DateTimeFormat options, in the datepicker's locale -->
 <input type="text" bsFormControl bsDatepicker locale="en-GB" [dateFormat]="{ dateStyle: 'medium' }" />

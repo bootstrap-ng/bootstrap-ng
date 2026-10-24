@@ -10,15 +10,40 @@ import {
   inject,
   input,
   output,
+  Provider,
   signal,
 } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { BsTheme, themeClass } from '../util/theme';
 import { BsControl } from './control';
+import { configToken, provideConfig } from '../util/config';
 
 interface RangeTick {
   ratio: number;
   label: string;
+}
+
+/** Defaults for the inputs of ranges. Inputs set on a component win over them. */
+export interface BsRangeConfig {
+  /** Shows a bubble with the value above the thumb. */
+  bubble: boolean;
+  /** Formats the value in the bubble. */
+  formatter: (value: number) => string;
+}
+
+/** The defaults set with `provideBsRangeConfig()`. */
+export const BS_RANGE_CONFIG = configToken<BsRangeConfig>('BS_RANGE_CONFIG');
+
+/**
+ * Sets defaults for the inputs of ranges, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsRangeConfig({ bubble: true })]
+ * ```
+ */
+export function provideBsRangeConfig(config: Partial<BsRangeConfig>): Provider {
+  return provideConfig(BS_RANGE_CONFIG, config);
 }
 
 /**
@@ -64,10 +89,11 @@ interface RangeTick {
   },
 })
 export class BsRange {
+  private readonly config = inject(BS_RANGE_CONFIG);
   /** Shows a bubble with the value above the thumb. */
-  readonly bubble = input(false, { transform: booleanAttribute });
+  readonly bubble = input(this.config.bubble ?? false, { transform: booleanAttribute });
   /** Formats the value in the bubble. */
-  readonly formatter = input<(value: number) => string>(String);
+  readonly formatter = input<(value: number) => string>(this.config.formatter ?? String);
   /** Theme color of the fill and thumb. Defaults to primary. */
   readonly theme = input<BsTheme | null>(null);
 

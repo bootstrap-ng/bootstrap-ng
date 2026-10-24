@@ -32,7 +32,7 @@ export type {
   BsToastPlacement,
   BsToastRef,
 } from './lib/toast/toaster';
-export type { BsTipContent } from './lib/tooltip/floating-tip';
+export type { BsTipConfig, BsTipContent } from './lib/tooltip/floating-tip';
 export * from './lib/tooltip/tooltip';
 export * from './lib/popover/popover';
 export * from './lib/menu/menu';

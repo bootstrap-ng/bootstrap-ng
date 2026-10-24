@@ -15,10 +15,12 @@ import {
   forwardRef,
   inject,
   input,
+  LOCALE_ID,
   linkedSignal,
   model,
   numberAttribute,
   output,
+  Provider,
   signal,
   untracked,
 } from '@angular/core';
@@ -26,6 +28,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { autoPosition, BsPlacement } from '../util/floating';
 import { uniqueId } from '../util/id';
 import {
+  BS_CALENDAR_CONFIG,
   BsCalendar,
   BsDateSelectionMode,
   BsDateValue,
@@ -34,12 +37,52 @@ import {
   selectedDates,
 } from './calendar';
 import { BsValueControl } from './value-control';
+import { configToken, provideConfig } from '../util/config';
 
 /** How a datepicker shows dates: `Intl.DateTimeFormat` options or a function. */
 export type BsDateFormat = Intl.DateTimeFormatOptions | BsDateFormatter;
 
 /** Formats a date for a datepicker. */
 export type BsDateFormatter = (date: Date, locale: string | undefined) => string;
+
+/**
+ * Defaults for the inputs of datepickers. Inputs set on a component win over them. Options
+ * left out here fall back to the calendar defaults set with `provideBsCalendarConfig()`,
+ * which also set the labels of the calendar that datepickers open.
+ */
+export interface BsDatepickerConfig {
+  /** First day of the week: 0 for Sunday, 1 for Monday. */
+  firstWeekday: number;
+  /** Number of months shown side by side. */
+  monthsCount: number;
+  /** Shows the week numbers before each week. */
+  weekNumbers: boolean;
+  /** How weeks are numbered: ISO 8601 or from 1 January. */
+  weekNumbering: BsWeekNumbering;
+  /** Locale for dates and month and day names, such as `en-US`, instead of `LOCALE_ID`. */
+  locale: string;
+  /** How selected dates are shown. Defaults to the locale's short date. */
+  dateFormat: BsDateFormat | null;
+  /** Where the calendar opens. */
+  placement: BsPlacement;
+  /** Accessible name of the calendar popup. */
+  calendarLabel: string;
+}
+
+/** The defaults set with `provideBsDatepickerConfig()`. */
+export const BS_DATEPICKER_CONFIG = configToken<BsDatepickerConfig>('BS_DATEPICKER_CONFIG');
+
+/**
+ * Sets defaults for the inputs of datepickers, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsDatepickerConfig({ dateFormat: { dateStyle: 'medium' } })]
+ * ```
+ */
+export function provideBsDatepickerConfig(config: Partial<BsDatepickerConfig>): Provider {
+  return provideConfig(BS_DATEPICKER_CONFIG, config);
+}
 
 /**
  * Opens a `bsCalendar` popup from an input or a button, like Bootstrap’s datepicker.
@@ -78,6 +121,8 @@ export type BsDateFormatter = (date: Date, locale: string | undefined) => string
   },
 })
 export class BsDatepicker extends BsValueControl<BsDateValue> {
+  private readonly config = { ...inject(BS_CALENDAR_CONFIG), ...inject(BS_DATEPICKER_CONFIG) };
+  private readonly localeId = inject(LOCALE_ID);
   private readonly element =
     inject<ElementRef<HTMLInputElement | HTMLButtonElement>>(ElementRef).nativeElement;
   private readonly document = inject(DOCUMENT);
@@ -99,23 +144,26 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
   /** Returns true for dates that can't be selected, such as weekends. */
   readonly dateDisabled = input<((iso: string) => boolean) | null>(null);
   /** First day of the week: 0 for Sunday, 1 for Monday. */
-  readonly firstWeekday = input(1, { transform: numberAttribute });
+  readonly firstWeekday = input(this.config.firstWeekday ?? 1, { transform: numberAttribute });
   /** Number of months shown side by side. */
-  readonly monthsCount = input(1, { transform: numberAttribute });
+  readonly monthsCount = input(this.config.monthsCount ?? 1, { transform: numberAttribute });
   /** Shows the week numbers before each week. */
-  readonly weekNumbers = input(false, { transform: booleanAttribute });
+  readonly weekNumbers = input(this.config.weekNumbers ?? false, { transform: booleanAttribute });
   /** How weeks are numbered: ISO 8601 or from 1 January. */
-  readonly weekNumbering = input<BsWeekNumbering>('iso');
-  /** Locale for dates and month and day names, such as `en-US`. Defaults to the browser's. */
-  readonly locale = input<string | undefined>(undefined);
+  readonly weekNumbering = input<BsWeekNumbering>(this.config.weekNumbering ?? 'iso');
+  /**
+   * Locale for dates and month and day names, such as `en-US`. Defaults to Angular's
+   * `LOCALE_ID`; `undefined` uses the browser's language.
+   */
+  readonly locale = input<string | undefined>(this.config.locale ?? this.localeId);
   /** How selected dates are shown. Defaults to the locale's short date. */
-  readonly dateFormat = input<BsDateFormat | null>(null);
+  readonly dateFormat = input<BsDateFormat | null>(this.config.dateFormat ?? null);
   /** Forces a color mode for the calendar: `light` or `dark`. */
   readonly colorMode = input<'light' | 'dark' | null>(null);
   /** Where the calendar opens. */
-  readonly placement = input<BsPlacement>('bottom-start');
+  readonly placement = input<BsPlacement>(this.config.placement ?? 'bottom-start');
   /** Accessible name of the calendar popup. */
-  readonly calendarLabel = input('Choose date');
+  readonly calendarLabel = input(this.config.calendarLabel ?? 'Choose date');
 
   /** Opens the calendar. */
   // eslint-disable-next-line @angular-eslint/no-input-rename -- `open` state pattern, see AGENTS.md

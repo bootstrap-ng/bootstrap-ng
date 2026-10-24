@@ -9,9 +9,38 @@ import {
   inject,
   input,
   output,
+  Provider,
   signal,
   untracked,
 } from '@angular/core';
+import { configToken, provideConfig } from '../util/config';
+
+/** Defaults for the inputs of scrollspies. Inputs set on a component win over them. */
+export interface BsScrollspyConfig {
+  /**
+   * Position of the activation line from the top of the scroll area, as a percentage or
+   * in pixels (for example below a sticky header). The active section is the last one
+   * whose top has passed it.
+   */
+  topMargin: string;
+  /** Scrolls smoothly to a section when its link is clicked, unless reduced motion is preferred. */
+  smoothScroll: boolean;
+}
+
+/** The defaults set with `provideBsScrollspyConfig()`. */
+export const BS_SCROLLSPY_CONFIG = configToken<BsScrollspyConfig>('BS_SCROLLSPY_CONFIG');
+
+/**
+ * Sets defaults for the inputs of scrollspies, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsScrollspyConfig({ smoothScroll: true })]
+ * ```
+ */
+export function provideBsScrollspyConfig(config: Partial<BsScrollspyConfig>): Provider {
+  return provideConfig(BS_SCROLLSPY_CONFIG, config);
+}
 
 /**
  * Highlights the link in a navigation for the section scrolled into view. Put it on
@@ -29,6 +58,7 @@ import {
   exportAs: 'bsScrollspy',
 })
 export class BsScrollspy {
+  private readonly config = inject(BS_SCROLLSPY_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly document = inject(DOCUMENT);
 
@@ -39,9 +69,9 @@ export class BsScrollspy {
    * in pixels (for example below a sticky header). The active section is the last one
    * whose top has passed it.
    */
-  readonly topMargin = input('12%');
+  readonly topMargin = input(this.config.topMargin ?? '12%');
   /** Scrolls smoothly to a section when its link is clicked, unless the user prefers reduced motion. */
-  readonly smoothScroll = input(false, { transform: booleanAttribute });
+  readonly smoothScroll = input(this.config.smoothScroll ?? false, { transform: booleanAttribute });
 
   /** Id of the active section. */
   readonly activeId = signal<string | null>(null);

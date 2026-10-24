@@ -12,6 +12,7 @@ import {
   input,
   model,
   numberAttribute,
+  Provider,
   signal,
   TemplateRef,
   untracked,
@@ -21,6 +22,7 @@ import { BsSpinner } from '../spinner/spinner';
 import { BsLiveAnnouncer } from '../util/announcer';
 import { uniqueId } from '../util/id';
 import { BsTheme, themeClass } from '../util/theme';
+import { configToken, provideConfig } from '../util/config';
 
 /** Direction of a sorted column. */
 export type BsSortDirection = 'asc' | 'desc';
@@ -162,6 +164,58 @@ function compareValues(a: unknown, b: unknown): number {
     return Number(a) - Number(b);
   }
   return collator.compare(String(a), String(b));
+}
+
+/** Defaults for the inputs of tables. Inputs set on a component win over them. */
+export interface BsTableConfig {
+  /** Rows per page. `0` shows every row. */
+  pageSize: number;
+  /** Keeps the header visible while the table scrolls inside its container. */
+  stickyHeader: boolean;
+  /** Zebra-stripes the rows. */
+  striped: boolean;
+  /** Highlights the row under the pointer. */
+  hover: boolean;
+  /** Adds borders on every side of the table and its cells. */
+  bordered: boolean;
+  /** Cell density. `sm` halves the padding. */
+  size: 'sm' | 'md';
+  /** Text shown when there are no rows. */
+  emptyText: string;
+  /** Text of the loading row. */
+  loadingText: string;
+  /** Accessible label of the select-all checkbox. */
+  selectAllLabel: string;
+  /** Accessible name of the selection column's header. */
+  selectHeader: string;
+  /** Accessible label of each row's checkbox or radio. Defaults to the first column's text. */
+  rowLabel: (row: unknown) => string;
+  /** Accessible name of the expand column's header. */
+  detailHeader: string;
+  /** Accessible label of each row's expand button. */
+  expandLabel: string;
+  /** Start of each resize handle's accessible label, followed by the column header. */
+  resizeLabel: string;
+  /**
+   * Message screen readers announce after a sort button changes the sort, given the
+   * column header and the new direction (`null` when unsorted). Return `''` to stay silent.
+   */
+  sortAnnouncement: (header: string, direction: BsSortDirection | null) => string;
+}
+
+/** The defaults set with `provideBsTableConfig()`. */
+export const BS_TABLE_CONFIG = configToken<BsTableConfig>('BS_TABLE_CONFIG');
+
+/**
+ * Sets defaults for the inputs of tables, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsTableConfig({ hover: true, emptyText: 'Aucun résultat' })]
+ * ```
+ */
+export function provideBsTableConfig(config: Partial<BsTableConfig>): Provider {
+  return provideConfig(BS_TABLE_CONFIG, config);
 }
 
 /**
@@ -404,6 +458,7 @@ function compareValues(a: unknown, b: unknown): number {
   `,
 })
 export class BsTable<T> {
+  private readonly config = inject(BS_TABLE_CONFIG);
   private readonly element = inject<ElementRef<HTMLTableElement>>(ElementRef).nativeElement;
   private readonly announcer = inject(BsLiveAnnouncer);
 
@@ -430,7 +485,7 @@ export class BsTable<T> {
   /** Current page, starting at 1. Supports `[(page)]`. */
   readonly page = model(1);
   /** Rows per page. `0` shows every row. */
-  readonly pageSize = input(0, { transform: numberAttribute });
+  readonly pageSize = input(this.config.pageSize ?? 0, { transform: numberAttribute });
   /**
    * Leaves sorting, filtering and paging to you, for example on a server: the table shows
    * `data` as it is and only updates `sort` and `page`. Set `total` for `pageCount`.
@@ -451,20 +506,20 @@ export class BsTable<T> {
   /** Lets users drag column headers to reorder them. */
   readonly reorderable = input(false, { transform: booleanAttribute });
   /** Keeps the header visible while the table scrolls inside its container. */
-  readonly stickyHeader = input(false, { transform: booleanAttribute });
+  readonly stickyHeader = input(this.config.stickyHeader ?? false, { transform: booleanAttribute });
   /** Shows a loading row instead of the rows and sets `aria-busy`. */
   readonly loading = input(false, { transform: booleanAttribute });
 
   /** Zebra-stripes the rows. */
-  readonly striped = input(false, { transform: booleanAttribute });
+  readonly striped = input(this.config.striped ?? false, { transform: booleanAttribute });
   /** Highlights the row under the pointer. */
-  readonly hover = input(false, { transform: booleanAttribute });
+  readonly hover = input(this.config.hover ?? false, { transform: booleanAttribute });
   /** Adds borders on every side of the table and its cells. */
-  readonly bordered = input(false, { transform: booleanAttribute });
+  readonly bordered = input(this.config.bordered ?? false, { transform: booleanAttribute });
   /** Removes all borders. */
   readonly borderless = input(false, { transform: booleanAttribute });
   /** Cell density. `sm` halves the padding. */
-  readonly size = input<'sm' | 'md'>('md');
+  readonly size = input<'sm' | 'md'>(this.config.size ?? 'md');
   /** Theme color of the table. */
   readonly theme = input<BsTheme | null>(null);
   /**
@@ -474,30 +529,33 @@ export class BsTable<T> {
   readonly stacked = input<BsTableStacked | null>(null);
 
   /** Text shown when there are no rows. */
-  readonly emptyText = input('No results');
+  readonly emptyText = input(this.config.emptyText ?? 'No results');
   /** Text of the loading row. */
-  readonly loadingText = input('Loading…');
+  readonly loadingText = input(this.config.loadingText ?? 'Loading…');
   /** Accessible label of the select-all checkbox. */
-  readonly selectAllLabel = input('Select all rows');
+  readonly selectAllLabel = input(this.config.selectAllLabel ?? 'Select all rows');
   /** Accessible name of the selection column's header. */
-  readonly selectHeader = input('Select');
+  readonly selectHeader = input(this.config.selectHeader ?? 'Select');
   /** Accessible label of each row's checkbox or radio. Defaults to the first column's text. */
-  readonly rowLabel = input<(row: T) => string>((row) => this.defaultRowLabel(row));
+  readonly rowLabel = input<(row: T) => string>(
+    this.config.rowLabel ?? ((row) => this.defaultRowLabel(row)),
+  );
   /** Accessible name of the expand column's header. */
-  readonly detailHeader = input('Details');
+  readonly detailHeader = input(this.config.detailHeader ?? 'Details');
   /** Accessible label of each row's expand button. */
-  readonly expandLabel = input('Show details');
+  readonly expandLabel = input(this.config.expandLabel ?? 'Show details');
   /** Start of each resize handle's accessible label, followed by the column header. */
-  readonly resizeLabel = input('Resize');
+  readonly resizeLabel = input(this.config.resizeLabel ?? 'Resize');
   /**
    * Message screen readers announce after a sort button changes the sort, given the
    * column header and the new direction (`null` when unsorted). Return `''` to stay silent.
    */
   readonly sortAnnouncement = input<(header: string, direction: BsSortDirection | null) => string>(
-    (header, direction) =>
-      direction
-        ? `Sorted by ${header}, ${direction === 'asc' ? 'ascending' : 'descending'}`
-        : 'Not sorted',
+    this.config.sortAnnouncement ??
+      ((header, direction) =>
+        direction
+          ? `Sorted by ${header}, ${direction === 'asc' ? 'ascending' : 'descending'}`
+          : 'Not sorted'),
   );
 
   private readonly cells = contentChildren<BsTableCell<T>>(BsTableCell);

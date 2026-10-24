@@ -11,6 +11,7 @@ import {
   input,
   model,
   numberAttribute,
+  Provider,
   signal,
   TemplateRef,
 } from '@angular/core';
@@ -18,6 +19,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BsTheme } from '../util/theme';
 import { BsControl } from './control';
 import { BsValueControl } from './value-control';
+import { configToken, provideConfig } from '../util/config';
 
 /** Size of a rating's stars. */
 export type BsRatingSize = 'sm' | 'md' | 'lg';
@@ -54,6 +56,37 @@ export class BsRatingStar {
 }
 
 const SIZES: Record<BsRatingSize, string> = { sm: 'fs-md', md: 'fs-xl', lg: 'fs-3xl' };
+
+/** Defaults for the inputs of ratings. Inputs set on a component win over them. */
+export interface BsRatingConfig {
+  /** Number of stars. */
+  max: number;
+  /** Lets pointer and keyboard pick half stars. */
+  allowHalf: boolean;
+  /** Lets the rating be cleared: click the current rating, or press Home, Delete or Backspace. */
+  resettable: boolean;
+  /** Theme color of the filled stars. */
+  theme: BsTheme;
+  /** Size of the stars. */
+  size: BsRatingSize;
+  /** Text screen readers announce for a value. Override it to translate. */
+  valueText: (value: number, max: number) => string;
+}
+
+/** The defaults set with `provideBsRatingConfig()`. */
+export const BS_RATING_CONFIG = configToken<BsRatingConfig>('BS_RATING_CONFIG');
+
+/**
+ * Sets defaults for the inputs of ratings, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsRatingConfig({ max: 10 })]
+ * ```
+ */
+export function provideBsRatingConfig(config: Partial<BsRatingConfig>): Provider {
+  return provideConfig(BS_RATING_CONFIG, config);
+}
 
 /**
  * A star rating. The value is a number from 0 (not rated) to `max`: bind it with
@@ -137,6 +170,7 @@ const SIZES: Record<BsRatingSize, string> = { sm: 'fs-md', md: 'fs-xl', lg: 'fs-
   },
 })
 export class BsRating extends BsValueControl<number> {
+  private readonly config = inject(BS_RATING_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly control = inject(BsControl, { self: true });
 
@@ -145,20 +179,20 @@ export class BsRating extends BsValueControl<number> {
   protected readonly emptyValue = 0;
 
   /** Number of stars. */
-  readonly max = input(5, { transform: numberAttribute });
+  readonly max = input(this.config.max ?? 5, { transform: numberAttribute });
   /** Lets pointer and keyboard pick half stars. */
-  readonly allowHalf = input(false, { transform: booleanAttribute });
+  readonly allowHalf = input(this.config.allowHalf ?? false, { transform: booleanAttribute });
   /** Shows the rating without letting it change. */
   readonly readonly = input(false, { transform: booleanAttribute });
   /** Lets the rating be cleared: click the current rating, or press Home, Delete or Backspace. */
-  readonly resettable = input(false, { transform: booleanAttribute });
+  readonly resettable = input(this.config.resettable ?? false, { transform: booleanAttribute });
   /** Theme color of the filled stars. */
-  readonly theme = input<BsTheme>('warning');
+  readonly theme = input<BsTheme>(this.config.theme ?? 'warning');
   /** Size of the stars. */
-  readonly size = input<BsRatingSize>('md');
+  readonly size = input<BsRatingSize>(this.config.size ?? 'md');
   /** Text screen readers announce for a value. Override it to translate. */
   readonly valueText = input<(value: number, max: number) => string>(
-    (value, max) => `${String(value)} out of ${String(max)}`,
+    this.config.valueText ?? ((value, max) => `${String(value)} out of ${String(max)}`),
   );
 
   protected readonly customStar = contentChild(BsRatingStar);

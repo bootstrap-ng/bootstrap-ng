@@ -8,10 +8,43 @@ import {
   input,
   model,
   numberAttribute,
+  Provider,
 } from '@angular/core';
 import { BsTheme, themeClass } from '../util/theme';
+import { configToken, provideConfig } from '../util/config';
 
 type PageItem = { type: 'page'; page: number } | { type: 'ellipsis'; key: string };
+
+/** Defaults for the inputs of paginations. Inputs set on a component win over them. */
+export interface BsPaginationConfig {
+  /** Most page buttons to show, including the first and last page. At least 5. */
+  maxPages: number;
+  /** Size of the pagination. */
+  size: 'sm' | 'md' | 'lg';
+  /** Visible text of the previous button. */
+  previousText: string;
+  /** Visible text of the next button. */
+  nextText: string;
+  /** Accessible label of the previous button, for when `previousText` is an icon. */
+  previousLabel: string | null;
+  /** Accessible label of the next button, for when `nextText` is an icon. */
+  nextLabel: string | null;
+}
+
+/** The defaults set with `provideBsPaginationConfig()`. */
+export const BS_PAGINATION_CONFIG = configToken<BsPaginationConfig>('BS_PAGINATION_CONFIG');
+
+/**
+ * Sets defaults for the inputs of paginations, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsPaginationConfig({ previousText: 'Précédent', nextText: 'Suivant' })]
+ * ```
+ */
+export function provideBsPaginationConfig(config: Partial<BsPaginationConfig>): Provider {
+  return provideConfig(BS_PAGINATION_CONFIG, config);
+}
 
 /**
  * Page navigation. Renders Bootstrap's `.pagination` list inside the `<nav>` it is
@@ -68,6 +101,7 @@ type PageItem = { type: 'page'; page: number } | { type: 'ellipsis'; key: string
   `,
 })
 export class BsPagination {
+  private readonly config = inject(BS_PAGINATION_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly injector = inject(Injector);
 
@@ -76,19 +110,19 @@ export class BsPagination {
   /** Number of pages. */
   readonly pageCount = input.required({ transform: numberAttribute });
   /** Most page buttons to show, including the first and last page. At least 5. */
-  readonly maxPages = input(7, { transform: numberAttribute });
+  readonly maxPages = input(this.config.maxPages ?? 7, { transform: numberAttribute });
   /** Size of the pagination. */
-  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly size = input<'sm' | 'md' | 'lg'>(this.config.size ?? 'md');
   /** Theme color of the active page and focus styles. */
   readonly theme = input<BsTheme | null>(null);
   /** Visible text of the previous button. */
-  readonly previousText = input('Previous');
+  readonly previousText = input(this.config.previousText ?? 'Previous');
   /** Visible text of the next button. */
-  readonly nextText = input('Next');
+  readonly nextText = input(this.config.nextText ?? 'Next');
   /** Accessible label of the previous button, for when `previousText` is an icon. */
-  readonly previousLabel = input<string | null>(null);
+  readonly previousLabel = input<string | null>(this.config.previousLabel ?? null);
   /** Accessible label of the next button, for when `nextText` is an icon. */
-  readonly nextLabel = input<string | null>(null);
+  readonly nextLabel = input<string | null>(this.config.nextLabel ?? null);
 
   protected readonly classes = computed(() =>
     [themeClass(this.theme()), this.size() === 'md' ? '' : `pagination-${this.size()}`]

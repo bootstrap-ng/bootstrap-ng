@@ -6,12 +6,41 @@ import {
   ElementRef,
   inject,
   input,
+  Provider,
 } from '@angular/core';
+import type { BsDialogConfig } from '../dialog/dialog';
 import { BsDialogBase } from '../dialog/dialog-base';
+import { configToken, provideConfig } from '../util/config';
 import { uniqueId } from '../util/id';
 
 /** Bootstrap breakpoints for responsive drawers. */
 export type BsBreakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+/**
+ * Defaults for the inputs of drawers, including those opened with `BsDialogService`.
+ * Inputs and options set on a drawer win over them.
+ */
+export interface BsDrawerConfig extends BsDialogConfig {
+  /** Edge the drawer slides in from. `start` and `end` follow the text direction. */
+  placement: 'start' | 'end' | 'top' | 'bottom' | 'fullscreen';
+  /** Keeps the page scrollable while the drawer is open. */
+  scroll: boolean;
+}
+
+/** The defaults set with `provideBsDrawerConfig()`. */
+export const BS_DRAWER_CONFIG = configToken<BsDrawerConfig>('BS_DRAWER_CONFIG');
+
+/**
+ * Sets defaults for the inputs of drawers, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsDrawerConfig({ placement: 'end' })]
+ * ```
+ */
+export function provideBsDrawerConfig(config: Partial<BsDrawerConfig>): Provider {
+  return provideConfig(BS_DRAWER_CONFIG, config);
+}
 
 /**
  * Panel that slides in from an edge of the screen, built on the native `<dialog>`
@@ -41,8 +70,12 @@ export type BsBreakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   },
 })
 export class BsDrawer extends BsDialogBase {
+  private readonly drawerConfig = inject(BS_DRAWER_CONFIG);
+
   /** Edge the drawer slides in from. `start` and `end` follow the text direction. */
-  readonly placement = input<'start' | 'end' | 'top' | 'bottom' | 'fullscreen'>('start');
+  readonly placement = input<'start' | 'end' | 'top' | 'bottom' | 'fullscreen'>(
+    this.drawerConfig.placement ?? 'start',
+  );
   /**
    * Makes the drawer responsive: it is a drawer below this breakpoint and shows its
    * content inline from this breakpoint up. Uses Bootstrap's `.{breakpoint}:drawer` class.
@@ -52,12 +85,16 @@ export class BsDrawer extends BsDialogBase {
    * Keeps the page scrollable while the drawer is open. Combine with
    * `[backdrop]="false"` to open it inline so the rest of the page stays interactive.
    */
-  readonly scroll = input(false, { transform: booleanAttribute });
+  readonly scroll = input(this.drawerConfig.scroll ?? false, { transform: booleanAttribute });
   /** Element id, used for `aria-controls` on toggles. Generated when not set. */
   readonly id = input(uniqueId('bs-drawer'));
 
   protected readonly prefix = 'drawer';
   protected readonly deferClose = false;
+
+  protected injectConfig(): Partial<BsDrawerConfig> {
+    return inject(BS_DRAWER_CONFIG);
+  }
 
   protected readonly classes = computed(() => {
     const breakpoint = this.responsive();

@@ -15,6 +15,7 @@ import {
   input,
   numberAttribute,
   output,
+  Provider,
   signal,
   TemplateRef,
 } from '@angular/core';
@@ -22,6 +23,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { BsLiveAnnouncer } from '../util/announcer';
 import { autoPosition, BsPlacement } from '../util/floating';
 import { uniqueId } from '../util/id';
+import { configToken, provideConfig } from '../util/config';
 
 /** Anything with an RxJS-style `subscribe()`, such as an `Observable`. */
 export interface BsSubscribable<T> {
@@ -116,6 +118,35 @@ export class BsTypeaheadPopup {
   protected readonly highlight = highlight;
 }
 
+/** Defaults for the inputs of typeaheads. Inputs set on a component win over them. */
+export interface BsTypeaheadConfig {
+  /** Characters to type before searching. */
+  minLength: number;
+  /** Milliseconds to wait after the last keystroke before searching. */
+  debounce: number;
+  /** Where the list opens relative to the input. */
+  placement: BsPlacement;
+  /** Accessible label of the suggestion list. */
+  listLabel: string;
+  /** Text announced to screen readers when suggestions arrive. */
+  resultsText: (count: number) => string;
+}
+
+/** The defaults set with `provideBsTypeaheadConfig()`. */
+export const BS_TYPEAHEAD_CONFIG = configToken<BsTypeaheadConfig>('BS_TYPEAHEAD_CONFIG');
+
+/**
+ * Sets defaults for the inputs of typeaheads, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsTypeaheadConfig({ debounce: 300 })]
+ * ```
+ */
+export function provideBsTypeaheadConfig(config: Partial<BsTypeaheadConfig>): Provider {
+  return provideConfig(BS_TYPEAHEAD_CONFIG, config);
+}
+
 /**
  * Suggests values while the user types in a text input. The user can pick a
  * suggestion or keep their own text. The input stays a native input, so bind it to
@@ -149,6 +180,7 @@ export class BsTypeaheadPopup {
   },
 })
 export class BsTypeahead<T = unknown> {
+  private readonly config = inject(BS_TYPEAHEAD_CONFIG);
   private readonly element = inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
   private readonly document = inject(DOCUMENT);
   private readonly appRef = inject(ApplicationRef);
@@ -163,20 +195,22 @@ export class BsTypeahead<T = unknown> {
   /** Custom template for each suggestion. Its context is `BsTypeaheadItemContext`. */
   readonly itemTemplate = input<TemplateRef<BsTypeaheadItemContext<T>> | null>(null);
   /** Characters to type before searching. */
-  readonly minLength = input(1, { transform: numberAttribute });
+  readonly minLength = input(this.config.minLength ?? 1, { transform: numberAttribute });
   /** Milliseconds to wait after the last keystroke before searching. */
-  readonly debounce = input(200, { transform: numberAttribute });
+  readonly debounce = input(this.config.debounce ?? 200, { transform: numberAttribute });
   /** Where the list opens relative to the input. */
-  readonly placement = input<BsPlacement>('bottom-start');
+  readonly placement = input<BsPlacement>(this.config.placement ?? 'bottom-start');
   /** Accessible label of the suggestion list. */
-  readonly listLabel = input('Suggestions');
+  readonly listLabel = input(this.config.listLabel ?? 'Suggestions');
   /** Text announced to screen readers when suggestions arrive. */
-  readonly resultsText = input((count: number) =>
-    count === 0
-      ? 'No suggestions'
-      : count === 1
-        ? '1 suggestion available'
-        : `${count} suggestions available`,
+  readonly resultsText = input(
+    this.config.resultsText ??
+      ((count: number) =>
+        count === 0
+          ? 'No suggestions'
+          : count === 1
+            ? '1 suggestion available'
+            : `${count} suggestions available`),
   );
 
   /** Emits the suggestion the user picked, after the input is updated. */

@@ -13,16 +13,55 @@ import {
   input,
   model,
   numberAttribute,
+  Provider,
   signal,
   untracked,
 } from '@angular/core';
 import { BsLiveAnnouncer } from '../util/announcer';
 import { uniqueId } from '../util/id';
+import { configToken, provideConfig } from '../util/config';
 
 const SYNC_DELAY = 100;
 const LOOP_DURATION = 300;
 
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+/** Defaults for the inputs of carousels. Inputs set on a component win over them. */
+export interface BsCarouselConfig {
+  /** Starts cycling through the slides. The user can pause it with a `bsCarouselPlayPause`. */
+  autoplay: boolean;
+  /** Time in milliseconds between slides while playing. */
+  interval: number;
+  /** Pauses autoplay while the pointer is over the carousel. */
+  pauseOnHover: boolean;
+  /**
+   * What happens past the last or first slide. `'loop'` keeps sliding in the same
+   * direction onto the other end, `'wrap'` jumps back, and `'stop'` stops. Layouts that
+   * show more than one slide, and users who prefer reduced motion, get `'wrap'` for `'loop'`.
+   */
+  ends: 'loop' | 'wrap' | 'stop';
+  /** Moves between slides with the left and right arrow keys. */
+  keyboard: boolean;
+  /** Accessible label while playing. */
+  pauseLabel: string;
+  /** Accessible label while paused. */
+  playLabel: string;
+}
+
+/** The defaults set with `provideBsCarouselConfig()`. */
+export const BS_CAROUSEL_CONFIG = configToken<BsCarouselConfig>('BS_CAROUSEL_CONFIG');
+
+/**
+ * Sets defaults for the inputs of carousels, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsCarouselConfig({ interval: 8000 })]
+ * ```
+ */
+export function provideBsCarouselConfig(config: Partial<BsCarouselConfig>): Provider {
+  return provideConfig(BS_CAROUSEL_CONFIG, config);
+}
 
 /**
  * Carousel built on CSS scroll snapping, as in Bootstrap 6: the browser handles
@@ -59,6 +98,7 @@ const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2
   },
 })
 export class BsCarousel {
+  private readonly config = inject(BS_CAROUSEL_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly document = inject(DOCUMENT);
   private readonly items = contentChildren(BsCarouselItem, { descendants: true });
@@ -66,19 +106,19 @@ export class BsCarousel {
   /** Index of the active slide. Supports `[(active)]`. */
   readonly active = model(0);
   /** Starts cycling through the slides. The user can pause it with a `bsCarouselPlayPause`. */
-  readonly autoplay = input(false, { transform: booleanAttribute });
+  readonly autoplay = input(this.config.autoplay ?? false, { transform: booleanAttribute });
   /** Time in milliseconds between slides while playing. */
-  readonly interval = input(5000, { transform: numberAttribute });
+  readonly interval = input(this.config.interval ?? 5000, { transform: numberAttribute });
   /** Pauses autoplay while the pointer is over the carousel. */
-  readonly pauseOnHover = input(true, { transform: booleanAttribute });
+  readonly pauseOnHover = input(this.config.pauseOnHover ?? true, { transform: booleanAttribute });
   /**
    * What happens past the last or first slide. `'loop'` keeps sliding in the same
    * direction onto the other end, `'wrap'` jumps back, and `'stop'` stops. Layouts that
    * show more than one slide, and users who prefer reduced motion, get `'wrap'` for `'loop'`.
    */
-  readonly ends = input<'loop' | 'wrap' | 'stop'>('loop');
+  readonly ends = input<'loop' | 'wrap' | 'stop'>(this.config.ends ?? 'loop');
   /** Moves between slides with the left and right arrow keys. */
-  readonly keyboard = input(true, { transform: booleanAttribute });
+  readonly keyboard = input(this.config.keyboard ?? true, { transform: booleanAttribute });
   /** Element id. Generated when not set. */
   readonly id = input(uniqueId('bs-carousel'));
 
@@ -584,12 +624,13 @@ export class BsCarouselIndicator {
   },
 })
 export class BsCarouselPlayPause {
+  private readonly config = inject(BS_CAROUSEL_CONFIG);
   protected readonly carousel = inject(BsCarousel);
 
   /** Accessible label while playing. */
-  readonly pauseLabel = input('Pause');
+  readonly pauseLabel = input(this.config.pauseLabel ?? 'Pause');
   /** Accessible label while paused. */
-  readonly playLabel = input('Play');
+  readonly playLabel = input(this.config.playLabel ?? 'Play');
 
   protected toggle(): void {
     if (this.carousel.isPlaying()) {

@@ -15,15 +15,38 @@ import {
   Injector,
   input,
   output,
+  Provider,
   signal,
   ViewContainerRef,
   ViewEncapsulation,
 } from '@angular/core';
 import { BsControl } from './control';
+import { configToken, provideConfig } from '../util/config';
 
 /** Style of a text control: a bordered `.form-control`, plain text, or a borderless ghost. */
 export type BsFormControlVariant = 'control' | 'plaintext' | 'ghost';
 export type BsFormControlSize = 'sm' | 'md' | 'lg';
+
+/** Defaults for the inputs of form controls. Inputs set on a component win over them. */
+export interface BsFormControlConfig {
+  /** Accessible label of the clear button. */
+  clearLabel: string;
+}
+
+/** The defaults set with `provideBsFormControlConfig()`. */
+export const BS_FORM_CONTROL_CONFIG = configToken<BsFormControlConfig>('BS_FORM_CONTROL_CONFIG');
+
+/**
+ * Sets defaults for the inputs of form controls, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsFormControlConfig({ clearLabel: 'Effacer' })]
+ * ```
+ */
+export function provideBsFormControlConfig(config: Partial<BsFormControlConfig>): Provider {
+  return provideConfig(BS_FORM_CONTROL_CONFIG, config);
+}
 
 /**
  * Styles a textual `<input>`, `<textarea>` or `<select>` as a Bootstrap form control.
@@ -50,6 +73,7 @@ export type BsFormControlSize = 'sm' | 'md' | 'lg';
   },
 })
 export class BsFormControl {
+  private readonly config = inject(BS_FORM_CONTROL_CONFIG);
   private readonly type = inject(new HostAttributeToken('type'), { optional: true });
   /** The host element. */
   readonly element =
@@ -72,7 +96,7 @@ export class BsFormControl {
    */
   readonly clearable = input(false, { transform: booleanAttribute });
   /** Accessible label of the clear button. */
-  readonly clearLabel = input('Clear');
+  readonly clearLabel = input(this.config.clearLabel ?? 'Clear');
   /** Emits after the clear button cleared the value. */
   readonly cleared = output();
 

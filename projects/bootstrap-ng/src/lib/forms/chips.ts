@@ -8,6 +8,7 @@ import {
   input,
   model,
   numberAttribute,
+  Provider,
   signal,
   viewChild,
   viewChildren,
@@ -17,6 +18,7 @@ import { BsLiveAnnouncer } from '../util/announcer';
 import { BsTheme, themeClass } from '../util/theme';
 import { BsControl } from './control';
 import { BS_CONTROL_HOST, BsValueControl } from './value-control';
+import { configToken, provideConfig } from '../util/config';
 
 /**
  * A standalone chip: a small interactive element for a person, place, tag or value.
@@ -75,6 +77,35 @@ export class BsChip {
 export class BsChipDismiss {
   /** Accessible name of the button. */
   readonly ariaLabel = input('Remove', { alias: 'aria-label' });
+}
+
+/** Defaults for the inputs of chip inputs. Inputs set on a component win over them. */
+export interface BsChipInputConfig {
+  /** Character that adds a chip when typed, or `null`. Enter always adds one. */
+  separator: string | null;
+  /** Allows the same value more than once. */
+  allowDuplicates: boolean;
+  /** Adds the typed text as a chip when focus leaves the input. */
+  createOnBlur: boolean;
+  /** Shows a remove button on each chip. */
+  dismissible: boolean;
+  /** Start of the remove buttons’ accessible names, followed by the chip’s value. */
+  removeLabel: string;
+}
+
+/** The defaults set with `provideBsChipInputConfig()`. */
+export const BS_CHIP_INPUT_CONFIG = configToken<BsChipInputConfig>('BS_CHIP_INPUT_CONFIG');
+
+/**
+ * Sets defaults for the inputs of chip inputs, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsChipInputConfig({ removeLabel: 'Retirer' })]
+ * ```
+ */
+export function provideBsChipInputConfig(config: Partial<BsChipInputConfig>): Provider {
+  return provideConfig(BS_CHIP_INPUT_CONFIG, config);
 }
 
 /**
@@ -148,6 +179,7 @@ export class BsChipDismiss {
   },
 })
 export class BsChipInput extends BsValueControl<string[]> {
+  private readonly config = inject(BS_CHIP_INPUT_CONFIG);
   // A shared live region clears between messages, so repeated messages are read again.
   private readonly announcer = inject(BsLiveAnnouncer);
 
@@ -158,9 +190,11 @@ export class BsChipInput extends BsValueControl<string[]> {
   /** Theme color of the chips. */
   readonly theme = input<BsTheme | null>(null);
   /** Character that adds a chip when typed, or `null`. Enter always adds one. */
-  readonly separator = input<string | null>(',');
+  readonly separator = input<string | null>(this.config.separator ?? ',');
   /** Allows the same value more than once. */
-  readonly allowDuplicates = input(false, { transform: booleanAttribute });
+  readonly allowDuplicates = input(this.config.allowDuplicates ?? false, {
+    transform: booleanAttribute,
+  });
   /** Maximum number of chips, or `null` for no limit. */
   readonly maxChips = input<number | null, unknown>(null, {
     transform: (value) => (value === null || value === '' ? null : numberAttribute(value)),
@@ -168,11 +202,11 @@ export class BsChipInput extends BsValueControl<string[]> {
   /** Placeholder of the input. */
   readonly placeholder = input('');
   /** Shows a remove button on each chip. */
-  readonly dismissible = input(true, { transform: booleanAttribute });
+  readonly dismissible = input(this.config.dismissible ?? true, { transform: booleanAttribute });
   /** Adds the typed text as a chip when focus leaves the input. */
-  readonly createOnBlur = input(true, { transform: booleanAttribute });
+  readonly createOnBlur = input(this.config.createOnBlur ?? true, { transform: booleanAttribute });
   /** Start of the remove buttons’ accessible names, followed by the chip’s value. */
-  readonly removeLabel = input('Remove');
+  readonly removeLabel = input(this.config.removeLabel ?? 'Remove');
   /** Accessible name of the input, when it has no visible label. */
   readonly ariaLabel = input<string | null>(null, { alias: 'aria-label' });
   /** Validation styles of the input. See `BsControl`. */

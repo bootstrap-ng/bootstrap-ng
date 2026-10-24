@@ -10,12 +10,14 @@ import {
   linkedSignal,
   OnDestroy,
   output,
+  Provider,
   signal,
   untracked,
 } from '@angular/core';
 import { autoPosition, BsPlacement } from '../util/floating';
 import { uniqueId } from '../util/id';
 import { waitForTransition } from '../util/transition';
+import { configToken, provideConfig } from '../util/config';
 
 const ITEM_SELECTOR = '.menu-item:not(.disabled):not(:disabled)';
 const SUBMENU_CLOSE_DELAY = 100;
@@ -28,6 +30,34 @@ function menuItems(menu: HTMLElement): HTMLElement[] {
 }
 
 type FocusTarget = 'first' | 'last';
+
+/** Defaults for the inputs of menus. Inputs set on a component win over them. */
+export interface BsMenuConfig {
+  /** Where the menu appears next to its toggle. `start` and `end` follow the text direction. */
+  placement: BsPlacement;
+  /**
+   * Which clicks close the menu: `true` any click, `'inside'` clicks in the menu,
+   * `'outside'` clicks outside it, `false` none (use the toggle, Escape or `hide()`).
+   */
+  autoClose: boolean | 'inside' | 'outside';
+  /** Opens the submenu on hover as well as on click and keyboard. */
+  hover: boolean;
+}
+
+/** The defaults set with `provideBsMenuConfig()`. */
+export const BS_MENU_CONFIG = configToken<BsMenuConfig>('BS_MENU_CONFIG');
+
+/**
+ * Sets defaults for the inputs of menus, for the whole app in `bootstrapApplication()`,
+ * or for part of it in a component's `providers`.
+ *
+ * ```ts
+ * providers: [provideBsMenuConfig({ autoClose: 'outside' })]
+ * ```
+ */
+export function provideBsMenuConfig(config: Partial<BsMenuConfig>): Provider {
+  return provideConfig(BS_MENU_CONFIG, config);
+}
 
 /**
  * Menu of actions or links, toggled by a `bsMenuToggle` button and positioned with
@@ -53,6 +83,7 @@ type FocusTarget = 'first' | 'last';
   },
 })
 export class BsMenu implements OnDestroy {
+  private readonly config = inject(BS_MENU_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly document = inject(DOCUMENT);
 
@@ -65,12 +96,12 @@ export class BsMenu implements OnDestroy {
   /** Current open state. */
   readonly isOpen = this.openState.asReadonly();
   /** Where the menu appears next to its toggle. `start` and `end` follow the text direction. */
-  readonly placement = input<BsPlacement>('bottom-start');
+  readonly placement = input<BsPlacement>(this.config.placement ?? 'bottom-start');
   /**
    * Which clicks close the menu: `true` any click, `'inside'` clicks in the menu,
    * `'outside'` clicks outside it, `false` none (use the toggle, Escape or `hide()`).
    */
-  readonly autoClose = input<boolean | 'inside' | 'outside'>(true);
+  readonly autoClose = input<boolean | 'inside' | 'outside'>(this.config.autoClose ?? true);
   /** Element id, used for `aria-controls` on the toggle. Generated when not set. */
   readonly id = input(uniqueId('bs-menu'));
 
@@ -355,6 +386,7 @@ const topLevelSubmenus = new WeakMap<object, Set<BsSubmenu>>();
   },
 })
 export class BsSubmenu implements OnDestroy {
+  private readonly config = inject(BS_MENU_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly rootMenu = inject(BsMenu, { optional: true });
   private readonly parentSubmenu = inject(BsSubmenu, { optional: true, skipSelf: true });
@@ -362,7 +394,7 @@ export class BsSubmenu implements OnDestroy {
   /** Whether the submenu is open. */
   readonly isOpen = this.openState.asReadonly();
   /** Opens the submenu on hover as well as on click and keyboard. */
-  readonly hover = input(true, { transform: booleanAttribute });
+  readonly hover = input(this.config.hover ?? true, { transform: booleanAttribute });
 
   private readonly children = new Set<BsSubmenu>();
   private stopPositioning: (() => void) | undefined;
