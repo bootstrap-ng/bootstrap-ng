@@ -27,6 +27,8 @@ CI runs `format:check`, `lint`, `test:coverage`, `build` and `e2e`, and the Bund
 
 Always format TypeScript (and every other file you change) with Prettier: run `npm run format` before committing, and never hand-format or leave a file unformatted. Super-Linter in CI also checks TypeScript with its own Prettier version, which can wrap some code differently from the repo's; if it disagrees, restructure the code (for example, move an inline arrow-function argument into a `const`) so both versions agree.
 
+Add every user-facing library change (new features, fixes, breaking changes) to the `## Unreleased` section of `CHANGELOG.md` in the same PR, with a link to the PR. When the library version is bumped, move those entries under a new `## [version] - date` heading and add its compare link at the bottom. `npm run build:lib` copies `CHANGELOG.md` into the npm package.
+
 Squash a pull request's commits into one before it is reviewed or merged. When you push follow-up fixes to your own PR branch, squash them into that commit and force-push (`git push --force-with-lease`).
 
 ### Library conventions
