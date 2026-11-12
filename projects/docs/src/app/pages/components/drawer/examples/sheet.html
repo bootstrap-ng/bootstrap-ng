@@ -1,0 +1,12 @@
+<button type="button" bsButton theme="primary" [bsDrawerToggle]="sheet">Toggle sheet drawer</button>
+
+<dialog bsDrawer #sheet="bsDrawer" placement="bottom" sheet aria-labelledby="sheet-drawer-title">
+  <div class="drawer-header">
+    <h2 class="drawer-title h5" id="sheet-drawer-title">Sheet drawer</h2>
+    <button type="button" bsCloseButton bsDrawerClose></button>
+  </div>
+  <div class="drawer-body">
+    Resize your browser to see this mobile bottom sheet become a centered bottom sheet on larger
+    screens.
+  </div>
+</dialog>

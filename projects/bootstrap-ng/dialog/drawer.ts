@@ -21,6 +21,8 @@ export interface BsDrawerConfig extends BsDialogConfig {
   placement: 'start' | 'end' | 'top' | 'bottom' | 'fullscreen';
   /** Keeps the page scrollable while the drawer is open. */
   scroll: boolean;
+  /** Flush-to-edge sheet, for bottom sheets. */
+  sheet: boolean;
 }
 
 /** The defaults set with `provideBsDrawerConfig()`. */
@@ -82,6 +84,12 @@ export class BsDrawer extends BsDialogBase {
    * `[backdrop]="false"` to open it inline so the rest of the page stays interactive.
    */
   readonly scroll = input(this.drawerConfig.scroll ?? false, { transform: booleanAttribute });
+  /**
+   * Flush-to-edge sheet, with no inset, rounded bottom corners or shadow. Use it with
+   * `placement="bottom"` for a mobile bottom sheet: full width on small screens, and
+   * centered with a maximum width (`--bs-drawer-sheet-width`, 760px) from `lg` up.
+   */
+  readonly sheet = input(this.drawerConfig.sheet ?? false, { transform: booleanAttribute });
   /** Element id, used for `aria-controls` on toggles. Generated when not set. */
   readonly id = input(uniqueId('bs-drawer'));
 
@@ -94,7 +102,8 @@ export class BsDrawer extends BsDialogBase {
 
   protected readonly classes = computed(() => {
     const breakpoint = this.responsive();
-    return `${breakpoint ? `${breakpoint}:drawer` : 'drawer'} drawer-${this.placement()}`;
+    const base = `${breakpoint ? `${breakpoint}:drawer` : 'drawer'} drawer-${this.placement()}`;
+    return this.sheet() ? `${base} drawer-sheet` : base;
   });
 
   constructor() {

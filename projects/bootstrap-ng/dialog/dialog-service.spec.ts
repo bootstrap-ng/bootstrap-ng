@@ -115,11 +115,13 @@ describe('BsDialogService', () => {
     await fixture.whenStable();
     const ref = TestBed.inject(BsDialogService).openDrawer(fixture.componentInstance.tpl(), {
       placement: 'end',
+      sheet: true,
       ariaLabel: 'Options',
     });
     await vi.waitFor(() => expect(dialog()!.open).toBe(true));
     expect(dialog()!.classList).toContain('drawer');
     expect(dialog()!.classList).toContain('drawer-end');
+    expect(dialog()!.classList).toContain('drawer-sheet');
     dialog()!.querySelector<HTMLButtonElement>('button')!.click();
     expect(await ref.result).toBe('picked');
   });

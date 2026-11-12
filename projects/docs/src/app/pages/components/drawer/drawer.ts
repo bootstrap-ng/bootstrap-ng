@@ -6,6 +6,8 @@ import { DrawerPlacementExample } from './examples/placement';
 import placementHtml from './examples/placement.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
 import placementTs from './examples/placement.ts' with { loader: 'text' };
+import { DrawerSheetExample } from './examples/sheet';
+import sheetHtml from './examples/sheet.html' with { loader: 'text' };
 import { DrawerScrollingExample } from './examples/scrolling';
 import scrollingHtml from './examples/scrolling.html' with { loader: 'text' };
 import { DrawerStaticExample } from './examples/static';
@@ -38,6 +40,14 @@ const PAGE: DocsPageData = {
       example: DrawerPlacementExample,
       html: placementHtml,
       ts: placementTs,
+    },
+    {
+      id: 'sheet',
+      title: 'Sheet',
+      description:
+        'Add <code>sheet</code> with <code>placement="bottom"</code> for a bottom sheet designed primarily for mobile. On smaller screens it spans the viewport width and sits flush against the bottom edge. From the <code>lg</code> breakpoint up it keeps its sheet shape but centers at the bottom of the viewport, with a maximum width of 760px (set <code>--bs-drawer-sheet-width</code> to change it). Leave <code>sheet</code> off for side drawers.',
+      example: DrawerSheetExample,
+      html: sheetHtml,
     },
     {
       id: 'scrolling',
@@ -96,6 +106,12 @@ const PAGE: DocsPageData = {
           type: 'boolean',
           default: 'false',
           description: 'Keeps the page scrollable while the drawer is open.',
+        },
+        {
+          name: 'sheet',
+          type: 'boolean',
+          default: 'false',
+          description: 'Flush-to-edge sheet. Use with placement="bottom" for a bottom sheet.',
         },
         {
           name: 'open',

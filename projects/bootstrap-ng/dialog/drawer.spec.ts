@@ -15,6 +15,7 @@ import { BsDrawer, BsDrawerToggle } from './drawer';
       [placement]="placement()"
       [responsive]="responsive()"
       [scroll]="scroll()"
+      [sheet]="sheet()"
       [backdrop]="backdrop()"
       (hidden)="hidden = hidden + 1"
       (dismissed)="dismissed = $event">
@@ -28,6 +29,7 @@ class Host {
   readonly placement = signal<'start' | 'end' | 'top' | 'bottom' | 'fullscreen'>('start');
   readonly responsive = signal<'md' | null>(null);
   readonly scroll = signal(false);
+  readonly sheet = signal(false);
   readonly backdrop = signal<boolean | 'static'>(true);
   hidden = 0;
   dismissed: string | null = null;
@@ -65,6 +67,14 @@ describe('BsDrawer', () => {
     expect(drawer.classList).toContain('md:drawer');
     expect(drawer.classList).toContain('drawer-end');
     expect(drawer.classList).not.toContain('drawer');
+  });
+
+  it('adds the sheet class', async () => {
+    const { fixture, host, drawer } = await setup();
+    host.placement.set('bottom');
+    host.sheet.set(true);
+    await fixture.whenStable();
+    expect(drawer.className).toBe('drawer drawer-bottom drawer-sheet');
   });
 
   it('opens as a modal from its toggle and locks page scroll', async () => {

@@ -82,7 +82,7 @@ export const appConfig: ApplicationConfig = {
     {
       fn: 'provideBsDrawerConfig',
       path: '/components/drawer',
-      inputs: 'placement, scroll, backdrop, keyboard, animation',
+      inputs: 'placement, scroll, sheet, backdrop, keyboard, animation',
     },
     {
       fn: 'provideBsMenuConfig',

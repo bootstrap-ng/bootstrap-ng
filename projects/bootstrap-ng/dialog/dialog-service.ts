@@ -67,6 +67,8 @@ export interface BsDrawerOptions extends BsOverlayOptions {
   placement?: 'start' | 'end' | 'top' | 'bottom' | 'fullscreen';
   /** Keeps the page scrollable while the drawer is open. */
   scroll?: boolean;
+  /** Flush-to-edge sheet. Use with `placement: 'bottom'` for a bottom sheet. */
+  sheet?: boolean;
 }
 
 /** Context of a template opened by `BsDialogService`. */
@@ -112,6 +114,7 @@ type Content = Type<unknown> | TemplateRef<BsDialogContext>;
         [class]="classes()"
         [placement]="options().placement ?? 'start'"
         [scroll]="options().scroll ?? false"
+        [sheet]="options().sheet ?? false"
         [open]="open()"
         (openChange)="open.set($event)"
         [backdrop]="options().backdrop ?? true"
