@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { BsNav, BsNavLink } from './nav';
-import { BsNavOverflow } from './nav-overflow';
+import { BsNavOverflow, provideBsNavOverflowConfig } from './nav-overflow';
 
 @Component({
   imports: [BsNav, BsNavLink],
@@ -109,5 +109,19 @@ describe('BsNavOverflow', () => {
     expect(visible().length + copies.length).toBe(5);
     copies.at(-1)!.click();
     expect(host.clicked).toBe('Help');
+  });
+
+  it('positions the menu with the menuStrategy from the config', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideBsNavOverflowConfig({ menuStrategy: 'fixed' })],
+    });
+    const { fixture, host, more } = await setup();
+    host.width.set(320);
+    await fixture.whenStable();
+    await vi.waitFor(() => expect(host.count).toBeGreaterThan(0));
+    more().querySelector<HTMLButtonElement>('.nav-overflow-toggle')!.click();
+    await fixture.whenStable();
+    const menu = more().querySelector<HTMLElement>('.menu')!;
+    await vi.waitFor(() => expect(menu.style.position).toBe('fixed'));
   });
 });

@@ -16,17 +16,19 @@ const PAGE: DocsPageData = {
       id: 'basic',
       title: 'Example',
       description:
-        'Wrap a <code>.nav</code> in an element with <code>bsNavOverflow</code>. The wrapper\u2019s width decides what fits, so it also works in sidebars and cards. The menu shows copies of the links, and choosing one clicks the original, so <code>routerLink</code> and click handlers keep working. Resize the window to see links move.',
+        'Wrap a <code>.nav</code> in an element with <code>bsNavOverflow</code>. The wrapper\u2019s width decides what fits, so it also works in sidebars and cards. The menu shows copies of the links, and choosing one clicks the original, so <code>routerLink</code> and click handlers keep working. Drag the right edge of the container below to see links move into the menu.',
       example: NavOverflowBasicExample,
       html: basicHtml,
+      resizable: true,
     },
     {
       id: 'keep',
       title: 'Keep items visible',
       description:
-        'Add <code>.nav-overflow-keep</code> to items that must stay visible. Here the container is narrow, so only a few links fit.',
+        'Add <code>.nav-overflow-keep</code> to items that must stay visible. Here the container starts narrow, so only a few links fit.',
       example: NavOverflowKeepExample,
       html: keepHtml,
+      resizable: '24rem',
     },
     {
       id: 'options',
@@ -35,6 +37,7 @@ const PAGE: DocsPageData = {
         '<code>moreText</code> changes the toggle text; leave it empty for an icon-only toggle labelled by <code>moreLabel</code>. <code>iconPlacement</code> moves the icon after the text, <code>threshold</code> keeps a minimum number of links visible, and <code>collapseBelow</code> moves every link into the menu below a breakpoint or width.',
       example: NavOverflowOptionsExample,
       html: optionsHtml,
+      resizable: '24rem',
     },
   ],
   api: [
@@ -72,6 +75,13 @@ const PAGE: DocsPageData = {
           type: 'BsBreakpoint | number | null',
           default: 'null',
           description: 'Moves every link into the menu below this width.',
+        },
+        {
+          name: 'menuStrategy',
+          type: "'absolute' | 'fixed'",
+          default: "'absolute'",
+          description:
+            "CSS position of the menu. Use 'fixed' when an ancestor with overflow: hidden clips it.",
         },
       ],
       outputs: [

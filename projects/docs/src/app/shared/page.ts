@@ -12,6 +12,11 @@ export interface DocsPageSection {
   example: Type<unknown>;
   html: string;
   ts?: string;
+  /**
+   * Shows the example in a container whose right edge can be dragged, for components that
+   * respond to their own width. A string sets the starting width.
+   */
+  resizable?: boolean | string;
 }
 
 export interface DocsPageData {
@@ -43,7 +48,11 @@ export interface DocsPageData {
         {{ section.title }}
       </h2>
       <p [innerHTML]="section.description"></p>
-      <docs-example [component]="section.example" [html]="section.html" [ts]="section.ts ?? null" />
+      <docs-example
+        [component]="section.example"
+        [html]="section.html"
+        [ts]="section.ts ?? null"
+        [resizable]="section.resizable ?? false" />
     }
 
     <docs-api [directives]="page().api" />
