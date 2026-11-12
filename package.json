@@ -18,8 +18,8 @@
   "scripts": {
     "ng": "ng",
     "start": "npm run stackblitz && ng serve docs",
-    "build": "ng build bootstrap-ng && npm run build:docs",
-    "build:lib": "ng build bootstrap-ng",
+    "build": "npm run build:lib && npm run build:docs",
+    "build:lib": "ng build bootstrap-ng && node -e \"require('node:fs').copyFileSync('CHANGELOG.md', 'dist/bootstrap-ng/CHANGELOG.md')\"",
     "build:docs": "npm run stackblitz && ng build docs && npm run page-meta && npm run search-index && npm run llms-txt && npm run llms-full-txt && npm run sitemap && npm run absolute-preloads && npm run 404-page && npm run headers",
     "404-page": "node -e \"require('node:fs').copyFileSync('dist/docs/browser/index.csr.html', 'dist/docs/browser/404.html')\"",
     "stackblitz": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/stackblitz.mjs",
