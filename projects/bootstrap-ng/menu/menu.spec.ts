@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { BsMenu, BsMenuToggle, BsSubmenu } from './menu';
+import { BsMenu, BsMenuToggle, BsSubmenu, provideBsMenuConfig } from './menu';
 
 @Component({
   imports: [BsMenu, BsMenuToggle],
@@ -46,6 +46,17 @@ class Host {
 class LinkToggleHost {}
 
 describe('BsMenu', () => {
+  it('uses fixed positioning from the config', async () => {
+    TestBed.configureTestingModule({ providers: [provideBsMenuConfig({ strategy: 'fixed' })] });
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    const menu = root.querySelector<HTMLElement>('.menu')!;
+    root.querySelector<HTMLButtonElement>('.toggle')!.click();
+    await fixture.whenStable();
+    await vi.waitFor(() => expect(menu.style.position).toBe('fixed'));
+  });
+
   async function setup() {
     const fixture = TestBed.createComponent(Host);
     await fixture.whenStable();
@@ -78,6 +89,7 @@ describe('BsMenu', () => {
     expect(toggle.classList).toContain('show');
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     await vi.waitFor(() => expect(menu.getAttribute('data-bs-placement')).toBe('bottom-start'));
+    expect(menu.style.position).toBe('absolute');
 
     toggle.click();
     await fixture.whenStable();

@@ -31,7 +31,12 @@ export interface FloatingOptions {
   fallbackPlacements?: BsPlacement[];
   /** Arrow element, positioned along the edge the floating element faces. */
   arrow?: HTMLElement | null;
+  /** CSS position. `'fixed'` escapes ancestors with `overflow: hidden`. Defaults to `'absolute'`. */
+  strategy?: BsPositionStrategy;
 }
+
+/** CSS position of a floating element. */
+export type BsPositionStrategy = 'absolute' | 'fixed';
 
 /**
  * Keeps `floating` positioned next to `reference` with Floating UI while either moves.
@@ -44,7 +49,13 @@ export function autoPosition(
   options: () => FloatingOptions,
 ): () => void {
   const update = async () => {
-    const { placement, fallbackPlacements, arrow: arrowElement, ...rest } = options();
+    const {
+      placement,
+      fallbackPlacements,
+      arrow: arrowElement,
+      strategy = 'absolute',
+      ...rest
+    } = options();
     const middleware = [
       offset(rest.offset),
       flip({
@@ -59,6 +70,7 @@ export function autoPosition(
     const result = await computePosition(reference, floating, {
       placement: resolvePlacement(placement, reference),
       middleware,
+      strategy,
     });
 
     if (!floating.isConnected) {
@@ -66,7 +78,7 @@ export function autoPosition(
     }
 
     Object.assign(floating.style, {
-      position: 'absolute',
+      position: strategy,
       left: `${result.x}px`,
       top: `${result.y}px`,
       margin: '0',

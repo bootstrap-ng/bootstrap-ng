@@ -1,6 +1,15 @@
 import { NgComponentOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, signal, Type } from '@angular/core';
-import { BsButton } from 'bootstrap-ng';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  Injector,
+  input,
+  signal,
+  Type,
+} from '@angular/core';
+import { BsButton, provideBsMenuConfig, provideBsNavOverflowConfig } from 'bootstrap-ng';
 import { DocsCopyButton } from './copy-button';
 import { DocsStackBlitzButton } from './stackblitz-button';
 import { DocsCode } from './code';
@@ -22,9 +31,19 @@ export interface DocsExampleSource {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="docs-example-preview p-7" data-pagefind-ignore>
-      <ng-container *ngComponentOutlet="component()" />
-    </div>
+    @if (resizable()) {
+      <div class="docs-example-preview p-3 bg-1" data-pagefind-ignore>
+        <div
+          class="docs-example-resizable bg-body border border-keyline shadow-xs rounded-4 p-5 overflow-hidden"
+          [style.width]="width()">
+          <ng-container *ngComponentOutlet="component(); injector: resizableInjector" />
+        </div>
+      </div>
+    } @else {
+      <div class="docs-example-preview p-7" data-pagefind-ignore>
+        <ng-container *ngComponentOutlet="component()" />
+      </div>
+    }
     <div class="border-top bg-1">
       <div
         class="d-flex align-items-center justify-content-between py-1 px-4 border-bottom fs-sm"
@@ -58,9 +77,33 @@ export interface DocsExampleSource {
   `,
 })
 export class DocsExample {
+  private readonly injector = inject(Injector);
+
   readonly component = input.required<Type<unknown>>();
   readonly html = input.required<string>();
   readonly ts = input<string | null>(null);
+  /**
+   * Shows the example in a container whose right edge can be dragged. A string sets the
+   * starting width.
+   */
+  readonly resizable = input<boolean | string>(false);
+
+  protected readonly width = computed(() => {
+    const resizable = this.resizable();
+    return typeof resizable === 'string' ? resizable : '100%';
+  });
+
+  /**
+   * The resizable container hides its overflow, which would clip menus, so menus in it use
+   * fixed positioning.
+   */
+  protected readonly resizableInjector = Injector.create({
+    providers: [
+      provideBsMenuConfig({ strategy: 'fixed' }),
+      provideBsNavOverflowConfig({ menuStrategy: 'fixed' }),
+    ],
+    parent: this.injector,
+  });
 
   protected readonly active = signal(0);
 

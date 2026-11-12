@@ -66,6 +66,12 @@ const PAGE: DocsPageData = {
           description: 'Where the menu appears next to its toggle.',
         },
         {
+          name: 'strategy',
+          type: "'absolute' | 'fixed'",
+          default: "'absolute'",
+          description: "CSS position of the menu. 'fixed' escapes ancestors with overflow: hidden.",
+        },
+        {
           name: 'autoClose',
           type: "boolean | 'inside' | 'outside'",
           default: 'true',

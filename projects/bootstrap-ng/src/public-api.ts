@@ -13,7 +13,7 @@ export {
   uniqueId,
   waitForTransition,
 } from 'bootstrap-ng/util';
-export type { BsBreakpoint, BsPlacement, BsTheme } from 'bootstrap-ng/util';
+export type { BsBreakpoint, BsPlacement, BsPositionStrategy, BsTheme } from 'bootstrap-ng/util';
 export * from 'bootstrap-ng/accordion';
 export * from 'bootstrap-ng/alert';
 export * from 'bootstrap-ng/avatar';

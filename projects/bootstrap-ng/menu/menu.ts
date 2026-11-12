@@ -17,6 +17,7 @@ import {
 import {
   autoPosition,
   BsPlacement,
+  BsPositionStrategy,
   configToken,
   provideConfig,
   uniqueId,
@@ -39,6 +40,8 @@ type FocusTarget = 'first' | 'last';
 export interface BsMenuConfig {
   /** Where the menu appears next to its toggle. `start` and `end` follow the text direction. */
   placement: BsPlacement;
+  /** CSS position of the menu. `'fixed'` escapes ancestors with `overflow: hidden`. */
+  strategy: BsPositionStrategy;
   /**
    * Which clicks close the menu: `true` any click, `'inside'` clicks in the menu,
    * `'outside'` clicks outside it, `false` none (use the toggle, Escape or `hide()`).
@@ -101,6 +104,8 @@ export class BsMenu implements OnDestroy {
   readonly isOpen = this.openState.asReadonly();
   /** Where the menu appears next to its toggle. `start` and `end` follow the text direction. */
   readonly placement = input<BsPlacement>(this.config.placement ?? 'bottom-start');
+  /** CSS position of the menu. `'fixed'` escapes ancestors with `overflow: hidden`. */
+  readonly strategy = input<BsPositionStrategy>(this.config.strategy ?? 'absolute');
   /**
    * Which clicks close the menu: `true` any click, `'inside'` clicks in the menu,
    * `'outside'` clicks outside it, `false` none (use the toggle, Escape or `hide()`).
@@ -276,6 +281,7 @@ export class BsMenu implements OnDestroy {
     this.stopPositioning = autoPosition(this.toggleElement, this.element, () => ({
       placement: this.placement(),
       offset: 2,
+      strategy: this.strategy(),
     }));
   }
 

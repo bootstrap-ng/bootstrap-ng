@@ -19,7 +19,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { BsMenu, BsMenuToggle } from 'bootstrap-ng/menu';
-import { BsBreakpoint, configToken, provideConfig } from 'bootstrap-ng/util';
+import { BsBreakpoint, BsPositionStrategy, configToken, provideConfig } from 'bootstrap-ng/util';
 
 /** @internal The "More" item that holds the overflowing links of a `bsNavOverflow`. */
 @Component({
@@ -49,13 +49,19 @@ import { BsBreakpoint, configToken, provideConfig } from 'bootstrap-ng/util';
         }
       }
     </button>
-    <div bsMenu #menu="bsMenu" class="nav-overflow-menu" placement="bottom-end"></div>
+    <div
+      bsMenu
+      #menu="bsMenu"
+      class="nav-overflow-menu"
+      placement="bottom-end"
+      [strategy]="strategy()"></div>
   `,
 })
 export class BsNavOverflowMore {
   readonly text = signal('More');
   readonly label = signal('More');
   readonly iconEnd = signal(false);
+  readonly strategy = signal<BsPositionStrategy>('absolute');
   readonly menu = viewChild.required(BsMenu);
   readonly menuElement = viewChild.required(BsMenu, { read: ElementRef });
 }
@@ -68,6 +74,8 @@ export interface BsNavOverflowConfig {
   moreLabel: string;
   /** Puts the icon after the text. */
   iconPlacement: 'start' | 'end';
+  /** CSS position of the menu. Use `'fixed'` when an ancestor with `overflow: hidden` clips it. */
+  menuStrategy: BsPositionStrategy;
 }
 
 /** The defaults set with `provideBsNavOverflowConfig()`. */
@@ -123,6 +131,8 @@ export class BsNavOverflow {
   readonly threshold = input(0, { transform: numberAttribute });
   /** Moves every item into the menu below this width: a breakpoint or a number of pixels. */
   readonly collapseBelow = input<BsBreakpoint | number | null>(null);
+  /** CSS position of the menu. Use `'fixed'` when an ancestor with `overflow: hidden` clips it. */
+  readonly menuStrategy = input<BsPositionStrategy>(this.config.menuStrategy ?? 'absolute');
 
   /** Number of items currently in the "More" menu. */
   readonly overflowCount = signal(0);
@@ -138,10 +148,12 @@ export class BsNavOverflow {
       const text = this.moreText();
       const label = this.moreLabel();
       const iconEnd = this.iconPlacement() === 'end';
+      const strategy = this.menuStrategy();
       if (more) {
         more.instance.text.set(text);
         more.instance.label.set(label);
         more.instance.iconEnd.set(iconEnd);
+        more.instance.strategy.set(strategy);
       }
       this.threshold();
       this.collapseBelow();
@@ -164,6 +176,7 @@ export class BsNavOverflow {
       this.more.instance.text.set(this.moreText());
       this.more.instance.label.set(this.moreLabel());
       this.more.instance.iconEnd.set(this.iconPlacement() === 'end');
+      this.more.instance.strategy.set(this.menuStrategy());
       this.appRef.attachView(this.more.hostView);
       this.more.changeDetectorRef.detectChanges();
 

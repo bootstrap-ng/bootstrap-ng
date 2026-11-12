@@ -52,3 +52,10 @@ docs-code .shiki span {
 [data-bs-theme='dark'] docs-code .shiki span {
   color: var(--shiki-dark);
 }
+
+/* Examples of components that respond to their own width. Drag the right edge to resize. */
+.docs-example-resizable {
+  min-width: 200px;
+  max-width: 100%;
+  resize: horizontal;
+}

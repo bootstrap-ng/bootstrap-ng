@@ -87,12 +87,12 @@ export const appConfig: ApplicationConfig = {
     {
       fn: 'provideBsMenuConfig',
       path: '/components/menu',
-      inputs: 'placement, autoClose, and hover on bsSubmenu',
+      inputs: 'placement, strategy, autoClose, and hover on bsSubmenu',
     },
     {
       fn: 'provideBsNavOverflowConfig',
       path: '/components/nav-overflow',
-      inputs: 'moreText, moreLabel, iconPlacement',
+      inputs: 'moreText, moreLabel, iconPlacement, menuStrategy',
     },
     {
       fn: 'provideBsPaginationConfig',
