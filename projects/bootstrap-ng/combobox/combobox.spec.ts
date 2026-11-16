@@ -7,6 +7,7 @@ import {
   BsComboboxNoResults,
   BsComboboxOption,
   BsComboboxSearch,
+  provideBsComboboxConfig,
 } from './combobox';
 import { BsFormField, BsFormLabel } from 'bootstrap-ng/forms';
 
@@ -206,5 +207,161 @@ describe('BsCombobox', () => {
     await fixture.whenStable();
     expect(host.country.touched).toBe(true);
     outside.remove();
+  });
+});
+
+describe('BsCombobox keyboard and options', () => {
+  @Component({
+    imports: [BsCombobox, BsComboboxMenu, BsComboboxOption, BsComboboxSearch],
+    template: `
+      <button
+        bsCombobox
+        aria-label="Fruit"
+        placeholder="Pick fruit"
+        [size]="size()"
+        [multiple]="multiple()"
+        [compareWith]="byId"
+        [menu]="menu"
+        [(value)]="value"></button>
+      <div bsComboboxMenu #menu="bsComboboxMenu" check>
+        @if (search()) {
+          <div class="combobox-search">
+            <input bsComboboxSearch aria-label="Search" />
+          </div>
+        }
+        <button bsComboboxOption disabled [value]="{ id: 0 }">Apple</button>
+        <button bsComboboxOption [value]="{ id: 1 }">Banana</button>
+        <button bsComboboxOption label="Cherry!" [value]="{ id: 2 }">Cherry</button>
+      </div>
+    `,
+  })
+  class KeyboardHost {
+    readonly size = signal<'sm' | 'md' | 'lg'>('md');
+    readonly multiple = signal(false);
+    readonly search = signal(false);
+    readonly value = signal<unknown>(null);
+    readonly byId = (a: unknown, b: unknown) =>
+      (a as { id: number }).id === (b as { id: number }).id;
+  }
+
+  async function setup() {
+    const fixture = TestBed.createComponent(KeyboardHost);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    const toggle = root.querySelector<HTMLButtonElement>('[bsCombobox]')!;
+    const menu = root.querySelector<HTMLElement>('[bsComboboxMenu]')!;
+    const options = () =>
+      Array.from(menu.querySelectorAll<HTMLButtonElement>('[bsComboboxOption]'));
+    const text = () => toggle.querySelector('.combobox-value')!.textContent.trim();
+    const key = async (target: HTMLElement, key: string) => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+      await fixture.whenStable();
+      return event;
+    };
+    const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+    return {
+      fixture,
+      host: fixture.componentInstance,
+      root,
+      toggle,
+      menu,
+      options,
+      text,
+      key,
+      nextFrame,
+    };
+  }
+
+  it('opens with the arrow keys, focuses the first enabled option and closes on Escape', async () => {
+    const { toggle, menu, options, key, nextFrame } = await setup();
+    toggle.focus();
+    expect((await key(toggle, 'ArrowDown')).defaultPrevented).toBe(true);
+    expect(menu.classList).toContain('show');
+    await nextFrame();
+    // Apple is disabled.
+    expect(document.activeElement).toBe(options()[1]);
+
+    expect((await key(toggle, 'Escape')).defaultPrevented).toBe(true);
+    expect(menu.classList).not.toContain('show');
+    // Escape on a closed combobox is left alone, for example to close a dialog.
+    expect((await key(toggle, 'Escape')).defaultPrevented).toBe(false);
+
+    await key(toggle, 'ArrowUp');
+    expect(menu.classList).toContain('show');
+  });
+
+  it('focuses the selected option on open, matching values with compareWith', async () => {
+    const { fixture, host, toggle, options, text, key, nextFrame } = await setup();
+    host.value.set({ id: 2 });
+    await fixture.whenStable();
+    expect(text()).toBe('Cherry!');
+    expect(options()[2].getAttribute('aria-selected')).toBe('true');
+    expect(options()[2].querySelector('.menu-item-check')).not.toBeNull();
+    await key(toggle, 'ArrowDown');
+    await nextFrame();
+    expect(document.activeElement).toBe(options()[2]);
+  });
+
+  it('moves from the search field to the first visible option with Arrow Down', async () => {
+    const { fixture, host, root, toggle, options, key, nextFrame } = await setup();
+    host.search.set(true);
+    await fixture.whenStable();
+    toggle.click();
+    await fixture.whenStable();
+    await nextFrame();
+    const search = root.querySelector<HTMLInputElement>('[bsComboboxSearch]')!;
+    // Focus stays in the search field rather than moving to an option.
+    expect(document.activeElement).toBe(search);
+    search.value = 'cher';
+    search.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect((await key(search, 'ArrowDown')).defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(options()[2]);
+    expect((await key(search, 'Enter')).defaultPrevented).toBe(false);
+  });
+
+  it('toggles values in multiple mode and keeps the menu open', async () => {
+    const { fixture, host, toggle, menu, options, text } = await setup();
+    host.multiple.set(true);
+    await fixture.whenStable();
+    expect(menu.querySelector('[role="listbox"]')!.getAttribute('aria-multiselectable')).toBe(
+      'true',
+    );
+    toggle.click();
+    await fixture.whenStable();
+    options()[1].click();
+    options()[2].click();
+    await fixture.whenStable();
+    expect(host.value()).toEqual([{ id: 1 }, { id: 2 }]);
+    expect(text()).toBe('2 selected');
+    expect(menu.classList).toContain('show');
+    options()[1].click();
+    await fixture.whenStable();
+    expect(host.value()).toEqual([{ id: 2 }]);
+    expect(text()).toBe('Cherry!');
+  });
+
+  it('applies the size class', async () => {
+    const { fixture, host, toggle } = await setup();
+    expect([...toggle.classList].sort()).toEqual(['combobox-toggle', 'form-control']);
+    host.size.set('lg');
+    await fixture.whenStable();
+    expect(toggle.classList).toContain('form-control-lg');
+  });
+
+  it('takes defaults from provideBsComboboxConfig, with inputs winning', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideBsComboboxConfig({ size: 'sm', countText: (count) => `${count} choisis` }),
+      ],
+    });
+    const { fixture, host, toggle, text } = await setup();
+    host.multiple.set(true);
+    host.value.set([{ id: 1 }, { id: 2 }]);
+    await fixture.whenStable();
+    expect(text()).toBe('2 choisis');
+    // The size bound on the combobox wins over the config.
+    expect(toggle.classList).not.toContain('form-control-sm');
   });
 });

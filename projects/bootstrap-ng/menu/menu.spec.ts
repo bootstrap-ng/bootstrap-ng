@@ -412,3 +412,176 @@ describe('BsSubmenu', () => {
     expect(q('.more-menu').classList).not.toContain('show');
   });
 });
+
+describe('BsSubmenu keyboard, hover and direction', () => {
+  @Component({
+    imports: [BsMenu, BsMenuToggle, BsSubmenu],
+    template: `
+      <div style="position: fixed; top: -1000px" [attr.dir]="dir()">
+        <button type="button" class="toggle" [bsMenuToggle]="menu">Menu</button>
+        <div bsMenu #menu="bsMenu">
+          @if (shown()) {
+            <div bsSubmenu class="share" [hover]="hover()">
+              <button type="button" class="menu-item share-trigger">Share</button>
+              <div class="menu share-menu">
+                <button type="button" class="menu-item">Email</button>
+                <button type="button" class="menu-item">Link</button>
+                <div bsSubmenu class="more">
+                  <button type="button" class="menu-item more-trigger">More</button>
+                  <div class="menu more-menu">
+                    <button type="button" class="menu-item fax">Fax</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    `,
+  })
+  class KeyboardHost {
+    readonly dir = signal<'ltr' | 'rtl'>('ltr');
+    readonly hover = signal(true);
+    readonly shown = signal(true);
+  }
+
+  async function setup() {
+    const fixture = TestBed.createComponent(KeyboardHost);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    const q = <T extends HTMLElement = HTMLElement>(selector: string) =>
+      root.querySelector<T>(selector)!;
+    q<HTMLButtonElement>('.toggle').click();
+    await fixture.whenStable();
+    const items = () =>
+      Array.from(
+        q('.share-menu').querySelectorAll<HTMLElement>(
+          ':scope > .menu-item, :scope > .submenu > .menu-item',
+        ),
+      );
+    return { fixture, host: fixture.componentInstance, q, items };
+  }
+
+  const key = (target: HTMLElement, key: string) => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  it('opens from the trigger with Enter and Space', async () => {
+    const { fixture, q } = await setup();
+    const trigger = q('.share-trigger');
+    expect(key(trigger, 'Enter').defaultPrevented).toBe(true);
+    await fixture.whenStable();
+    expect(q('.share-menu').classList).toContain('show');
+    expect(document.activeElement?.textContent).toBe('Email');
+    key(document.activeElement as HTMLElement, 'Escape');
+    expect(document.activeElement).toBe(trigger);
+    expect(key(trigger, ' ').defaultPrevented).toBe(true);
+    expect(q('.share-menu').classList).toContain('show');
+    // Other keys on the trigger are left to the menu.
+    expect(key(trigger, 'x').defaultPrevented).toBe(false);
+  });
+
+  it('moves through its items with the arrow keys, Home and End, wrapping around', async () => {
+    const { fixture, q, items } = await setup();
+    key(q('.share-trigger'), 'ArrowRight');
+    await fixture.whenStable();
+    const [email, link, more] = items();
+    expect(document.activeElement).toBe(email);
+    key(email, 'ArrowUp');
+    expect(document.activeElement).toBe(more);
+    key(more, 'ArrowDown');
+    expect(document.activeElement).toBe(email);
+    key(email, 'End');
+    expect(document.activeElement).toBe(more);
+    key(more, 'Home');
+    expect(document.activeElement).toBe(email);
+    key(email, 'ArrowDown');
+    expect(document.activeElement).toBe(link);
+    // Unhandled keys are left alone.
+    expect(key(link, 'a').defaultPrevented).toBe(false);
+  });
+
+  it('leaves keys from a nested submenu to that submenu', async () => {
+    const { fixture, q } = await setup();
+    key(q('.share-trigger'), 'ArrowRight');
+    await fixture.whenStable();
+    key(q('.more-trigger'), 'ArrowRight');
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(q('.fax'));
+    key(q('.fax'), 'Escape');
+    // Only the nested submenu closes.
+    expect(document.activeElement).toBe(q('.more-trigger'));
+    expect(q('.more-menu').classList).not.toContain('show');
+    expect(q('.share-menu').classList).toContain('show');
+  });
+
+  it('swaps the arrow keys in right-to-left layouts', async () => {
+    const { fixture, host, q } = await setup();
+    host.dir.set('rtl');
+    await fixture.whenStable();
+    const trigger = q('.share-trigger');
+    expect(key(trigger, 'ArrowRight').defaultPrevented).toBe(false);
+    expect(q('.share-menu').classList).not.toContain('show');
+    key(trigger, 'ArrowLeft');
+    await fixture.whenStable();
+    expect(q('.share-menu').classList).toContain('show');
+    key(document.activeElement as HTMLElement, 'ArrowRight');
+    expect(document.activeElement).toBe(trigger);
+    expect(q('.share-menu').classList).not.toContain('show');
+  });
+
+  it('closes a short delay after the pointer leaves, unless it comes back', async () => {
+    const { q } = await setup();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
+    const share = q('.share');
+    const trigger = q('.share-trigger');
+    trigger.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    expect(q('.share-menu').classList).toContain('show');
+
+    share.dispatchEvent(new MouseEvent('mouseleave'));
+    vi.advanceTimersByTime(50);
+    q('.share-menu').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    vi.advanceTimersByTime(200);
+    expect(q('.share-menu').classList).toContain('show');
+
+    share.dispatchEvent(new MouseEvent('mouseleave'));
+    vi.advanceTimersByTime(99);
+    expect(q('.share-menu').classList).toContain('show');
+    vi.advanceTimersByTime(1);
+    expect(q('.share-menu').classList).not.toContain('show');
+  });
+
+  it('ignores the pointer when hover is off', async () => {
+    const { fixture, host, q } = await setup();
+    host.hover.set(false);
+    await fixture.whenStable();
+    const trigger = q('.share-trigger');
+    trigger.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    expect(q('.share-menu').classList).not.toContain('show');
+
+    trigger.click();
+    expect(q('.share-menu').classList).toContain('show');
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
+    q('.share').dispatchEvent(new MouseEvent('mouseleave'));
+    vi.advanceTimersByTime(1000);
+    expect(q('.share-menu').classList).toContain('show');
+  });
+
+  it('closes when it is destroyed', async () => {
+    const { fixture, host, q } = await setup();
+    const menu = q('.share-menu');
+    q('.share-trigger').click();
+    expect(menu.classList).toContain('show');
+    host.shown.set(false);
+    await fixture.whenStable();
+    expect(menu.classList).not.toContain('show');
+  });
+});

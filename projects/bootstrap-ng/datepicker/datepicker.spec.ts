@@ -1,8 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { BsDateSelectionMode, BsDateValue } from 'bootstrap-ng/calendar';
-import { BsDatepicker, BsDatepickerDisplay } from './datepicker';
+import { BsDateSelectionMode, BsDateValue, provideBsCalendarConfig } from 'bootstrap-ng/calendar';
+import {
+  BsDateFormat,
+  BsDatepicker,
+  BsDatepickerDisplay,
+  provideBsDatepickerConfig,
+} from './datepicker';
 
 describe('BsDatepicker', () => {
   @Component({
@@ -252,5 +257,251 @@ describe('BsDatepicker', () => {
       n.textContent.trim(),
     );
     expect(numbers).toEqual(['23', '24', '25', '26', '27']);
+  });
+});
+
+describe('BsDatepicker API and options', () => {
+  @Component({
+    imports: [BsDatepicker, ReactiveFormsModule],
+    template: `
+      <label>
+        Dates
+        <input
+          type="text"
+          bsDatepicker
+          #picker="bsDatepicker"
+          locale="en-US"
+          max="2026-06-20"
+          [selectionMode]="mode()"
+          [dateFormat]="dateFormat()"
+          [open]="open()"
+          (openChange)="changes.push($event)"
+          [formControl]="dates" />
+      </label>
+      <button type="button" id="outside">Outside</button>
+    `,
+  })
+  class ApiHost {
+    readonly picker = viewChild.required<BsDatepicker>('picker');
+    readonly mode = signal<BsDateSelectionMode>('multiple');
+    readonly dateFormat = signal<BsDateFormat | null>(null);
+    readonly open = signal(false);
+    dates = new FormControl<BsDateValue>(['2026-06-10']);
+    changes: boolean[] = [];
+  }
+
+  async function setup() {
+    const fixture = TestBed.createComponent(ApiHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    document.body.append(root);
+    const input = root.querySelector('input')!;
+    const calendar = () => root.querySelector<HTMLElement>('[data-vc="calendar"]');
+    const type = async (text: string) => {
+      input.value = text;
+      input.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+    };
+    const component = fixture.componentInstance;
+    return { fixture, root, input, calendar, type, component, picker: component.picker() };
+  }
+
+  afterEach(() => document.body.querySelectorAll('[ng-version]').forEach((el) => el.remove()));
+
+  it('opens, closes and toggles through its API, and marks the control touched', async () => {
+    const { fixture, calendar, component, picker } = await setup();
+    picker.toggle();
+    await fixture.whenStable();
+    expect(picker.isOpen()).toBe(true);
+    expect(calendar()).not.toBeNull();
+    picker.show();
+    expect(component.changes).toEqual([true]);
+    expect(component.dates.touched).toBe(false);
+
+    picker.toggle();
+    await fixture.whenStable();
+    expect(calendar()).toBeNull();
+    expect(component.changes).toEqual([true, false]);
+    expect(component.dates.touched).toBe(true);
+    picker.hide();
+    expect(component.changes).toEqual([true, false]);
+  });
+
+  it('does not open while disabled', async () => {
+    const { fixture, input, calendar, component, picker } = await setup();
+    component.dates.disable();
+    await fixture.whenStable();
+    picker.show();
+    input.dispatchEvent(new Event('click'));
+    await fixture.whenStable();
+    expect(picker.isOpen()).toBe(false);
+    expect(calendar()).toBeNull();
+  });
+
+  it('opens from the open input', async () => {
+    const { fixture, calendar, component } = await setup();
+    component.open.set(true);
+    await fixture.whenStable();
+    expect(calendar()).not.toBeNull();
+    component.open.set(false);
+    await fixture.whenStable();
+    expect(calendar()).toBeNull();
+  });
+
+  it('places the popup after the label that wraps the input', async () => {
+    const { fixture, root, input, calendar } = await setup();
+    input.focus();
+    await fixture.whenStable();
+    expect(calendar()!.previousElementSibling).toBe(root.querySelector('label'));
+  });
+
+  it('closes on Escape in the input', async () => {
+    const { fixture, input, calendar } = await setup();
+    input.focus();
+    await fixture.whenStable();
+    const event = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    input.dispatchEvent(event);
+    await fixture.whenStable();
+    expect(event.defaultPrevented).toBe(true);
+    expect(calendar()).toBeNull();
+    // With the calendar closed, Escape is left alone.
+    const again = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    input.dispatchEvent(again);
+    expect(again.defaultPrevented).toBe(false);
+  });
+
+  it('closes when focus moves outside, but not into the calendar', async () => {
+    const { fixture, root, input, calendar } = await setup();
+    input.focus();
+    await fixture.whenStable();
+    const day = calendar()!.querySelector<HTMLButtonElement>('[data-vc-date-btn]')!;
+    input.dispatchEvent(new FocusEvent('focusout', { relatedTarget: day }));
+    await fixture.whenStable();
+    expect(calendar()).not.toBeNull();
+    input.dispatchEvent(new FocusEvent('focusout', { relatedTarget: null }));
+    await fixture.whenStable();
+    expect(calendar()).not.toBeNull();
+    input.dispatchEvent(
+      new FocusEvent('focusout', { relatedTarget: root.querySelector('#outside') }),
+    );
+    await fixture.whenStable();
+    expect(calendar()).toBeNull();
+  });
+
+  it('returns focus to the input when the calendar closes with focus inside', async () => {
+    const { fixture, input, calendar, component, picker } = await setup();
+    input.focus();
+    await fixture.whenStable();
+    calendar()!.querySelector<HTMLButtonElement>('[data-vc-date-btn]')!.focus();
+    component.open.set(true);
+    await fixture.whenStable();
+    component.open.set(false);
+    await fixture.whenStable();
+    expect(calendar()).toBeNull();
+    expect(document.activeElement).toBe(input);
+    // Returning focus doesn't reopen the calendar.
+    await fixture.whenStable();
+    expect(picker.isOpen()).toBe(false);
+    expect(calendar()).toBeNull();
+  });
+
+  it('parses several typed dates in multiple mode, sorted', async () => {
+    const { component, input, type } = await setup();
+    await type('2026-06-12, 2026-06-03');
+    expect(component.dates.value).toEqual(['2026-06-03', '2026-06-12']);
+    expect(input.value).toBe('2026-06-03, 2026-06-12');
+    await type('2026-06-03, 2026-06-30');
+    // After max, so the value stays.
+    expect(component.dates.value).toEqual(['2026-06-03', '2026-06-12']);
+    await type('');
+    expect(component.dates.value).toEqual([]);
+  });
+
+  it('parses a typed range and rejects more than two dates', async () => {
+    const { fixture, component, input, type } = await setup();
+    component.mode.set('range');
+    component.dates.setValue([]);
+    await fixture.whenStable();
+    await type('2026-06-08 to 2026-06-01');
+    expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
+    expect(input.value).toBe('2026-06-01 – 2026-06-08');
+    await type('2026-06-01 - 2026-06-02 - 2026-06-03');
+    expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
+    expect(input.value).toBe('2026-06-01 – 2026-06-08');
+    // Unchanged text is ignored.
+    await type('2026-06-01 – 2026-06-08');
+    expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
+  });
+
+  it('formats dates with options or a function', async () => {
+    const { fixture, component, input } = await setup();
+    component.dateFormat.set({ month: 'long', day: 'numeric' });
+    await fixture.whenStable();
+    expect(input.value).toBe('June 10');
+    component.dateFormat.set((date, locale) => `${locale}:${date.getDate()}`);
+    await fixture.whenStable();
+    expect(input.value).toBe('en-US:10');
+  });
+
+  it('takes defaults from provideBsDatepickerConfig and provideBsCalendarConfig', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideBsCalendarConfig({ weekNumbers: true }),
+        provideBsDatepickerConfig({
+          calendarLabel: 'Pick a day',
+          dateFormat: { dateStyle: 'long' },
+        }),
+      ],
+    });
+    @Component({
+      imports: [BsDatepicker],
+      template: `<input
+        type="text"
+        aria-label="Date"
+        bsDatepicker
+        locale="en-US"
+        [(value)]="date" />`,
+    })
+    class ConfigHost {
+      readonly date = signal<BsDateValue>('2026-06-10');
+    }
+    const fixture = TestBed.createComponent(ConfigHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    document.body.append(root);
+    const input = root.querySelector('input')!;
+    expect(input.value).toBe('June 10, 2026');
+    input.focus();
+    await fixture.whenStable();
+    const popup = root.querySelector<HTMLElement>('[data-vc="calendar"]')!;
+    expect(popup.getAttribute('aria-label')).toBe('Pick a day');
+    expect(popup.querySelectorAll('[data-vc-week-number]').length).toBeGreaterThan(0);
+  });
+
+  it('closes a button datepicker on a second click', async () => {
+    @Component({
+      imports: [BsDatepicker],
+      template: `<button type="button" bsDatepicker locale="en-US">Pick</button>`,
+    })
+    class ButtonHost {}
+    const fixture = TestBed.createComponent(ButtonHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    document.body.append(root);
+    const button = root.querySelector('button')!;
+    button.click();
+    await fixture.whenStable();
+    expect(root.querySelector('[data-vc="calendar"]')).not.toBeNull();
+    // A button doesn't open the calendar on focus or move into it with Arrow Down.
+    button.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true }));
+    button.click();
+    await fixture.whenStable();
+    expect(root.querySelector('[data-vc="calendar"]')).toBeNull();
+    button.dispatchEvent(new FocusEvent('focus'));
+    await fixture.whenStable();
+    expect(root.querySelector('[data-vc="calendar"]')).toBeNull();
   });
 });
