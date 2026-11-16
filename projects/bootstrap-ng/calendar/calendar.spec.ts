@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import fc from 'fast-check';
 import {
@@ -297,6 +298,82 @@ describe('BsCalendar', () => {
     await key('2026-07-21', 'PageUp', true);
     expect(host.querySelector('[data-vc="year"]')!.textContent).toBe('2025');
     expect(document.activeElement).toBe(button('2025-07-21'));
+  });
+
+  it('swaps Arrow Left and Right in right-to-left layouts, and moves by week and year', async () => {
+    const { fixture, host, button } = await setup();
+    const key = async (iso: string, name: string, shiftKey = false) => {
+      const event = new KeyboardEvent('keydown', {
+        key: name,
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+      });
+      button(iso).dispatchEvent(event);
+      await fixture.whenStable();
+      return event;
+    };
+    button('2026-06-10').focus();
+    await key('2026-06-10', 'ArrowLeft');
+    expect(document.activeElement).toBe(button('2026-06-09'));
+    await key('2026-06-09', 'ArrowUp');
+    expect(document.activeElement).toBe(button('2026-06-02'));
+
+    host.dir = 'rtl';
+    await key('2026-06-02', 'ArrowLeft');
+    expect(document.activeElement).toBe(button('2026-06-03'));
+    await key('2026-06-03', 'ArrowRight');
+    expect(document.activeElement).toBe(button('2026-06-02'));
+    host.dir = '';
+
+    await key('2026-06-02', 'PageDown', true);
+    expect(host.querySelector('[data-vc="year"]')!.textContent).toBe('2027');
+    expect(document.activeElement).toBe(button('2027-06-02'));
+    // Other keys, such as letters, are left alone.
+    expect((await key('2027-06-02', 'a')).defaultPrevented).toBe(false);
+  });
+
+  it('previews a range while hovering its end', async () => {
+    const { fixture, button, cell, component } = await setup();
+    component.mode.set('range');
+    component.date.setValue(['2026-06-10']);
+    await fixture.whenStable();
+    const hover = (iso: string) => cell(iso).getAttribute('data-vc-date-hover');
+
+    button('2026-06-13').dispatchEvent(new MouseEvent('mouseenter'));
+    await fixture.whenStable();
+    expect(hover('2026-06-10')).toBe('first');
+    expect(hover('2026-06-11')).toBe('');
+    expect(hover('2026-06-13')).toBe('last');
+    expect(cell('2026-06-14').hasAttribute('data-vc-date-hover')).toBe(false);
+
+    // Hovering before the start previews the range backwards.
+    button('2026-06-07').dispatchEvent(new MouseEvent('mouseenter'));
+    await fixture.whenStable();
+    expect(hover('2026-06-07')).toBe('first');
+    expect(hover('2026-06-10')).toBe('last');
+
+    // Hovering the start itself previews nothing.
+    button('2026-06-10').dispatchEvent(new MouseEvent('mouseenter'));
+    await fixture.whenStable();
+    expect(cell('2026-06-10').hasAttribute('data-vc-date-hover')).toBe(false);
+
+    button('2026-06-10').dispatchEvent(new MouseEvent('mouseleave'));
+    await fixture.whenStable();
+    expect(cell('2026-06-10').hasAttribute('data-vc-date-hover')).toBe(false);
+  });
+
+  it('resets to an empty array in range mode', async () => {
+    const { fixture, cell, component } = await setup();
+    component.mode.set('range');
+    component.date.setValue(['2026-06-10', '2026-06-12']);
+    await fixture.whenStable();
+    component.date.reset();
+    await fixture.whenStable();
+    const calendar = fixture.debugElement.query(By.directive(BsCalendar))
+      .componentInstance as BsCalendar;
+    expect(calendar.value()).toEqual([]);
+    expect(cell('2026-06-10').hasAttribute('data-vc-date-selected')).toBe(false);
   });
 
   it('changes month with the arrow buttons and shows several months', async () => {

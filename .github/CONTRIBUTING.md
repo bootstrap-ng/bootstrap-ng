@@ -62,7 +62,7 @@ Prettier formats TypeScript, HTML and SCSS under `projects/`. Run `npm run forma
 
 ### Tests
 
-Coverage must stay at or above 93% for statements and lines, 92% for functions and 88% for branches (`coverageThresholds` in `angular.json`).
+Coverage must stay at or above 96% for statements and lines, 95% for functions and 92% for branches (`coverageThresholds` in `angular.json`).
 
 The e2e tests read the pages from `projects/docs/src/app/nav.ts`, so every page in the navigation gets render checks and [axe](https://github.com/dequelabs/axe-core) accessibility checks in both light and dark mode automatically.
 

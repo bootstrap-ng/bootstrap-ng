@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BsOtp, BsOtpInput, BsOtpType } from './otp-input';
 
@@ -170,5 +171,150 @@ describe('BsOtp', () => {
     component.type.set('alpha');
     await fixture.whenStable();
     expect(input.getAttribute('inputmode')).toBe('text');
+  });
+
+  it('deletes a selection or the character before the caret', async () => {
+    const { fixture, input, beforeInput, component } = await setup();
+    component.code.setValue('123456');
+    input.focus();
+    await fixture.whenStable();
+    input.setSelectionRange(1, 3);
+    await beforeInput('deleteContentBackward');
+    expect(component.code.value).toBe('1456');
+    // The slot that took the deleted characters' place is selected, ready to overwrite.
+    expect([input.selectionStart, input.selectionEnd]).toEqual([1, 2]);
+
+    input.setSelectionRange(0, 0);
+    await beforeInput('deleteContentBackward');
+    expect(component.code.value).toBe('1456');
+  });
+
+  it('leaves other input types to the browser', async () => {
+    const { input } = await setup();
+    const event = new InputEvent('beforeinput', {
+      inputType: 'insertText',
+      data: '12',
+      cancelable: true,
+    });
+    input.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('removes the active slot on blur', async () => {
+    const { fixture, host, input } = await setup();
+    input.focus();
+    await fixture.whenStable();
+    expect(host.querySelectorAll('.otp-slot-active')).toHaveLength(1);
+    input.blur();
+    await fixture.whenStable();
+    expect(host.querySelectorAll('.otp-slot-active')).toHaveLength(0);
+  });
+
+  it('follows the caret while focused', async () => {
+    const { fixture, host, input } = await setup();
+    const activeIndex = () =>
+      Array.from(host.querySelectorAll('.otp-slot')).findIndex((slot) =>
+        slot.classList.contains('otp-slot-active'),
+      );
+    input.focus();
+    await fixture.whenStable();
+    expect(activeIndex()).toBe(2);
+    input.setSelectionRange(0, 1);
+    document.dispatchEvent(new Event('selectionchange'));
+    await fixture.whenStable();
+    expect(activeIndex()).toBe(0);
+  });
+
+  it('moves to the clicked slot, but not past the first empty one', async () => {
+    const { fixture, host, input } = await setup();
+    // Unit tests load no Bootstrap CSS, so lay the slots out in a row like it does.
+    const style = document.createElement('style');
+    style.textContent = '.otp-slots { display: flex } .otp-slot { width: 2rem }';
+    document.head.append(style);
+    onTestFinished(() => style.remove());
+    const slot = (index: number) =>
+      host.querySelectorAll('.otp-slot')[index].getBoundingClientRect();
+    const pointerDown = (index: number) => {
+      const rect = slot(index);
+      const event = new PointerEvent('pointerdown', {
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+        cancelable: true,
+      });
+      input.dispatchEvent(event);
+      return event;
+    };
+
+    // Before focus, the slot is remembered and selected when focus arrives.
+    expect(pointerDown(1).defaultPrevented).toBe(false);
+    input.focus();
+    await fixture.whenStable();
+    expect([input.selectionStart, input.selectionEnd]).toEqual([1, 2]);
+
+    // While focused, the browser's caret placement is replaced.
+    expect(pointerDown(0).defaultPrevented).toBe(true);
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 1]);
+    pointerDown(5);
+    expect([input.selectionStart, input.selectionEnd]).toEqual([2, 2]);
+  });
+
+  it('focuses the first empty slot and clears through its API', async () => {
+    const { fixture, input, component } = await setup();
+    const otpInput = fixture.debugElement.query(By.directive(BsOtpInput)).injector.get(BsOtpInput);
+    otpInput.focus();
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(input);
+    expect([input.selectionStart, input.selectionEnd]).toEqual([2, 2]);
+
+    input.blur();
+    otpInput.clear();
+    await fixture.whenStable();
+    expect(component.code.value).toBe('');
+    expect(document.activeElement).toBe(input);
+    expect(input.selectionStart).toBe(0);
+  });
+
+  it('applies size and validation classes', async () => {
+    @Component({
+      imports: [BsOtp, BsOtpInput],
+      template: `
+        <div bsOtp [size]="size()">
+          <input bsOtpInput maxlength="4" aria-label="Code" [validation]="validation()" />
+        </div>
+      `,
+    })
+    class StateHost {
+      readonly size = signal<'sm' | 'lg' | null>('sm');
+      readonly validation = signal<'valid' | 'invalid'>('invalid');
+    }
+    const fixture = TestBed.createComponent(StateHost);
+    await fixture.whenStable();
+    const host: HTMLElement = fixture.nativeElement.querySelector('[bsOtp]');
+    const input = host.querySelector('input')!;
+    expect(host.classList).toContain('otp-sm');
+    expect(host.classList).toContain('is-invalid');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(host.querySelectorAll('.otp-slot')).toHaveLength(4);
+
+    fixture.componentInstance.size.set('lg');
+    fixture.componentInstance.validation.set('valid');
+    await fixture.whenStable();
+    expect(host.classList).toContain('otp-lg');
+    expect(host.classList).not.toContain('otp-sm');
+    expect(host.classList).toContain('is-valid');
+    expect(host.classList).not.toContain('is-invalid');
+  });
+
+  it('accepts letters and digits for the alphanumeric type', async () => {
+    const { fixture, input, beforeInput, component } = await setup();
+    component.type.set('alphanumeric');
+    component.code.setValue('');
+    input.focus();
+    await fixture.whenStable();
+    expect(input.getAttribute('pattern')).toBe('[A-Za-z0-9]*');
+    await beforeInput('insertText', 'a');
+    await beforeInput('insertText', '1');
+    await beforeInput('insertText', '-');
+    expect(component.code.value).toBe('a1');
   });
 });
