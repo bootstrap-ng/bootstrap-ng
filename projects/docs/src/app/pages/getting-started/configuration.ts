@@ -170,7 +170,7 @@ export const appConfig: ApplicationConfig = {
     {
       fn: 'provideBsTypeaheadConfig',
       path: '/forms/typeahead',
-      inputs: 'minLength, debounce, placement, listLabel, resultsText',
+      inputs: 'minLength, debounce, placement, listLabel, resultsText, editable',
     },
   ];
 }

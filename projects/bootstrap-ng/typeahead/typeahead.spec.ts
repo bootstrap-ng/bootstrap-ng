@@ -1,6 +1,8 @@
 import { ApplicationRef, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
+import { BsFormControl } from 'bootstrap-ng/forms';
 import { BsTypeahead, BsTypeaheadSearch, BsSubscribable } from './typeahead';
 
 const FRUITS = ['Apple', 'Apricot', 'Banana', 'Cherry', 'Pineapple'];
@@ -35,6 +37,76 @@ class Host {
   readonly minLength = signal(1);
   readonly formatter = signal<(item: unknown) => string>(String);
   readonly picked = signal<unknown>(null);
+}
+
+const FRUIT_OBJECTS: Fruit[] = FRUITS.map((name) => ({ name }));
+const searchFruits = (term: string): Fruit[] =>
+  FRUIT_OBJECTS.filter((fruit) => fruit.name.toLowerCase().includes(term.toLowerCase()));
+const fruitName = (fruit: Fruit): string => fruit.name;
+
+@Component({
+  imports: [BsTypeahead, BsFormControl, ReactiveFormsModule],
+  template: `
+    <div style="position: fixed; top: -1000px">
+      <input
+        aria-label="Fruit"
+        bsFormControl
+        [bsTypeahead]="search"
+        [debounce]="0"
+        [formatter]="name"
+        [editable]="editable()"
+        [formControl]="control" />
+    </div>
+  `,
+})
+class ReactiveObjectHost {
+  readonly control = new FormControl<Fruit | string | null>(null, Validators.required);
+  readonly search = searchFruits;
+  readonly name = fruitName;
+  readonly editable = signal(true);
+}
+
+@Component({
+  imports: [BsTypeahead, BsFormControl, FormField],
+  template: `
+    <div style="position: fixed; top: -1000px">
+      <input
+        aria-label="Fruit"
+        bsFormControl
+        [bsTypeahead]="search"
+        [debounce]="0"
+        [formatter]="name"
+        editable="false"
+        [formField]="fruitForm.fruit" />
+    </div>
+  `,
+})
+class SignalObjectHost {
+  readonly model = signal<{ fruit: Fruit | null }>({ fruit: null });
+  readonly fruitForm = form(this.model, (path) => {
+    required(path.fruit);
+  });
+  readonly search = searchFruits;
+  readonly name = fruitName;
+}
+
+@Component({
+  imports: [BsTypeahead, FormsModule],
+  template: `
+    <div style="position: fixed; top: -1000px">
+      <input
+        aria-label="Fruit"
+        [bsTypeahead]="search"
+        [debounce]="0"
+        [formatter]="name"
+        [(ngModel)]="fruit" />
+    </div>
+  `,
+})
+class NgModelObjectHost {
+  readonly fruit = signal<Fruit | string | null>({ name: 'Banana' });
+  readonly search = searchFruits;
+  readonly name = fruitName;
 }
 
 describe('BsTypeahead', () => {
@@ -233,5 +305,84 @@ describe('BsTypeahead', () => {
     expect(unsubscribed).toBe(false);
     next?.(['Apple']);
     await vi.waitFor(() => expect(options().map((o) => o.textContent.trim())).toEqual(['Apple']));
+  });
+
+  describe('with object values', () => {
+    async function render<T>(component: new () => T): Promise<T> {
+      const fixture = TestBed.createComponent(component);
+      document.body.append(fixture.nativeElement as HTMLElement);
+      await fixture.whenStable();
+      input = (fixture.nativeElement as HTMLElement).querySelector('input')!;
+      input.focus();
+      return fixture.componentInstance;
+    }
+
+    async function pick(term: string, index = 0): Promise<void> {
+      type(term);
+      await vi.waitFor(() => expect(options().length).toBeGreaterThan(index));
+      options()[index].click();
+    }
+
+    it('sets a reactive form control to the picked object and typed text to a string', async () => {
+      const objectHost = await render(ReactiveObjectHost);
+      await pick('ch');
+      expect(objectHost.control.value).toEqual({ name: 'Cherry' });
+      expect(input.value).toBe('Cherry');
+      type('Cherr');
+      expect(objectHost.control.value).toBe('Cherr');
+    });
+
+    it('sets the value to null for typed text when not editable, and shows it as invalid', async () => {
+      const objectHost = await render(ReactiveObjectHost);
+      objectHost.editable.set(false);
+      await TestBed.inject(ApplicationRef).whenStable();
+      type('Kiwi');
+      expect(objectHost.control.value).toBeNull();
+      expect(input.value).toBe('Kiwi');
+      input.blur();
+      expect(objectHost.control.touched).toBe(true);
+      await vi.waitFor(() => expect(input.classList).toContain('is-invalid'));
+      input.focus();
+      await pick('ban');
+      expect(objectHost.control.value).toEqual({ name: 'Banana' });
+      await vi.waitFor(() => expect(input.classList).not.toContain('is-invalid'));
+    });
+
+    it('formats objects written by the form and shows strings as they are', async () => {
+      const objectHost = await render(ReactiveObjectHost);
+      objectHost.control.setValue({ name: 'Apricot' });
+      expect(input.value).toBe('Apricot');
+      objectHost.control.setValue('Kiwi');
+      expect(input.value).toBe('Kiwi');
+      objectHost.control.setValue(null);
+      expect(input.value).toBe('');
+      objectHost.control.disable();
+      expect(input.disabled).toBe(true);
+      objectHost.control.enable();
+      expect(input.disabled).toBe(false);
+    });
+
+    it('binds an object with [formField] and follows its validation', async () => {
+      const objectHost = await render(SignalObjectHost);
+      type('Kiwi');
+      input.blur();
+      expect(objectHost.fruitForm.fruit().touched()).toBe(true);
+      expect(objectHost.model().fruit).toBeNull();
+      await vi.waitFor(() => expect(input.classList).toContain('is-invalid'));
+      input.focus();
+      await pick('pine');
+      expect(objectHost.model().fruit).toEqual({ name: 'Pineapple' });
+      await vi.waitFor(() => expect(input.classList).not.toContain('is-invalid'));
+      objectHost.model.set({ fruit: { name: 'Apple' } });
+      await TestBed.inject(ApplicationRef).whenStable();
+      expect(input.value).toBe('Apple');
+    });
+
+    it('binds an object with ngModel', async () => {
+      const objectHost = await render(NgModelObjectHost);
+      await vi.waitFor(() => expect(input.value).toBe('Banana'));
+      await pick('app', 1);
+      expect(objectHost.fruit()).toEqual({ name: 'Pineapple' });
+    });
   });
 });

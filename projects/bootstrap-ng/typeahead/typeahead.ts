@@ -1,5 +1,6 @@
 import {
   ApplicationRef,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   ComponentRef,
@@ -10,6 +11,7 @@ import {
   DOCUMENT,
   ElementRef,
   EnvironmentInjector,
+  forwardRef,
   inject,
   Injector,
   input,
@@ -20,6 +22,7 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
   autoPosition,
   BsLiveAnnouncer,
@@ -134,6 +137,8 @@ export interface BsTypeaheadConfig {
   listLabel: string;
   /** Text announced to screen readers when suggestions arrive. */
   resultsText: (count: number) => string;
+  /** Whether text the user types becomes the form value, or only a picked suggestion does. */
+  editable: boolean;
 }
 
 /** The defaults set with `provideBsTypeaheadConfig()`. */
@@ -153,8 +158,7 @@ export function provideBsTypeaheadConfig(config: Partial<BsTypeaheadConfig>): Pr
 
 /**
  * Suggests values while the user types in a text input. The user can pick a
- * suggestion or keep their own text. The input stays a native input, so bind it to
- * a form like any other.
+ * suggestion or keep their own text.
  *
  * ```html
  * <input bsFormControl [bsTypeahead]="search" aria-label="Country" [formControl]="country" />
@@ -164,6 +168,11 @@ export function provideBsTypeaheadConfig(config: Partial<BsTypeaheadConfig>): Pr
  * search = (term: string) => COUNTRIES.filter((c) => c.toLowerCase().includes(term.toLowerCase()));
  * ```
  *
+ * Bound with `[formField]`, `[formControl]` or `ngModel`, the form value is the picked
+ * suggestion itself, so it can be an object; `formatter` turns it into the input's text.
+ * Typed text becomes the value as a string, or `null` when `editable` is `false`, so a
+ * required validator accepts only picked suggestions.
+ *
  * The search can return an array, a promise or an observable. Follows the ARIA
  * combobox pattern: arrow keys move through the suggestions, Enter picks one and
  * Escape closes the list.
@@ -171,6 +180,9 @@ export function provideBsTypeaheadConfig(config: Partial<BsTypeaheadConfig>): Pr
 @Directive({
   selector: 'input[bsTypeahead]',
   exportAs: 'bsTypeahead',
+  providers: [
+    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => BsTypeahead), multi: true },
+  ],
   host: {
     role: 'combobox',
     autocomplete: 'off',
@@ -180,10 +192,10 @@ export function provideBsTypeaheadConfig(config: Partial<BsTypeaheadConfig>): Pr
     '[attr.aria-activedescendant]': 'activeDescendant()',
     '(input)': 'onInput($event)',
     '(keydown)': 'onKeydown($event)',
-    '(blur)': 'close()',
+    '(blur)': 'close(); onTouched()',
   },
 })
-export class BsTypeahead<T = unknown> {
+export class BsTypeahead<T = unknown> implements ControlValueAccessor {
   private readonly config = inject(BS_TYPEAHEAD_CONFIG);
   private readonly element = inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
   private readonly document = inject(DOCUMENT);
@@ -198,6 +210,11 @@ export class BsTypeahead<T = unknown> {
   readonly formatter = input<(item: T) => string>(String);
   /** Custom template for each suggestion. Its context is `BsTypeaheadItemContext`. */
   readonly itemTemplate = input<TemplateRef<BsTypeaheadItemContext<T>> | null>(null);
+  /**
+   * Whether text the user types becomes the form value. When `false`, the value is `null`
+   * until the user picks a suggestion.
+   */
+  readonly editable = input(this.config.editable ?? true, { transform: booleanAttribute });
   /** Characters to type before searching. */
   readonly minLength = input(this.config.minLength ?? 1, { transform: numberAttribute });
   /** Milliseconds to wait after the last keystroke before searching. */
@@ -244,6 +261,8 @@ export class BsTypeahead<T = unknown> {
   private subscription: { unsubscribe(): void } | undefined;
   /** Bumped on every search, so a slow answer to an old search is dropped. */
   private request = 0;
+  private onChange: (value: T | string | null) => void = () => undefined;
+  protected onTouched: () => void = () => undefined;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -261,10 +280,34 @@ export class BsTypeahead<T = unknown> {
   select(item: T): void {
     this.cancel();
     this.element.value = this.formatter()(item);
-    // Let `ngModel`, reactive and signal forms see the new value. `onInput` ignores it.
+    // Let other listeners, such as a clearable `bsFormControl`, see the new text. `onInput`
+    // ignores it, and the form gets the item itself below.
     this.element.dispatchEvent(new CustomEvent('input', { bubbles: true, detail: 'bsTypeahead' }));
     this.close();
+    this.onChange(item);
     this.itemSelect.emit(item);
+  }
+
+  /** Shows a value set by a form: a string as it is, anything else through `formatter`. */
+  writeValue(value: T | string | null | undefined): void {
+    this.element.value =
+      value === null || value === undefined
+        ? ''
+        : typeof value === 'string'
+          ? value
+          : this.formatter()(value);
+  }
+
+  registerOnChange(fn: (value: T | string | null) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(disabled: boolean): void {
+    this.element.disabled = disabled;
   }
 
   /** Closes the suggestion list. */
@@ -292,6 +335,7 @@ export class BsTypeahead<T = unknown> {
     }
     this.cancel();
     const term = this.element.value;
+    this.onChange(this.editable() ? term : null);
     if (term.trim().length < this.minLength()) {
       this.close();
       return;
