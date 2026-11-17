@@ -48,3 +48,36 @@ jobs:
             coverage/
             playwright-report/
           retention-days: 14
+
+  # The library supports Angular 21.2 and newer. This job checks the oldest supported version:
+  # it runs the unit tests on Angular 21.2, and builds the package as published (with the
+  # workspace's Angular) inside an Angular 21.2 app, which runs the 21.2 linker on every entry point.
+  angular-21:
+    name: Angular 21.2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:lib
+      # Angular 21.2's build tools need TypeScript < 6.0 and Vitest 4.
+      - name: Install Angular 21.2
+        run: >-
+          npm install --no-save --no-audit --no-fund --legacy-peer-deps
+          @angular/common@~21.2.0 @angular/compiler@~21.2.0 @angular/core@~21.2.0
+          @angular/forms@~21.2.0 @angular/platform-browser@~21.2.0
+          @angular/platform-server@~21.2.0 @angular/router@~21.2.0 @angular/ssr@~21.2.0
+          @angular/build@~21.2.0 @angular/cli@~21.2.0 @angular/compiler-cli@~21.2.0
+          ng-packagr@~21.2.0 typescript@~5.9.0
+          vitest@^4 @vitest/browser-playwright@^4 @vitest/coverage-v8@^4
+      - run: npx ng version
+      - run: npm test
+      - name: Build the published package in an Angular 21.2 app
+        run: npx ng build
+        working-directory: tests/angular-21

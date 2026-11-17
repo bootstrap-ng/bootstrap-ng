@@ -4,7 +4,9 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## About this repository
 
-bootstrap-ng is an Angular 22+ component library for Bootstrap 6. See `README.md` for the user-facing overview.
+bootstrap-ng is an Angular 21.2+ component library for Bootstrap 6. See `README.md` for the user-facing overview.
+
+The workspace builds with the latest Angular, but the library supports Angular 21.2 and newer (the `@angular/*` peer dependencies in `projects/bootstrap-ng/package.json`). In library code, do not use APIs that are newer than Angular 21.2, such as the `@Service` decorator. The `angular-21` CI job runs the unit tests on Angular 21.2 and builds the published package in an Angular 21.2 app (`tests/angular-21`). The docs site may use the latest APIs.
 
 - `projects/bootstrap-ng`: the library, published to npm as `bootstrap-ng`. The selector prefix is `bs` and class names start with `Bs` (e.g. `BsAlert`). Each component folder (`button/`, `datepicker/`, …) is a secondary entry point (`bootstrap-ng/button`) with an `ng-package.json` and an `index.ts` that exports its public symbols, and `src/public-api.ts` re-exports them all as `bootstrap-ng`. Add new folders there too. Import across folders through the entry point (`'bootstrap-ng/menu'`), never a relative path, and never in a cycle; ng-packagr fails the build on both. Entry points let apps with lazy routes load only the components each route uses.
 - `projects/docs`: the documentation site, an Angular app. It imports `bootstrap-ng` from the library source through a `tsconfig.json` path, so library changes need no rebuild.
@@ -78,7 +80,7 @@ Squash a pull request's commits into one before it is reviewed or merged. When y
 - Use `computed()` for derived state
 - Use `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
 - Prefer inline templates for small components
-- Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
+- Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ (experimental in v21, which the library still supports) and provide signal-based state, type-safe field access, and schema-based validation
 - When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
 - Do NOT use `ngClass`, use `class` bindings instead
 - Do NOT use `ngStyle`, use `style` bindings instead
@@ -103,7 +105,7 @@ Squash a pull request's commits into one before it is reviewed or merged. When y
 
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
-- Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
+- In the library, use `@Injectable({ providedIn: 'root' })` for singleton services. The `@Service` decorator needs Angular v22, and the library supports v21.2. The docs site may use `@Service`
 - Use the `inject()` function instead of constructor injection
 
 ## Pull Requests

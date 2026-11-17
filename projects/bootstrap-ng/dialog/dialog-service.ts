@@ -9,7 +9,7 @@ import {
   EnvironmentInjector,
   inject,
   Injector,
-  Service,
+  Injectable,
   signal,
   TemplateRef,
   Type,
@@ -182,7 +182,7 @@ export class BsDialogContainer {
  * `BsDialogRef` to close with a result. `bsDialogClose` and `bsDrawerClose` inside it
  * dismiss the dialog.
  */
-@Service()
+@Injectable({ providedIn: 'root' })
 export class BsDialogService {
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(EnvironmentInjector);

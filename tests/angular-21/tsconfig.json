@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "bootstrap-ng": ["../../dist/bootstrap-ng"],
+      "bootstrap-ng/*": ["../../dist/bootstrap-ng/*"]
+    },
+    "strict": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": false,
+    "isolatedModules": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "types": []
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "strictInjectionParameters": true,
+    "strictStandalone": true
+  },
+  "files": ["src/main.ts"]
+}

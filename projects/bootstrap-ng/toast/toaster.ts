@@ -7,7 +7,7 @@ import {
   DOCUMENT,
   EnvironmentInjector,
   inject,
-  Service,
+  Injectable,
   signal,
   TemplateRef,
 } from '@angular/core';
@@ -159,7 +159,7 @@ export class BsToasterContainer {
  * }
  * ```
  */
-@Service()
+@Injectable({ providedIn: 'root' })
 export class BsToaster {
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(EnvironmentInjector);
