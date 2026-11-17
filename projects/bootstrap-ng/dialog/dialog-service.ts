@@ -101,6 +101,27 @@ export interface BsComponentDialogRef<C, R = unknown> extends BsDialogRef<R> {
 
 type Content = Type<unknown> | TemplateRef<BsDialogContext>;
 
+/** The ref that `BsDialogService` returns and provides as `BsDialogRef`. */
+class ComponentDialogRef extends BsDialogRef implements BsComponentDialogRef<unknown> {
+  componentInstance: unknown = null;
+  readonly result: Promise<unknown>;
+  private readonly hide: (value: unknown) => void;
+
+  constructor(result: Promise<unknown>, hide: (value: unknown) => void) {
+    super();
+    this.result = result;
+    this.hide = hide;
+  }
+
+  close(value?: unknown): void {
+    this.hide(value);
+  }
+
+  dismiss(): void {
+    this.hide(undefined);
+  }
+}
+
 /** @internal Renders a `<dialog>` for `BsDialogService` and hosts its content. */
 @Component({
   selector: 'bs-dialog-container',
@@ -265,16 +286,7 @@ export class BsDialogService {
         remove();
       }
     };
-    const ref: BsComponentDialogRef<unknown> = {
-      componentInstance: null,
-      result,
-      close: (closeValue?: unknown) => {
-        hide(closeValue);
-      },
-      dismiss: () => {
-        hide(undefined);
-      },
-    };
+    const ref = new ComponentDialogRef(result, hide);
     this.openRefs.add(ref);
     instance.hidden = remove;
     const unregister = this.appRef.onDestroy(remove);
@@ -303,7 +315,7 @@ export class BsDialogService {
       for (const [name, inputValue] of Object.entries(options.inputs ?? {})) {
         component.setInput(name, inputValue);
       }
-      (ref as { componentInstance: unknown }).componentInstance = component.instance;
+      ref.componentInstance = component.instance;
     }
     container.changeDetectorRef.detectChanges();
     instance.labelledBy.set(
