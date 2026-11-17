@@ -8,6 +8,7 @@ import {
   EnvironmentInjector,
   inject,
   Injectable,
+  Injector,
   signal,
   TemplateRef,
 } from '@angular/core';
@@ -163,6 +164,9 @@ export class BsToasterContainer {
 export class BsToaster {
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(EnvironmentInjector);
+  // `EnvironmentInjector` implements `Injector` but doesn't extend it, so `afterNextRender`
+  // gets the same root injector through its `Injector` token.
+  private readonly rootInjector = inject(Injector);
   private readonly document = inject(DOCUMENT);
   private readonly config = inject(BS_TOAST_CONFIG);
   private container: ComponentRef<BsToasterContainer> | null = null;
@@ -203,7 +207,7 @@ export class BsToaster {
         return;
       }
       open.set(true);
-      afterNextRender(() => (rendered = true), { injector: this.injector });
+      afterNextRender(() => (rendered = true), { injector: this.rootInjector });
     });
     return ref;
   }
