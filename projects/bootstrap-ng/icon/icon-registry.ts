@@ -4,7 +4,7 @@ import {
   inject,
   InjectionToken,
   makeEnvironmentProviders,
-  Service,
+  Injectable,
   signal,
 } from '@angular/core';
 
@@ -127,7 +127,7 @@ export function provideBsIcons(config: BsIconConfig): EnvironmentProviders {
  * The icon libraries that `bs-icon` loads from, and a cache of the icons it has loaded.
  * `bootstrap` (the default), `font-awesome`, `material`, `modus` and `phosphor` are built in.
  */
-@Service()
+@Injectable({ providedIn: 'root' })
 export class BsIconRegistry {
   private readonly config = inject(BS_ICON_CONFIG, { optional: true });
   private readonly document = inject(DOCUMENT);

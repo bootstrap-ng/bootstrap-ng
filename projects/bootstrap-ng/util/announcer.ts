@@ -1,4 +1,4 @@
-import { DestroyRef, DOCUMENT, inject, Service } from '@angular/core';
+import { DestroyRef, DOCUMENT, inject, Injectable } from '@angular/core';
 
 /** Time between clearing a live region and writing the new message. */
 const ANNOUNCE_DELAY = 100;
@@ -12,7 +12,7 @@ const ANNOUNCE_DELAY = 100;
  * inject(BsLiveAnnouncer).announce('3 results found');
  * ```
  */
-@Service()
+@Injectable({ providedIn: 'root' })
 export class BsLiveAnnouncer {
   private readonly document = inject(DOCUMENT);
   private readonly regions = new Map<'polite' | 'assertive', HTMLElement>();

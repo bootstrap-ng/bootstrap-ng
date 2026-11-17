@@ -141,6 +141,26 @@ module.exports = defineConfig([
     },
   },
   {
+    // The library supports Angular 21.2 (AGENTS.md), so it can't use APIs added in Angular 22.
+    files: ['projects/bootstrap-ng/**/*.ts'],
+    rules: {
+      '@angular-eslint/prefer-service-decorator': 'off',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@angular/core',
+              importNames: ['Service'],
+              message:
+                "@Service needs Angular 22. Use @Injectable({ providedIn: 'root' }) in the library.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.spec.ts'],
     rules: {
       // Test hosts are declared inline and never rendered by selector.

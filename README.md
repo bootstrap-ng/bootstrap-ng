@@ -10,7 +10,7 @@ Angular components for [Bootstrap 6](https://bootstrap-ng.com/), built for moder
 
 **Docs:** <https://bootstrap-ng.com/>
 
-- **Angular 22+**: standalone, signal inputs and outputs, OnPush, zoneless.
+- **Angular 21.2+**: standalone, signal inputs and outputs, OnPush, zoneless.
 - **Real Bootstrap markup**: attribute selectors such as `<div bsAlert>` keep the DOM exactly as Bootstrap's CSS expects.
 - **Platform native**: dialogs use `<dialog>` and accordions use `<details>`, like Bootstrap 6.
 - **No Bootstrap JavaScript**: all behavior is written in Angular.
