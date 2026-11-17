@@ -5,9 +5,11 @@
     [bsTypeahead]="search"
     [formatter]="name"
     [itemTemplate]="item"
-    (itemSelect)="picked.set($event)" />
+    [editable]="false"
+    [formField]="project.framework" />
+  <div bsInvalidFeedback>Pick a framework from the list.</div>
 </div>
-<p class="mt-3 mb-0">Picked: {{ picked()?.name ?? 'none' }}</p>
+<p class="mt-3 mb-0">Picked: {{ project.framework().value()?.name ?? 'none' }}</p>
 
 <ng-template #item let-framework let-text="text">
   <span class="menu-item-content">

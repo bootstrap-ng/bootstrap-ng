@@ -143,14 +143,20 @@ test('a clearable input clears its value and keeps focus', async ({ page }) => {
   await expect(demo).toContainText('Value: Angular');
 });
 
-test('an async typeahead renders custom items', async ({ page }) => {
+test('an async typeahead renders custom items and binds the picked object', async ({ page }) => {
   await page.goto('forms/typeahead/');
   const demo = example(page, 'async');
-  await demo.getByRole('combobox', { name: 'Framework' }).fill('an');
+  const input = demo.getByRole('combobox', { name: 'Framework' });
+  await input.fill('Kiwi');
+  await input.blur();
+  await expect(input).toHaveAttribute('aria-invalid', 'true');
+  await expect(demo).toContainText('Pick a framework from the list.');
+  await input.fill('an');
   const listbox = page.getByRole('listbox');
   await expect(listbox.getByRole('option')).toHaveCount(2);
   await listbox.getByRole('option', { name: /Django/ }).click();
   await expect(demo).toContainText('Picked: Django');
+  await expect(input).not.toHaveAttribute('aria-invalid');
 });
 
 test('a datepicker follows the page color mode, not the system one', async ({ page }) => {

@@ -18,16 +18,16 @@ const PAGE: DocsPageData = {
       id: 'example',
       title: 'Example',
       description:
-        'Add <code>bsTypeahead</code> to a text input and give it a search function that returns the suggestions for a term. The input stays a native input, so bind it with <code>[formControl]</code>, <code>[(ngModel)]</code> or <code>[formField]</code>. It follows the ARIA combobox pattern: <kbd>↓</kbd> and <kbd>↑</kbd> move through the suggestions, <kbd>Enter</kbd> picks one and <kbd>Escape</kbd> closes the list. Screen readers hear how many suggestions there are.',
+        'Add <code>bsTypeahead</code> to a text input and give it a search function that returns the suggestions for a term. Bind it with <code>[formControl]</code>, <code>[(ngModel)]</code> or <code>[formField]</code>: the value is the text the user typed, or the suggestion they picked. It follows the ARIA combobox pattern: <kbd>↓</kbd> and <kbd>↑</kbd> move through the suggestions, <kbd>Enter</kbd> picks one and <kbd>Escape</kbd> closes the list. Screen readers hear how many suggestions there are.',
       example: TypeaheadBasicExample,
       html: basicHtml,
       ts: basicTs,
     },
     {
       id: 'async',
-      title: 'Async search and custom items',
+      title: 'Async search and objects',
       description:
-        'The search can return a promise or an observable, so it can call a server. Only the answer to the latest term is shown, and <code>debounce</code> (200 ms by default) waits for the user to pause. For objects, <code>formatter</code> turns a suggestion into text, and <code>itemTemplate</code> renders each one. <code>itemSelect</code> emits the picked suggestion.',
+        'The search can return a promise or an observable, so it can call a server. Only the answer to the latest term is shown, and <code>debounce</code> (200 ms by default) waits for the user to pause. Suggestions can be objects: <code>formatter</code> turns one into text, <code>itemTemplate</code> renders each one, and the form value is the picked object itself. Typed text becomes the value as a string, unless <code>editable</code> is <code>false</code>: then it is <code>null</code> until the user picks a suggestion, so <code>required</code> accepts only picked suggestions and the field shows as invalid. <code>itemSelect</code> also emits the picked suggestion.',
       example: TypeaheadAsyncExample,
       html: asyncHtml,
       ts: asyncTs,
@@ -48,7 +48,15 @@ const PAGE: DocsPageData = {
           name: 'formatter',
           type: '(item: T) => string',
           default: 'String',
-          description: 'Text shown for a suggestion and put in the input when it is picked.',
+          description:
+            'Text shown for a suggestion and put in the input when it is picked or set by a form. A string value is shown as it is.',
+        },
+        {
+          name: 'editable',
+          type: 'boolean',
+          default: 'true',
+          description:
+            'Whether typed text becomes the form value. When false, the value is null until the user picks a suggestion.',
         },
         {
           name: 'itemTemplate',

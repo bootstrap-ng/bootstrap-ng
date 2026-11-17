@@ -1,5 +1,12 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { BsFormControl, BsFormField, BsFormLabel, BsTypeahead } from 'bootstrap-ng';
+import { form, FormField, required } from '@angular/forms/signals';
+import {
+  BsFormControl,
+  BsFormField,
+  BsFormLabel,
+  BsInvalidFeedback,
+  BsTypeahead,
+} from 'bootstrap-ng';
 
 interface Framework {
   name: string;
@@ -24,11 +31,14 @@ const FRAMEWORKS: Framework[] = [
 @Component({
   selector: 'docs-typeahead-async-example',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BsFormControl, BsFormField, BsFormLabel, BsTypeahead],
+  imports: [FormField, BsFormControl, BsFormField, BsFormLabel, BsInvalidFeedback, BsTypeahead],
   templateUrl: './async.html',
 })
 export class TypeaheadAsyncExample {
-  protected readonly picked = signal<Framework | null>(null);
+  private readonly model = signal<{ framework: Framework | null }>({ framework: null });
+  protected readonly project = form(this.model, (path) => {
+    required(path.framework);
+  });
 
   protected readonly name = (framework: Framework): string => framework.name;
 
