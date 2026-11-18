@@ -14,6 +14,15 @@ describe('passwordScore', () => {
     expect(passwordScore('abcdefgh', 8, { lowercase: 0 })).toBe(1);
   });
 
+  it('counts any symbol or space as a special character', () => {
+    expect(passwordScore('Password1--')).toBe(passwordScore('Password1!!'));
+    for (const symbol of ['-', '_', '+', '=', '/', '~', ';', '[', ']', ' ', '€']) {
+      expect(passwordScore(`Password1${symbol}`)).toBe(passwordScore('Password1!'));
+    }
+    // Letters and digits of other scripts are not symbols.
+    expect(passwordScore('Pässwörd1')).toBe(passwordScore('Password1'));
+  });
+
   it('scores between 0 and 8 and never drops as the password grows', () => {
     fc.assert(
       fc.property(fc.string(), fc.string(), fc.integer({ min: 0, max: 32 }), (start, end, min) => {

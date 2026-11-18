@@ -33,6 +33,11 @@ export interface FloatingOptions {
   arrow?: HTMLElement | null;
   /** CSS position. `'fixed'` escapes ancestors with `overflow: hidden`. Defaults to `'absolute'`. */
   strategy?: BsPositionStrategy;
+  /**
+   * Also moves it away from the side it was placed on to keep it in view, over the
+   * reference if there is no room next to it.
+   */
+  crossAxisShift?: boolean;
 }
 
 /** CSS position of a floating element. */
@@ -54,6 +59,7 @@ export function autoPosition(
       fallbackPlacements,
       arrow: arrowElement,
       strategy = 'absolute',
+      crossAxisShift = false,
       ...rest
     } = options();
     const middleware = [
@@ -61,7 +67,7 @@ export function autoPosition(
       flip({
         fallbackPlacements: fallbackPlacements?.map((p) => resolvePlacement(p, reference)),
       }),
-      shift({ padding: 4 }),
+      shift({ padding: 4, crossAxis: crossAxisShift }),
     ];
     if (arrowElement) {
       middleware.push(arrow({ element: arrowElement }));

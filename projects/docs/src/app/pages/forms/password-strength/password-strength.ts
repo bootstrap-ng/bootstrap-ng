@@ -65,7 +65,7 @@ const PAGE: DocsPageData = {
       id: 'strength-criteria',
       title: 'Strength criteria',
       description:
-        'By default a password earns a point for each of: the minimum length (8), 4 more characters, lowercase letters, uppercase letters, numbers, a special character, several special characters, and 16 or more characters. Scores up to 2 are weak, up to 4 fair, up to 6 good, and above that strong. <code>passwordScore()</code> is exported for your own checks.',
+        'By default a password earns a point for each of: the minimum length (8), 4 more characters, lowercase letters, uppercase letters, numbers, a special character (any symbol or space), several special characters, and 16 or more characters. Scores up to 2 are weak, up to 4 fair, up to 6 good, and above that strong. <code>passwordScore()</code> is exported for your own checks.',
       example: PasswordStrengthCriteriaExample,
       html: criteriaHtml,
       ts: criteriaTs,
