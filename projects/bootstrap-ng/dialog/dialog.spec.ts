@@ -22,6 +22,7 @@ import { BsDialog, BsDialogClose } from './dialog';
         Menu
       </button>
       <button type="button" bsDialogClose>Close</button>
+      <input type="file" />
     </dialog>
   `,
 })
@@ -109,6 +110,20 @@ describe('BsDialog', () => {
     await fixture.whenStable();
     expect(host.open()).toBe(false);
     expect(host.dismissed).toBe('escape');
+  });
+
+  it('stays open when a file picker inside it is cancelled', async () => {
+    const { fixture, host, dialog } = await setup();
+    host.open.set(true);
+    await fixture.whenStable();
+    // Browsers fire a bubbling `cancel` at a file input whose picker is dismissed.
+    const cancel = new Event('cancel', { bubbles: true, cancelable: true });
+    dialog.querySelector('input[type="file"]')!.dispatchEvent(cancel);
+    await fixture.whenStable();
+    expect(cancel.defaultPrevented).toBe(false);
+    expect(dialog.open).toBe(true);
+    expect(host.open()).toBe(true);
+    expect(host.dismissed).toBeNull();
   });
 
   it('stays open on repeated real Escape presses when keyboard is false', async () => {

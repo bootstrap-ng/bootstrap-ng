@@ -448,6 +448,9 @@ export class BsSubmenu implements OnDestroy {
         placement: 'end-start',
         offset: 0,
         fallbackPlacements: ['start-start', 'end-end', 'start-end'],
+        // On a narrow screen with no room on either side, overlap the parent menu
+        // rather than run off the screen.
+        crossAxisShift: true,
       }));
       requestAnimationFrame(() => (menu.style.opacity = ''));
     }

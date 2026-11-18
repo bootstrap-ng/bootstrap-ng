@@ -323,7 +323,40 @@ describe('BsMenu', () => {
 })
 class SubmenuHost {}
 
+@Component({
+  imports: [BsMenu, BsMenuToggle, BsSubmenu],
+  template: `
+    <div style="position: fixed; inset-block-start: 0; inset-inline-start: 0">
+      <button type="button" class="toggle" [bsMenuToggle]="menu">Menu</button>
+      <div bsMenu #menu="bsMenu" style="width: calc(100vw - 40px)">
+        <div bsSubmenu class="share">
+          <button type="button" class="menu-item share-trigger">Share</button>
+          <div class="menu share-menu" style="width: 200px">
+            <button type="button" class="menu-item">Email</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+})
+class WideSubmenuHost {}
+
 describe('BsSubmenu', () => {
+  it('stays in the viewport when there is no room beside the menu', async () => {
+    const fixture = TestBed.createComponent(WideSubmenuHost);
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    root.querySelector<HTMLButtonElement>('.toggle')?.click();
+    await fixture.whenStable();
+    root.querySelector<HTMLButtonElement>('.share-trigger')?.click();
+    await fixture.whenStable();
+    const submenu = root.querySelector<HTMLElement>('.share-menu');
+    await vi.waitFor(() => expect(submenu?.style.left).not.toBe(''));
+    const rect = submenu?.getBoundingClientRect();
+    expect(rect?.left).toBeGreaterThanOrEqual(0);
+    expect(rect?.right).toBeLessThanOrEqual(document.documentElement.clientWidth);
+  });
+
   async function setup() {
     const fixture = TestBed.createComponent(SubmenuHost);
     await fixture.whenStable();

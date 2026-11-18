@@ -53,8 +53,9 @@ const DEFAULT_MESSAGES: Record<BsStrengthLevel, string> = {
   strong: 'Strong',
 };
 
-const SPECIAL = /[!@#$%^&*(),.?":{}|<>]/;
-const MULTIPLE_SPECIAL = /[!@#$%^&*(),.?":{}|<>].*[!@#$%^&*(),.?":{}|<>]/;
+/** Anything but a letter or a digit, in any script: symbols, punctuation and spaces. */
+const SPECIAL = /[^\p{L}\p{N}]/u;
+const MULTIPLE_SPECIAL = /[^\p{L}\p{N}].*[^\p{L}\p{N}]/su;
 
 /** Scores a password like Bootstrap's strength meter: a point per criterion met. */
 export function passwordScore(

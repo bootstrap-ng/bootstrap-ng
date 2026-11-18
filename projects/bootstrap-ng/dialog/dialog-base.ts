@@ -210,6 +210,11 @@ export abstract class BsDialogBase implements OnDestroy {
   }
 
   protected onCancel(event: Event): void {
+    // A dialog's own `cancel` does not bubble, so one from a descendant, such as a file
+    // input whose picker was dismissed, is not a request to close the dialog.
+    if (event.target !== this.element) {
+      return;
+    }
     // Take over Escape handling so the exit transition can play.
     event.preventDefault();
     this.dismiss('escape');
