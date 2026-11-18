@@ -1,4 +1,12 @@
-import { booleanAttribute, computed, Directive, input } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  DestroyRef,
+  Directive,
+  ElementRef,
+  inject,
+  input,
+} from '@angular/core';
 import { BsNavOverflow } from './nav-overflow';
 
 /**
@@ -56,7 +64,6 @@ export class BsNav {
     '[attr.aria-current]': 'active() ? current() : null',
     '[attr.aria-disabled]': 'disabled() ? "true" : null',
     '[attr.tabindex]': 'disabled() ? "-1" : null',
-    '(click)': 'onClick($event)',
   },
 })
 export class BsNavLink {
@@ -67,11 +74,21 @@ export class BsNavLink {
   /** Value of `aria-current` when active, such as `'page'` or `'true'`. */
   readonly current = input('page');
 
-  protected onClick(event: Event): void {
-    if (this.disabled()) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
+  constructor() {
+    // A capture listener on the link itself runs before its other click listeners,
+    // including `(click)` in the template and `routerLink`. A host listener would run
+    // after them, too late to stop them.
+    const element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const onClick = (event: Event) => {
+      if (this.disabled()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    };
+    element.addEventListener('click', onClick, { capture: true });
+    inject(DestroyRef).onDestroy(() =>
+      element.removeEventListener('click', onClick, { capture: true }),
+    );
   }
 }
 

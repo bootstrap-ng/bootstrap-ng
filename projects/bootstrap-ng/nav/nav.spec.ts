@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideRouter, Router, RouterLink } from '@angular/router';
 import { BsNav, BsNavLink } from './nav';
 import { BsNavOverflow, provideBsNavOverflowConfig } from './nav-overflow';
 
@@ -168,6 +169,47 @@ describe('BsNavLink', () => {
     b.addEventListener('click', (event) => event.preventDefault(), { once: true });
     b.dispatchEvent(allowed);
     expect(clicks).toBe(1);
+  });
+
+  it('stops click handlers and routerLink on a disabled link', async () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    @Component({
+      imports: [BsNavLink, RouterLink],
+      template: `
+        <a
+          bsNavLink
+          [disabled]="disabled()"
+          href="#a"
+          (click)="$event.preventDefault(); clicks = clicks + 1"
+          >A</a
+        >
+        <a bsNavLink [disabled]="disabled()" routerLink="/elsewhere">B</a>
+      `,
+    })
+    class HandlerHost {
+      readonly disabled = signal(true);
+      clicks = 0;
+    }
+    const fixture = TestBed.createComponent(HandlerHost);
+    await fixture.whenStable();
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    const [a, b] = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('a'),
+    );
+    a.click();
+    b.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.clicks).toBe(0);
+    expect(navigate).not.toHaveBeenCalled();
+
+    fixture.componentInstance.disabled.set(false);
+    await fixture.whenStable();
+    a.click();
+    b.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.clicks).toBe(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
   });
 });
 
