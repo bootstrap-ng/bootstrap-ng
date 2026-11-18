@@ -91,6 +91,28 @@ test('the home page keeps light text over its dark backdrop in light mode', asyn
   await expect(page.locator('docs-root')).not.toHaveAttribute('data-bs-theme');
 });
 
+test('the home page For Agents menu links to llms.txt and chat apps', async ({ page }) => {
+  await page.goto('');
+  await page.getByRole('button', { name: 'For Agents' }).click();
+  const menu = page.locator('.menu.show');
+  await expect(menu.getByRole('link', { name: 'llms.txt', exact: true })).toHaveAttribute(
+    'href',
+    '/llms.txt',
+  );
+  await expect(menu.getByRole('link', { name: 'llms-full.txt' })).toHaveAttribute(
+    'href',
+    '/llms-full.txt',
+  );
+  await expect(menu.getByRole('link', { name: 'Ask Claude' })).toHaveAttribute(
+    'href',
+    /^https:\/\/claude\.ai\/new\?q=Read%20https%3A%2F%2Fbootstrap-ng\.com%2Fllms\.txt/,
+  );
+  await expect(menu.getByRole('link', { name: 'Ask ChatGPT' })).toHaveAttribute(
+    'href',
+    /^https:\/\/chatgpt\.com\/\?q=/,
+  );
+});
+
 test('the header marks the current section', async ({ page }) => {
   await page.goto('components/alert/');
   const main = page.locator('nav[aria-label="Main"]');

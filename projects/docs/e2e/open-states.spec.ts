@@ -30,6 +30,15 @@ const STATES: {
     },
   },
   {
+    name: 'the home page For Agents menu',
+    path: '',
+    include: ['.menu.show', '[aria-expanded="true"]'],
+    open: async (page) => {
+      await page.getByRole('button', { name: 'For Agents' }).click();
+      await expect(page.locator('.menu.show')).toBeVisible();
+    },
+  },
+  {
     name: 'an open dialog',
     path: 'components/dialog',
     include: ['dialog[open]'],
