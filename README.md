@@ -34,7 +34,17 @@ npm install bootstrap-ng bootstrap@next @floating-ui/dom
 
 [Floating UI](https://floating-ui.com/) positions tooltips, popovers and menus, as it does in Bootstrap.
 
-Add `node_modules/bootstrap/dist/css/bootstrap.min.css` to `styles` in `angular.json`, then import components:
+Add `node_modules/bootstrap/dist/css/bootstrap.min.css` to `styles` in `angular.json`. The `bootstrap` package is an optional peer dependency: bootstrap-ng only needs Bootstrap's CSS, so you can skip installing it and load the CSS from a CDN instead:
+
+```html
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe"
+  crossorigin="anonymous" />
+```
+
+Then import components:
 
 ```ts
 import { BsAlert, BsButton } from 'bootstrap-ng';
