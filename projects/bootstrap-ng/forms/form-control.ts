@@ -69,6 +69,7 @@ export function provideBsFormControlConfig(config: Partial<BsFormControlConfig>)
     '[class]': 'classes()',
     '[style.padding-inline-end]':
       "canClear() ? 'calc(var(--control-padding-x, .25rem) * 2 + 1.25rem)' : null",
+    '[attr.size]': 'nativeSize()',
     '(input)': 'syncValue()',
   },
 })
@@ -86,8 +87,14 @@ export class BsFormControl {
     alias: 'bsFormControl',
     transform: (value) => value || 'control',
   });
-  /** Size of the control. Named `controlSize` because `size` is a native `<select>` attribute. */
-  readonly controlSize = input<BsFormControlSize>('md');
+  /**
+   * Size of the control. A number, such as `size="4"` on a `<select>`, is passed on as the
+   * native `size` attribute and keeps the default size.
+   */
+  readonly size = input<BsFormControlSize | number, BsFormControlSize | number | string>('md', {
+    transform: (value) =>
+      value === 'sm' || value === 'md' || value === 'lg' ? value : Number(value),
+  });
   /** Shows a caret, for example on an `<input>` with a `<datalist>`. */
   readonly caret = input(false, { transform: booleanAttribute });
   /**
@@ -104,6 +111,12 @@ export class BsFormControl {
   /** Whether the clear button is shown: the control is clearable, has a value and is editable. */
   readonly hasClearableValue = this.filled.asReadonly();
 
+  /** The native `size` attribute: only numbers, so `size="sm"` doesn't reach the element. */
+  protected readonly nativeSize = computed(() => {
+    const size = this.size();
+    return typeof size === 'number' && !Number.isNaN(size) ? size : null;
+  });
+
   protected readonly canClear = computed(
     () => this.clearable() && this.element.localName !== 'select',
   );
@@ -116,10 +129,10 @@ export class BsFormControl {
     if (variant === 'plaintext') {
       return 'form-control-plaintext';
     }
-    const size = this.controlSize();
+    const size = this.size();
     return [
       'form-control',
-      size === 'md' ? '' : `form-control-${size}`,
+      size === 'sm' || size === 'lg' ? `form-control-${size}` : '',
       this.type === 'color' ? 'form-control-color' : '',
       this.caret() ? 'form-control-caret' : '',
     ]

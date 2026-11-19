@@ -81,7 +81,7 @@ const PAGE: DocsPageData = {
       id: 'sizes',
       title: 'Sizes',
       description:
-        'Set <code>controlSize</code> to <code>sm</code> or <code>lg</code>. The input is not called <code>size</code> because that is a native attribute of inputs and selects.',
+        'Set <code>size</code> to <code>sm</code> or <code>lg</code>. A number, such as <code>size="4"</code> on a <code>&lt;select&gt;</code>, is passed on as the native <code>size</code> attribute.',
       example: FormControlSizesExample,
       html: sizesHtml,
     },
@@ -154,10 +154,10 @@ const PAGE: DocsPageData = {
           description: 'Style of the control. An empty value means control.',
         },
         {
-          name: 'controlSize',
-          type: "'sm' | 'md' | 'lg'",
+          name: 'size',
+          type: "'sm' | 'md' | 'lg' | number",
           default: "'md'",
-          description: 'Size of the control.',
+          description: 'Size of the control. A number is set as the native size attribute.',
         },
         {
           name: 'caret',

@@ -2,6 +2,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BsDateSelectionMode, BsDateValue, provideBsCalendarConfig } from 'bootstrap-ng/calendar';
+import { BsFormControl, BsFormControlSize } from 'bootstrap-ng/forms';
 import {
   BsDateFormat,
   BsDatepicker,
@@ -233,6 +234,36 @@ describe('BsDatepicker', () => {
     expect(calendar()!.getAttribute('aria-label')).toBe('Choose arrival date');
   });
 
+  it('sizes inputs but not buttons', async () => {
+    @Component({
+      imports: [BsDatepicker, BsFormControl],
+      template: `
+        <input type="text" aria-label="Date" class="form-control" bsDatepicker [size]="size()" />
+        <input type="text" aria-label="Other" bsFormControl bsDatepicker size="lg" />
+        <button type="button" bsDatepicker size="sm">Pick</button>
+      `,
+    })
+    class SizeHost {
+      readonly size = signal<BsFormControlSize>('md');
+    }
+    const fixture = TestBed.createComponent(SizeHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const [input, other] = fixture.nativeElement.querySelectorAll('input');
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(input.className).toBe('form-control');
+    fixture.componentInstance.size.set('sm');
+    await fixture.whenStable();
+    expect(input.classList).toContain('form-control-sm');
+    fixture.componentInstance.size.set('lg');
+    await fixture.whenStable();
+    expect(input.classList).toContain('form-control-lg');
+    expect(input.classList).not.toContain('form-control-sm');
+    expect([...other.classList].sort()).toEqual(['form-control', 'form-control-lg']);
+    expect(other.hasAttribute('size')).toBe(false);
+    expect(button.classList).not.toContain('form-control-sm');
+  });
+
   it('passes week number options to the calendar', async () => {
     @Component({
       imports: [BsDatepicker],
@@ -451,6 +482,7 @@ describe('BsDatepicker API and options', () => {
         provideBsDatepickerConfig({
           calendarLabel: 'Pick a day',
           dateFormat: { dateStyle: 'long' },
+          size: 'sm',
         }),
       ],
     });
@@ -473,6 +505,7 @@ describe('BsDatepicker API and options', () => {
     document.body.append(root);
     const input = root.querySelector('input')!;
     expect(input.value).toBe('June 10, 2026');
+    expect(input.classList).toContain('form-control-sm');
     input.focus();
     await fixture.whenStable();
     const popup = root.querySelector<HTMLElement>('[data-vc="calendar"]')!;

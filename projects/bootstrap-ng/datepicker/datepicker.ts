@@ -35,7 +35,7 @@ import {
   parseIsoDate,
   selectedDates,
 } from 'bootstrap-ng/calendar';
-import { BsValueControl } from 'bootstrap-ng/forms';
+import { BsFormControlSize, BsValueControl } from 'bootstrap-ng/forms';
 
 /** How a datepicker shows dates: `Intl.DateTimeFormat` options or a function. */
 export type BsDateFormat = Intl.DateTimeFormatOptions | BsDateFormatter;
@@ -65,6 +65,8 @@ export interface BsDatepickerConfig {
   placement: BsPlacement;
   /** Accessible name of the calendar popup. */
   calendarLabel: string;
+  /** Size of an input datepicker. */
+  size: BsFormControlSize;
 }
 
 /** The defaults set with `provideBsDatepickerConfig()`. */
@@ -111,6 +113,8 @@ export function provideBsDatepickerConfig(config: Partial<BsDatepickerConfig>): 
     '[attr.aria-expanded]': 'isOpen()',
     '[attr.aria-controls]': 'isOpen() ? calendarId : null',
     '[disabled]': 'isDisabled()',
+    '[class.form-control-sm]': 'isInput && size() === "sm"',
+    '[class.form-control-lg]': 'isInput && size() === "lg"',
     '(focus)': 'onFocus()',
     '(click)': 'onClick()',
     '(keydown)': 'onKeydown($event)',
@@ -162,6 +166,11 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
   readonly placement = input<BsPlacement>(this.config.placement ?? 'bottom-start');
   /** Accessible name of the calendar popup. */
   readonly calendarLabel = input(this.config.calendarLabel ?? 'Choose date');
+  /**
+   * Size of an input datepicker: adds `.form-control-sm` or `.form-control-lg`. Buttons
+   * ignore it; size them with `bsButton`'s own `size`.
+   */
+  readonly size = input<BsFormControlSize>(this.config.size ?? 'md');
 
   /** Opens the calendar. */
   // eslint-disable-next-line @angular-eslint/no-input-rename -- `open` state pattern, see AGENTS.md

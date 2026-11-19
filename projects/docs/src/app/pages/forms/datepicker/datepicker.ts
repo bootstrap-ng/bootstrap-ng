@@ -26,6 +26,8 @@ import { DatepickerWeekNumbersExample } from './examples/week-numbers';
 import week_numbersHtml from './examples/week-numbers.html' with { loader: 'text' };
 import { DatepickerPlacementExample } from './examples/placement';
 import placementHtml from './examples/placement.html' with { loader: 'text' };
+import { DatepickerSizesExample } from './examples/sizes';
+import sizesHtml from './examples/sizes.html' with { loader: 'text' };
 import { DatepickerButtonExample } from './examples/button';
 import buttonHtml from './examples/button.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
@@ -119,6 +121,14 @@ const PAGE: DocsPageData = {
         'Set <code>placement</code> to open the calendar elsewhere. It flips when there isn’t room.',
       example: DatepickerPlacementExample,
       html: placementHtml,
+    },
+    {
+      id: 'sizes',
+      title: 'Sizes',
+      description:
+        'Set <code>size</code> to <code>sm</code> or <code>lg</code> to add <code>.form-control-sm</code> or <code>.form-control-lg</code>, like a <a href="forms/form-control#sizes">form control</a>. Set a default for every datepicker with <code>provideBsDatepickerConfig({ size: \'sm\' })</code>. Button datepickers ignore it; size them with the button’s own <code>size</code>.',
+      example: DatepickerSizesExample,
+      html: sizesHtml,
     },
     {
       id: 'button-trigger',
@@ -246,6 +256,12 @@ const PAGE: DocsPageData = {
           type: 'string',
           default: "'Choose date'",
           description: 'Accessible name of the calendar popup.',
+        },
+        {
+          name: 'size',
+          type: "'sm' | 'md' | 'lg'",
+          default: "'md'",
+          description: 'Size of an input: adds .form-control-sm or .form-control-lg.',
         },
         {
           name: 'open',
