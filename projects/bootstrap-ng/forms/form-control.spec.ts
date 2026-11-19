@@ -20,7 +20,7 @@ describe('BsFormControl', () => {
         <input
           class="extra"
           [bsFormControl]="variant()"
-          [controlSize]="size()"
+          [size]="size()"
           [caret]="caret()"
           aria-label="Text" />
         <input type="color" bsFormControl aria-label="Color" />
@@ -35,6 +35,7 @@ describe('BsFormControl', () => {
     await fixture.whenStable();
     const [input, color] = fixture.nativeElement.querySelectorAll('input');
     expect(input.className).toBe('extra form-control');
+    expect(input.hasAttribute('size')).toBe(false);
     expect(color.classList).toContain('form-control-color');
 
     fixture.componentInstance.size.set('lg');
@@ -51,6 +52,28 @@ describe('BsFormControl', () => {
     fixture.componentInstance.variant.set('ghost');
     await fixture.whenStable();
     expect(input.classList).toContain('form-ghost');
+  });
+
+  it('passes a numeric size on as the native attribute', async () => {
+    @Component({
+      imports: [BsFormControl],
+      template: `
+        <select bsFormControl size="4" aria-label="Rows">
+          <option>One</option>
+        </select>
+        <select bsFormControl size="sm" aria-label="Small">
+          <option>One</option>
+        </select>
+      `,
+    })
+    class Host {}
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const [rows, small] = fixture.nativeElement.querySelectorAll('select');
+    expect(rows.getAttribute('size')).toBe('4');
+    expect(rows.className).toBe('form-control');
+    expect(small.hasAttribute('size')).toBe(false);
+    expect(small.className).toBe('form-control form-control-sm');
   });
 
   it('forces a validation state', async () => {
