@@ -91,10 +91,13 @@ export class BsFormControl {
    * Size of the control. A number, such as `size="4"` on a `<select>`, is passed on as the
    * native `size` attribute and keeps the default size.
    */
-  readonly size = input<BsFormControlSize | number, BsFormControlSize | number | string>('md', {
-    transform: (value) =>
-      value === 'sm' || value === 'md' || value === 'lg' ? value : Number(value),
-  });
+  readonly size = input<BsFormControlSize | number, BsFormControlSize | number | `${number}`>(
+    'md',
+    {
+      transform: (value) =>
+        value === 'sm' || value === 'md' || value === 'lg' ? value : Number(value),
+    },
+  );
   /** Shows a caret, for example on an `<input>` with a `<datalist>`. */
   readonly caret = input(false, { transform: booleanAttribute });
   /**
