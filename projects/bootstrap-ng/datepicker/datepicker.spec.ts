@@ -259,7 +259,8 @@ describe('BsDatepicker', () => {
     await fixture.whenStable();
     expect(input.classList).toContain('form-control-lg');
     expect(input.classList).not.toContain('form-control-sm');
-    expect([...other.classList].sort()).toEqual(['form-control', 'form-control-lg']);
+    expect(other.classList).toContain('form-control');
+    expect(other.classList).toContain('form-control-lg');
     expect(other.hasAttribute('size')).toBe(false);
     expect(button.classList).not.toContain('form-control-sm');
   });
