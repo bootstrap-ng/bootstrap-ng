@@ -27,6 +27,11 @@
     "@angular/forms": "^21.2.0 || ^22.0.0",
     "bootstrap": ">=6.0.0-alpha.1 <7"
   },
+  "peerDependenciesMeta": {
+    "bootstrap": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "tslib": "^2.3.0"
   },

@@ -33,6 +33,15 @@
   <a href="https://floating-ui.com/">Floating UI</a> positions tooltips, popovers and menus, as it
   does in Bootstrap.
 </p>
+<p>
+  bootstrap-ng only needs Bootstrap's CSS, never its JavaScript, so the <code>bootstrap</code>
+  package is an optional peer dependency. Skip it if you
+  <a href="#css">load the CSS from a CDN</a>:
+</p>
+<docs-code
+  class="mb-5 rounded-5 bg-1"
+  code="npm install bootstrap-ng @floating-ui/dom"
+  language="shellscript" />
 
 <h2 class="mt-11" id="css" docsHeading>Add Bootstrap's CSS</h2>
 <p>Add the compiled CSS to the <code>styles</code> array in <code>angular.json</code>:</p>
@@ -41,7 +50,8 @@
 <docs-code class="mb-5 rounded-5 bg-1" [code]="sassImport" language="scss" />
 <p>
   Or load it from the jsDelivr CDN in the <code>&lt;head&gt;</code> of <code>src/index.html</code>,
-  as this site does. Keep the version in step with the <code>bootstrap</code> package:
+  as this site does. You don't need the <code>bootstrap</code> package then. bootstrap-ng supports
+  Bootstrap 6.0.0-alpha.1 and later 6.x releases:
 </p>
 <docs-code class="mb-5 rounded-5 bg-1" [code]="cdnLink" language="angular-html" />
 
