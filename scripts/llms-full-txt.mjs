@@ -86,10 +86,15 @@ function pageMarkdown(path, html) {
   const tsSources = exampleTs(path);
   let section = '';
 
-  const url = (href) =>
-    href.startsWith(basePath) && !href.startsWith('//')
-      ? `${baseUrl}${href.slice(basePath.length)}`
-      : new URL(href, pageUrl).href;
+  // Relative links resolve against `<base href>`, as in the browser, except `#fragment`
+  // links, which point into the page itself.
+  const url = (href) => {
+    if (href.startsWith('#')) return `${pageUrl}${href}`;
+    if (href.startsWith(basePath) && !href.startsWith('//')) {
+      return `${baseUrl}${href.slice(basePath.length)}`;
+    }
+    return new URL(href, baseUrl).href;
+  };
 
   function inline(node) {
     if (node.nodeName === '#text') return node.value.replace(/\s+/g, ' ');
