@@ -5,6 +5,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import fc from 'fast-check';
 import {
   BsCalendar,
+  provideBsCalendarConfig,
   BsDateSelectionMode,
   BsDateValue,
   BsWeekNumbering,
@@ -164,8 +165,8 @@ describe('BsCalendar', () => {
   it('renders Bootstrap datepicker markup for the value month', async () => {
     const { host, cell, button } = await setup();
     expect(host.getAttribute('data-vc')).toBe('calendar');
-    expect(host.querySelector('[data-vc="month"]')!.textContent).toBe('June');
-    expect(host.querySelector('[data-vc="year"]')!.textContent).toBe('2026');
+    expect(host.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('June');
+    expect(host.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('2026');
     expect(host.querySelector('[role="grid"]')).not.toBeNull();
     expect(host.querySelectorAll('[data-vc-week-day]')).toHaveLength(7);
     expect(host.querySelector('[data-vc-week-day]')!.textContent?.trim()).toBe('Mon');
@@ -242,7 +243,7 @@ describe('BsCalendar', () => {
     button('2026-07-03').click();
     await fixture.whenStable();
     expect(component.date.value).toEqual(['2026-06-28', '2026-07-03']);
-    expect(host.querySelector('[data-vc="month"]')!.textContent).toBe('July');
+    expect(host.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('July');
     expect(button('2026-07-03').tabIndex).toBe(0);
 
     component.mode.set('multiple');
@@ -253,7 +254,7 @@ describe('BsCalendar', () => {
     button('2026-08-12').click();
     await fixture.whenStable();
     expect(component.date.value).toEqual(['2026-07-03', '2026-08-12']);
-    expect(host.querySelector('[data-vc="month"]')!.textContent).toBe('August');
+    expect(host.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('August');
     expect(button('2026-08-12').tabIndex).toBe(0);
   });
 
@@ -292,11 +293,11 @@ describe('BsCalendar', () => {
     await key('2026-06-15', 'End');
     expect(document.activeElement).toBe(button('2026-06-21'));
     await key('2026-06-21', 'PageDown');
-    expect(host.querySelector('[data-vc="month"]')!.textContent).toBe('July');
+    expect(host.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('July');
     expect(document.activeElement).toBe(button('2026-07-21'));
     expect(button('2026-07-21').tabIndex).toBe(0);
     await key('2026-07-21', 'PageUp', true);
-    expect(host.querySelector('[data-vc="year"]')!.textContent).toBe('2025');
+    expect(host.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('2025');
     expect(document.activeElement).toBe(button('2025-07-21'));
   });
 
@@ -327,7 +328,7 @@ describe('BsCalendar', () => {
     host.dir = '';
 
     await key('2026-06-02', 'PageDown', true);
-    expect(host.querySelector('[data-vc="year"]')!.textContent).toBe('2027');
+    expect(host.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('2027');
     expect(document.activeElement).toBe(button('2027-06-02'));
     // Other keys, such as letters, are left alone.
     expect((await key('2027-06-02', 'a')).defaultPrevented).toBe(false);
@@ -380,13 +381,15 @@ describe('BsCalendar', () => {
     const { fixture, host, component } = await setup();
     host.querySelector<HTMLButtonElement>('[data-vc-arrow="next"]')!.click();
     await fixture.whenStable();
-    expect(host.querySelector('[data-vc="month"]')!.textContent).toBe('July');
+    expect(host.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('July');
     expect(host.querySelector('[data-vc-arrow="prev"]')!.getAttribute('aria-label')).toBe(
       'Previous month',
     );
     component.months.set(2);
     await fixture.whenStable();
-    const months = Array.from(host.querySelectorAll('[data-vc="month"]')).map((m) => m.textContent);
+    const months = Array.from(host.querySelectorAll('[data-vc="month"]')).map((m) =>
+      m.textContent.trim(),
+    );
     expect(months).toEqual(['July', 'August']);
     // Days of neighboring months are hidden when several months are shown.
     expect(host.querySelector('[data-vc-date-month]')).toBeNull();
@@ -406,7 +409,7 @@ describe('BsCalendar', () => {
     next.focus();
     next.click();
     await fixture.whenStable();
-    expect(host.querySelector('[data-vc="month"]')!.textContent).toBe('July');
+    expect(host.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('July');
     expect(document.activeElement).toBe(next);
   });
 
@@ -473,9 +476,295 @@ describe('BsCalendar', () => {
     button('2025-12-30').click();
     await fixture.whenStable();
     expect(fixture.componentInstance.value()).toEqual(['2025-12-30', '2026-01-10']);
-    expect(host.querySelector('[data-vc="month"]')!.textContent).toBe('January');
+    expect(host.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('January');
     const stops = host.querySelectorAll<HTMLButtonElement>('[data-vc-date-btn][tabindex="0"]');
     expect(stops).toHaveLength(1);
     expect(stops[0]).toBe(button('2026-01-10'));
+  });
+
+  describe('month and year views', () => {
+    const key = async (fixture: { whenStable(): Promise<void> }, target: Element, name: string) => {
+      target.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
+      await fixture.whenStable();
+    };
+
+    async function pickerSetup() {
+      const ctx = await setup();
+      const { host } = ctx;
+      const headerMonth = () => host.querySelector<HTMLButtonElement>('button[data-vc="month"]')!;
+      const headerYear = () => host.querySelector<HTMLButtonElement>('button[data-vc="year"]')!;
+      const month = (index: number) =>
+        host.querySelector<HTMLButtonElement>(`[data-vc-months-month="${index}"]`)!;
+      const year = (value: number) =>
+        host.querySelector<HTMLButtonElement>(`[data-vc-years-year="${value}"]`)!;
+      const yearsGrid = () => host.querySelector('[data-vc="years"]')!;
+      return { ...ctx, headerMonth, headerYear, month, year, yearsGrid };
+    }
+
+    it('picks a month from the month view', async () => {
+      const { fixture, host, headerMonth, month, button, component } = await pickerSetup();
+      const hint = host.querySelector(`#${headerMonth().getAttribute('aria-describedby')}`)!;
+      expect(hint.textContent.trim()).toBe('Choose month');
+      expect(hint.classList).toContain('visually-hidden');
+      headerMonth().click();
+      await fixture.whenStable();
+      expect(host.querySelector('[data-vc-date-btn]')).toBeNull();
+      expect(host.querySelector('[data-vc-arrow]')).toBeNull();
+      const grid = host.querySelector('[data-vc="months"]')!;
+      expect(grid.getAttribute('role')).toBe('grid');
+      expect(host.querySelector(`#${grid.getAttribute('aria-labelledby')}`)!.textContent).toContain(
+        '2026',
+      );
+      expect(host.querySelectorAll('[data-vc-months="row"]')).toHaveLength(3);
+      expect(host.querySelectorAll('[data-vc-months-month]')).toHaveLength(12);
+      expect(month(5).textContent.trim()).toBe('Jun');
+      // No aria-label: the visible short name is the accessible name (WCAG 2.5.3).
+      expect(month(5).hasAttribute('aria-label')).toBe(false);
+      expect(month(5).hasAttribute('data-vc-months-month-selected')).toBe(true);
+      expect(month(5).parentElement!.getAttribute('aria-selected')).toBe('true');
+      expect(month(5).tabIndex).toBe(0);
+      expect(document.activeElement).toBe(month(5));
+      // min is 2026-06-03, so the months before June can't be picked.
+      expect(month(4).getAttribute('aria-disabled')).toBe('true');
+      month(4).click();
+      await fixture.whenStable();
+      expect(host.querySelector('[data-vc="months"]')).not.toBeNull();
+
+      month(8).click();
+      await fixture.whenStable();
+      expect(headerMonth().textContent.trim()).toBe('September');
+      expect(component.date.value).toBe('2026-06-10');
+      expect(document.activeElement).toBe(button('2026-09-10'));
+    });
+
+    it('returns to the days when the month is clicked again or on Escape', async () => {
+      const { fixture, host, headerMonth, month, button } = await pickerSetup();
+      headerMonth().click();
+      await fixture.whenStable();
+      headerMonth().click();
+      await fixture.whenStable();
+      expect(host.querySelector('[data-vc="months"]')).toBeNull();
+      expect(document.activeElement).toBe(button('2026-06-10'));
+      headerMonth().click();
+      await fixture.whenStable();
+      await key(fixture, month(5), 'Escape');
+      expect(host.querySelector('[data-vc="months"]')).toBeNull();
+      expect(document.activeElement).toBe(button('2026-06-10'));
+    });
+
+    it('moves focus among the months with the keyboard', async () => {
+      const { fixture, headerMonth, headerYear, month } = await pickerSetup();
+      headerMonth().click();
+      await fixture.whenStable();
+      await key(fixture, month(5), 'ArrowRight');
+      expect(document.activeElement).toBe(month(6));
+      await key(fixture, month(6), 'ArrowDown');
+      expect(document.activeElement).toBe(month(10));
+      await key(fixture, month(10), 'Home');
+      expect(document.activeElement).toBe(month(8));
+      await key(fixture, month(8), 'End');
+      expect(document.activeElement).toBe(month(11));
+      // End again stays put.
+      await key(fixture, month(11), 'End');
+      expect(document.activeElement).toBe(month(11));
+      await key(fixture, month(11), 'ArrowRight');
+      expect(headerYear().textContent.trim()).toBe('2027');
+      expect(document.activeElement).toBe(month(0));
+      expect(month(5).hasAttribute('data-vc-months-month-selected')).toBe(false);
+      await key(fixture, month(0), 'ArrowUp');
+      expect(headerYear().textContent.trim()).toBe('2026');
+      expect(document.activeElement).toBe(month(8));
+      await key(fixture, month(8), 'PageDown');
+      expect(headerYear().textContent.trim()).toBe('2027');
+      await key(fixture, month(8), 'PageUp');
+      expect(headerYear().textContent.trim()).toBe('2026');
+      await key(fixture, month(8), 'ArrowLeft');
+      expect(document.activeElement).toBe(month(7));
+      // Other keys are left alone.
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+      month(7).dispatchEvent(tab);
+      expect(tab.defaultPrevented).toBe(false);
+    });
+
+    it('picks a year from the year view', async () => {
+      const { fixture, host, headerYear, headerMonth, year, button, yearsGrid } =
+        await pickerSetup();
+      headerYear().click();
+      await fixture.whenStable();
+      expect(host.querySelectorAll('[data-vc-years-year]')).toHaveLength(15);
+      expect(host.querySelectorAll('[data-vc-years="row"]')).toHaveLength(3);
+      expect(yearsGrid().getAttribute('aria-label')).toBe('2019 – 2033');
+      expect(headerYear().textContent.trim()).toBe('2026');
+      expect(year(2026).hasAttribute('data-vc-years-year-selected')).toBe(true);
+      expect(document.activeElement).toBe(year(2026));
+      expect(year(2025).getAttribute('aria-disabled')).toBe('true');
+      const next = host.querySelector<HTMLButtonElement>('[data-vc-arrow="next"]')!;
+      const prev = host.querySelector<HTMLButtonElement>('[data-vc-arrow="prev"]')!;
+      expect(next.getAttribute('aria-label')).toBe('Next years');
+      expect(prev.getAttribute('aria-label')).toBe('Previous years');
+      next.click();
+      await fixture.whenStable();
+      expect(yearsGrid().getAttribute('aria-label')).toBe('2034 – 2048');
+      expect(year(2041).tabIndex).toBe(0);
+      prev.click();
+      await fixture.whenStable();
+      year(2025).click();
+      await fixture.whenStable();
+      expect(host.querySelector('[data-vc="years"]')).not.toBeNull();
+      year(2030).click();
+      await fixture.whenStable();
+      expect(headerMonth().textContent.trim()).toBe('June');
+      expect(headerYear().textContent.trim()).toBe('2030');
+      expect(document.activeElement).toBe(button('2030-06-10'));
+    });
+
+    it('moves focus among the years with the keyboard, across pages', async () => {
+      const { fixture, host, headerYear, year, yearsGrid } = await pickerSetup();
+      headerYear().click();
+      await fixture.whenStable();
+      await key(fixture, year(2026), 'ArrowDown');
+      expect(document.activeElement).toBe(year(2031));
+      await key(fixture, year(2031), 'ArrowDown');
+      expect(yearsGrid().getAttribute('aria-label')).toBe('2034 – 2048');
+      expect(document.activeElement).toBe(year(2036));
+      await key(fixture, year(2036), 'Home');
+      expect(document.activeElement).toBe(year(2034));
+      await key(fixture, year(2034), 'ArrowLeft');
+      expect(yearsGrid().getAttribute('aria-label')).toBe('2019 – 2033');
+      expect(document.activeElement).toBe(year(2033));
+      await key(fixture, year(2033), 'PageUp');
+      expect(yearsGrid().getAttribute('aria-label')).toBe('2004 – 2018');
+      expect(document.activeElement).toBe(year(2018));
+      await key(fixture, year(2018), 'PageDown');
+      await key(fixture, year(2033), 'ArrowUp');
+      expect(document.activeElement).toBe(year(2028));
+      await key(fixture, year(2028), 'End');
+      expect(document.activeElement).toBe(year(2028));
+      await key(fixture, year(2028), 'ArrowRight');
+      expect(document.activeElement).toBe(year(2029));
+      await key(fixture, year(2029), 'Escape');
+      expect(host.querySelector('[data-vc="years"]')).toBeNull();
+    });
+
+    it('switches between the month and year views', async () => {
+      const { fixture, host, headerMonth, headerYear, month, year, yearsGrid } =
+        await pickerSetup();
+      headerMonth().click();
+      await fixture.whenStable();
+      await key(fixture, month(5), 'PageDown');
+      headerYear().click();
+      await fixture.whenStable();
+      // The years are centered on the year the month view showed.
+      expect(yearsGrid().getAttribute('aria-label')).toBe('2020 – 2034');
+      expect(document.activeElement).toBe(year(2027));
+      headerMonth().click();
+      await fixture.whenStable();
+      expect(host.querySelector('[data-vc="months"]')).not.toBeNull();
+      expect(headerYear().textContent.trim()).toBe('2027');
+      expect(document.activeElement).toBe(month(5));
+      headerYear().click();
+      await fixture.whenStable();
+      headerYear().click();
+      await fixture.whenStable();
+      expect(host.querySelector('[data-vc="years"]')).toBeNull();
+      expect(host.querySelector('[data-vc-date-btn]')).not.toBeNull();
+    });
+
+    it('clamps a picked year to min and max', async () => {
+      const { fixture, host, headerMonth, headerYear, year } = await pickerSetup();
+      host.querySelector<HTMLButtonElement>('[data-vc-arrow="prev"]')!.click();
+      await fixture.whenStable();
+      // May 2026 is before min (2026-06-03): picking 2026 again shows June.
+      headerYear().click();
+      await fixture.whenStable();
+      year(2026).click();
+      await fixture.whenStable();
+      expect(headerMonth().textContent.trim()).toBe('June');
+
+      TestBed.resetTestingModule();
+      @Component({
+        imports: [BsCalendar],
+        template: `<div bsCalendar locale="en-US" value="2026-10-31" max="2027-02-14"></div>`,
+      })
+      class MaxHost {}
+      const maxFixture = TestBed.createComponent(MaxHost);
+      maxFixture.autoDetectChanges();
+      await maxFixture.whenStable();
+      const root: HTMLElement = maxFixture.nativeElement;
+      root.querySelector<HTMLButtonElement>('button[data-vc="year"]')!.click();
+      await maxFixture.whenStable();
+      expect(root.querySelector('[data-vc-years-year="2028"]')!.getAttribute('aria-disabled')).toBe(
+        'true',
+      );
+      root.querySelector<HTMLButtonElement>('[data-vc-years-year="2027"]')!.click();
+      await maxFixture.whenStable();
+      expect(root.querySelector('[data-vc="month"]')!.textContent.trim()).toBe('February');
+      // The focused day is kept, within the shorter month.
+      expect(document.activeElement?.getAttribute('data-iso')).toBe('2027-02-28');
+    });
+
+    it('picks a month for the column whose header was clicked', async () => {
+      const { fixture, host, component, month } = await pickerSetup();
+      component.months.set(2);
+      await fixture.whenStable();
+      host.querySelectorAll<HTMLButtonElement>('button[data-vc="month"]')[1].click();
+      await fixture.whenStable();
+      expect(month(6).hasAttribute('data-vc-months-month-selected')).toBe(true);
+      month(9).click();
+      await fixture.whenStable();
+      const months = Array.from(host.querySelectorAll('[data-vc="month"]')).map((m) =>
+        m.textContent.trim(),
+      );
+      expect(months).toEqual(['September', 'October']);
+    });
+
+    it('can turn the month and year buttons off', async () => {
+      @Component({
+        imports: [BsCalendar],
+        template: `<div
+          bsCalendar
+          locale="en-US"
+          value="2026-06-10"
+          [monthSelection]="false"
+          yearSelection="false"></div>`,
+      })
+      class PlainHost {}
+      const fixture = TestBed.createComponent(PlainHost);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.querySelector('[data-vc="month"]')!.tagName).toBe('SPAN');
+      expect(root.querySelector('[data-vc="year"]')!.tagName).toBe('SPAN');
+      expect(root.querySelector('.visually-hidden')).toBeNull();
+    });
+
+    it('takes labels from provideBsCalendarConfig()', async () => {
+      TestBed.configureTestingModule({
+        providers: [
+          provideBsCalendarConfig({
+            monthSelectionLabel: 'Monat wählen',
+            yearSelectionLabel: 'Jahr wählen',
+            prevYearsLabel: 'Frühere Jahre',
+            nextYearsLabel: 'Spätere Jahre',
+          }),
+        ],
+      });
+      const { fixture, host, headerYear } = await pickerSetup();
+      const hint = host.querySelector(`#${headerYear().getAttribute('aria-describedby')}`)!;
+      expect(hint.textContent.trim()).toBe('Jahr wählen');
+      headerYear().click();
+      await fixture.whenStable();
+      expect(host.querySelector('[data-vc-arrow="next"]')!.getAttribute('aria-label')).toBe(
+        'Spätere Jahre',
+      );
+    });
+
+    it('keeps the control untouched when its focused header button is replaced', async () => {
+      const { fixture, headerMonth, component } = await pickerSetup();
+      headerMonth().focus();
+      headerMonth().click();
+      await fixture.whenStable();
+      expect(component.date.touched).toBe(false);
+    });
   });
 });
