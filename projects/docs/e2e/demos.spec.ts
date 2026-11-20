@@ -395,7 +395,7 @@ test('home page copies the install command', async ({ page, context }) => {
   await page.getByRole('button', { name: 'Copy' }).click();
   await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-    'npm install bootstrap-ng bootstrap@next @floating-ui/dom',
+    'npm i bootstrap-ng bootstrap@next @floating-ui/dom',
   );
 });
 

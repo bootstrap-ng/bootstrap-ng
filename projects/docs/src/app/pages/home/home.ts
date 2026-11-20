@@ -12,7 +12,7 @@ import { DocsCopyButton } from '../../shared/copy-button';
   styleUrl: './home.scss',
 })
 export default class Home {
-  protected readonly install = 'npm install bootstrap-ng bootstrap@next @floating-ui/dom';
+  protected readonly install = 'npm i bootstrap-ng bootstrap@next @floating-ui/dom';
 
   /** Chat apps that open with a prompt to read llms.txt, like the "For Agents" menu on getbootstrap.com. */
   protected readonly agents = [

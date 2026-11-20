@@ -86,7 +86,7 @@ test('the home page keeps light text over its dark backdrop in light mode', asyn
   await expect(page.locator('html')).toHaveAttribute('data-bs-theme', 'light');
   await expect(page.locator('docs-root')).toHaveAttribute('data-bs-theme', 'dark');
   await expect(page.locator('h1')).toHaveCSS('color-scheme', 'dark');
-  await page.getByRole('link', { name: 'Get started' }).click();
+  await page.getByRole('link', { name: 'Read the docs' }).click();
   await expect(page.locator('h1')).toHaveText('Introduction');
   await expect(page.locator('docs-root')).not.toHaveAttribute('data-bs-theme');
 });
