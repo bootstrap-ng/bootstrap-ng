@@ -12,6 +12,10 @@ import { DatepickerMinMaxExample } from './examples/min-max';
 import min_maxHtml from './examples/min-max.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
 import min_maxTs from './examples/min-max.ts' with { loader: 'text' };
+import { DatepickerMonthYearExample } from './examples/month-year';
+import month_yearHtml from './examples/month-year.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import month_yearTs from './examples/month-year.ts' with { loader: 'text' };
 import { DatepickerMultipleExample } from './examples/multiple';
 import multipleHtml from './examples/multiple.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
@@ -79,6 +83,15 @@ const PAGE: DocsPageData = {
       example: DatepickerMinMaxExample,
       html: min_maxHtml,
       ts: min_maxTs,
+    },
+    {
+      id: 'month-and-year',
+      title: 'Month and year',
+      description:
+        'Click the month in the header to pick from the twelve months, or the year to pick from fifteen years at a time, like Bootstrap’s datepicker. The arrow buttons page through the years. Picking a month or a year shows its days again, and months and years outside <code>min</code> and <code>max</code> can’t be picked. This makes far-away dates, such as a date of birth, quick to reach. Set <code>monthSelection</code> or <code>yearSelection</code> to <code>false</code> on <code>bsCalendar</code>, or in <code>provideBsCalendarConfig()</code> for datepickers too, to show plain text instead.',
+      example: DatepickerMonthYearExample,
+      html: month_yearHtml,
+      ts: month_yearTs,
     },
     {
       id: 'multiple-dates',
@@ -160,7 +173,7 @@ const PAGE: DocsPageData = {
       id: 'accessibility',
       title: 'Accessibility',
       description:
-        'The trigger has <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and the popup is a labeled dialog. Dates form an ARIA grid with one date in the tab order: <kbd>←</kbd> <kbd>→</kbd> move by day, <kbd>↑</kbd> <kbd>↓</kbd> by week, <kbd>Home</kbd> and <kbd>End</kbd> to the start and end of the week, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> by month, and with <kbd>Shift</kbd> by year. Each date is labeled with its full date, today has <code>aria-current="date"</code>, and the month heading is announced when it changes.',
+        'The trigger has <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and the popup is a labeled dialog. Dates form an ARIA grid with one date in the tab order: <kbd>←</kbd> <kbd>→</kbd> move by day, <kbd>↑</kbd> <kbd>↓</kbd> by week, <kbd>Home</kbd> and <kbd>End</kbd> to the start and end of the week, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> by month, and with <kbd>Shift</kbd> by year. Each date is labeled with its full date, today has <code>aria-current="date"</code>, and the month heading is announced when it changes. The month and year buttons in the header are described as “Choose month” and “Choose year”, and move focus into a grid of months or years that works the same way: arrow keys move by one and by row, <kbd>Home</kbd> and <kbd>End</kbd> to the start and end of the row, and <kbd>Page Up</kbd> and <kbd>Page Down</kbd> by a year or a page of years. <kbd>Enter</kbd> picks one and <kbd>Escape</kbd> returns to the days, without closing the popup.',
       example: DatepickerKeyboardExample,
       html: keyboardHtml,
     },
@@ -411,6 +424,42 @@ const PAGE: DocsPageData = {
           type: 'string',
           default: "'Week'",
           description: 'Accessible name of the week numbers column.',
+        },
+        {
+          name: 'monthSelection',
+          type: 'boolean',
+          default: 'true',
+          description: 'Makes the month in the header a button that shows the months to pick from.',
+        },
+        {
+          name: 'yearSelection',
+          type: 'boolean',
+          default: 'true',
+          description: 'Makes the year in the header a button that shows the years to pick from.',
+        },
+        {
+          name: 'monthSelectionLabel',
+          type: 'string',
+          default: "'Choose month'",
+          description: 'Description of the month button in the header.',
+        },
+        {
+          name: 'yearSelectionLabel',
+          type: 'string',
+          default: "'Choose year'",
+          description: 'Description of the year button in the header.',
+        },
+        {
+          name: 'prevYearsLabel',
+          type: 'string',
+          default: "'Previous years'",
+          description: 'Accessible name of the previous button while years are shown.',
+        },
+        {
+          name: 'nextYearsLabel',
+          type: 'string',
+          default: "'Next years'",
+          description: 'Accessible name of the next button while years are shown.',
         },
         {
           name: 'disabled',

@@ -1,0 +1,12 @@
+<label bsFormLabel for="datepickerBirthday">Date of birth</label>
+<input
+  type="text"
+  bsFormControl
+  bsDatepicker
+  id="datepickerBirthday"
+  class="w-12"
+  autocomplete="bday"
+  locale="en-US"
+  min="1900-01-01"
+  [max]="today"
+  placeholder="YYYY-MM-DD" />

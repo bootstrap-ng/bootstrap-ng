@@ -131,6 +131,30 @@ const STATES: {
     },
   },
   {
+    name: 'a datepicker showing months',
+    path: 'forms/datepicker',
+    include: ['[role="dialog"]', '[aria-expanded="true"]'],
+    open: async (page) => {
+      await example(page, 'month-and-year')
+        .getByRole('combobox', { name: 'Date of birth' })
+        .click();
+      await page.getByRole('dialog').locator('button[data-vc="month"]').click();
+      await expect(page.locator('[data-vc="months"]')).toBeVisible();
+    },
+  },
+  {
+    name: 'a datepicker showing years',
+    path: 'forms/datepicker',
+    include: ['[role="dialog"]', '[aria-expanded="true"]'],
+    open: async (page) => {
+      await example(page, 'month-and-year')
+        .getByRole('combobox', { name: 'Date of birth' })
+        .click();
+      await page.getByRole('dialog').locator('button[data-vc="year"]').click();
+      await expect(page.locator('[data-vc="years"]')).toBeVisible();
+    },
+  },
+  {
     name: 'a file dropzone with files and a rejection',
     path: 'forms/file-dropzone',
     include: ['[bsFileDropzone]'],

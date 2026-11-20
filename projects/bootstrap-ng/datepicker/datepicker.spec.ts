@@ -115,6 +115,23 @@ describe('BsDatepicker', () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it('returns to the days on Escape in the month view, without closing', async () => {
+    const { fixture, input, calendar, day } = await setup();
+    input.focus();
+    await fixture.whenStable();
+    calendar()!.querySelector<HTMLButtonElement>('button[data-vc="month"]')!.click();
+    await fixture.whenStable();
+    const june = calendar()!.querySelector<HTMLButtonElement>('[data-vc-months-month="5"]')!;
+    expect(document.activeElement).toBe(june);
+    june.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await fixture.whenStable();
+    expect(calendar()).not.toBeNull();
+    expect(document.activeElement).toBe(day('2026-06-10'));
+    day('2026-06-10').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await fixture.whenStable();
+    expect(calendar()).toBeNull();
+  });
+
   it('moves focus into the calendar with Arrow Down and closes on Escape', async () => {
     const { fixture, input, calendar, day } = await setup();
     input.focus();

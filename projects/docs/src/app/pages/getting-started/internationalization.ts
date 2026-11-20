@@ -146,7 +146,8 @@ export class App {
     {
       name: 'Datepicker',
       path: '/forms/datepicker',
-      inputs: 'calendarLabel, and prevLabel, nextLabel and weekLabel on bsCalendar',
+      inputs:
+        'calendarLabel, and prevLabel, nextLabel, weekLabel, monthSelectionLabel, yearSelectionLabel, prevYearsLabel and nextYearsLabel on bsCalendar',
     },
     {
       name: 'File dropzone',

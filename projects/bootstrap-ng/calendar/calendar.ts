@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
   afterRenderEffect,
@@ -48,12 +49,34 @@ interface CalendarWeek {
   days: (CalendarDay | null)[];
 }
 
+/** A month or a year that can be picked in the month and year views. */
+interface PickerCell {
+  value: number;
+  label: string;
+  disabled: boolean;
+  selected: boolean;
+}
+
+/** Which grid the calendar shows instead of the days: months or years to pick from. */
+type CalendarPicker = 'months' | 'years';
+
+/** Months per row in the month view, and years per row and per page in the year view. */
+const MONTH_COLUMNS = 4;
+const YEAR_COLUMNS = 5;
+const YEARS_PER_PAGE = 15;
+
 interface CalendarMonth {
   id: string;
   year: number;
   month: number;
   weeks: CalendarWeek[];
 }
+
+/** Splits cells into rows. */
+const chunk = <T>(cells: T[], size: number): T[][] =>
+  Array.from({ length: Math.ceil(cells.length / size) }, (_, i) =>
+    cells.slice(i * size, i * size + size),
+  );
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
@@ -154,6 +177,18 @@ export interface BsCalendarConfig {
   weekNumbering: BsWeekNumbering;
   /** Accessible name of the week numbers column. */
   weekLabel: string;
+  /** Makes the month in the header a button that shows the months to pick from. */
+  monthSelection: boolean;
+  /** Makes the year in the header a button that shows the years to pick from. */
+  yearSelection: boolean;
+  /** Description of the month button in the header. */
+  monthSelectionLabel: string;
+  /** Description of the year button in the header. */
+  yearSelectionLabel: string;
+  /** Accessible name of the previous button while years are shown. */
+  prevYearsLabel: string;
+  /** Accessible name of the next button while years are shown. */
+  nextYearsLabel: string;
 }
 
 /** The defaults set with `provideBsCalendarConfig()`. */
@@ -179,6 +214,8 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
  *
  * The dates form an ARIA grid: arrow keys move by day and week, Home and End to the
  * start and end of the week, Page Up and Page Down by month (with Shift, by year).
+ * The month and year in the header are buttons that show grids of months and years to
+ * pick from, like Bootstrap’s datepicker; Escape returns to the days.
  *
  * ```html
  * <div bsCalendar selectionMode="range" [monthsCount]="2" [(value)]="stay"></div>
@@ -187,107 +224,229 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
 @Component({
   selector: '[bsCalendar]',
   exportAs: 'bsCalendar',
+  imports: [NgTemplateOutlet],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => BsCalendar), multi: true },
   ],
   template: `
     <div data-vc="controls">
-      <button
-        type="button"
-        data-vc-arrow="prev"
-        [attr.aria-label]="prevLabel()"
-        (click)="moveView(-1)"></button>
-      <button
-        type="button"
-        data-vc-arrow="next"
-        [attr.aria-label]="nextLabel()"
-        (click)="moveView(1)"></button>
-    </div>
-    <div data-vc="grid">
-      @for (month of months(); track month.id) {
-        <div data-vc="column">
-          <div data-vc="header">
-            <div data-vc-header="content" aria-live="polite" [id]="month.id">
-              <span data-vc="month">{{ monthName(month) }}</span>
-              <span data-vc="year">{{ month.year }}</span>
-            </div>
-          </div>
-          <div
-            data-vc="content"
-            role="grid"
-            [attr.aria-labelledby]="month.id"
-            [attr.aria-multiselectable]="selectionMode() === 'single' ? null : true">
-            <div data-vc="week" role="row" [style.grid-template-columns]="gridColumns()">
-              @if (weekNumbers()) {
-                <abbr
-                  data-vc-week-numbers="title"
-                  class="text-decoration-none d-flex align-items-center justify-content-center fs-xs fw-semibold fg-3"
-                  role="columnheader"
-                  [attr.aria-label]="weekLabel()"
-                  >#</abbr
-                >
-              }
-              @for (day of weekDays(); track day.short) {
-                <abbr
-                  data-vc-week-day
-                  class="text-decoration-none"
-                  role="columnheader"
-                  [attr.aria-label]="day.long"
-                  >{{ day.short }}</abbr
-                >
-              }
-            </div>
-            <div data-vc="dates" role="rowgroup">
-              @for (week of month.weeks; track $index) {
-                <div data-vc-dates="row" role="row" [style.grid-template-columns]="gridColumns()">
-                  @if (weekNumbers()) {
-                    <div
-                      data-vc-week-number
-                      role="rowheader"
-                      class="d-flex align-items-center justify-content-center fs-xs fw-semibold fg-3">
-                      {{ week.number }}
-                    </div>
-                  }
-                  @for (day of week.days; track $index) {
-                    @if (day) {
-                      <div
-                        role="gridcell"
-                        [attr.data-vc-date]="day.iso"
-                        [attr.data-vc-date-month]="day.month"
-                        [attr.data-vc-date-today]="day.iso === today ? '' : null"
-                        [attr.data-vc-date-disabled]="
-                          isDisabled() || isDateDisabled(day.iso) ? '' : null
-                        "
-                        [attr.data-vc-date-selected]="selectedState(day.iso)"
-                        [attr.data-vc-date-hover]="hoverState(day.iso)"
-                        [attr.aria-selected]="selectedState(day.iso) !== null">
-                        <button
-                          type="button"
-                          data-vc-date-btn
-                          [attr.data-iso]="day.iso"
-                          [tabIndex]="day.iso === tabStop() && !day.month ? 0 : -1"
-                          [attr.aria-label]="dateLabel(day.iso)"
-                          [attr.aria-current]="day.iso === today ? 'date' : null"
-                          [attr.aria-disabled]="isDisabled() || isDateDisabled(day.iso) || null"
-                          (click)="pick(day.iso)"
-                          (keydown)="onKeydown($event, day.iso)"
-                          (mouseenter)="hovered.set(day.iso)"
-                          (mouseleave)="hovered.set(null)"
-                          (focus)="focused.set(day.iso)">
-                          {{ day.day }}
-                        </button>
-                      </div>
-                    } @else {
-                      <div data-vc-date role="gridcell"></div>
-                    }
-                  }
-                </div>
-              }
-            </div>
-          </div>
-        </div>
+      @if (picker() !== 'months') {
+        <button
+          type="button"
+          data-vc-arrow="prev"
+          [attr.aria-label]="picker() === 'years' ? prevYearsLabel() : prevLabel()"
+          (click)="picker() === 'years' ? moveYears(-1) : moveView(-1)"></button>
+        <button
+          type="button"
+          data-vc-arrow="next"
+          [attr.aria-label]="picker() === 'years' ? nextYearsLabel() : nextLabel()"
+          (click)="picker() === 'years' ? moveYears(1) : moveView(1)"></button>
       }
     </div>
+    <div
+      data-vc="grid"
+      [style.min-width.px]="pickerSize()?.width"
+      [style.min-height.px]="pickerSize()?.height">
+      @if (picker(); as picker) {
+        <div data-vc="column">
+          <ng-container
+            *ngTemplateOutlet="
+              header;
+              context: {
+                id: idPrefix + '-picker',
+                index: pickerColumn,
+                month: monthName(pickerTarget()),
+                year: pickerYear(),
+              }
+            " />
+          <div data-vc="content">
+            @if (picker === 'months') {
+              <div
+                data-vc="months"
+                class="justify-content-around"
+                role="grid"
+                [attr.aria-labelledby]="idPrefix + '-picker'">
+                @for (row of monthRows(); track $index) {
+                  <div data-vc-months="row" role="row">
+                    @for (month of row; track month.value) {
+                      <div
+                        data-vc-months="cell"
+                        role="gridcell"
+                        [attr.aria-selected]="month.selected || null">
+                        <button
+                          type="button"
+                          [attr.data-vc-months-month]="month.value"
+                          [attr.data-vc-months-month-selected]="month.selected ? '' : null"
+                          [class.fg-4]="month.disabled"
+                          [class.pe-none]="month.disabled"
+                          [tabIndex]="month.value === pickerFocusMonth() ? 0 : -1"
+                          [attr.aria-disabled]="month.disabled || null"
+                          (click)="pickMonth(month)"
+                          (keydown)="onPickerKeydown($event, month.value)">
+                          {{ month.label }}
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <div
+                data-vc="years"
+                class="justify-content-around"
+                role="grid"
+                [attr.aria-label]="yearsRange()">
+                @for (row of yearRows(); track $index) {
+                  <div data-vc-years="row" role="row">
+                    @for (year of row; track year.value) {
+                      <div
+                        data-vc-years="cell"
+                        role="gridcell"
+                        [attr.aria-selected]="year.selected || null">
+                        <button
+                          type="button"
+                          [attr.data-vc-years-year]="year.value"
+                          [attr.data-vc-years-year-selected]="year.selected ? '' : null"
+                          [class.fg-4]="year.disabled"
+                          [class.pe-none]="year.disabled"
+                          [tabIndex]="year.value === pickerYear() ? 0 : -1"
+                          [attr.aria-disabled]="year.disabled || null"
+                          (click)="pickYear(year)"
+                          (keydown)="onPickerKeydown($event, year.value)">
+                          {{ year.label }}
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        @for (month of months(); track month.id; let index = $index) {
+          <div data-vc="column">
+            <ng-container
+              *ngTemplateOutlet="
+                header;
+                context: {
+                  id: month.id,
+                  index: index,
+                  month: monthName(month),
+                  year: month.year,
+                }
+              " />
+            <div
+              data-vc="content"
+              role="grid"
+              [attr.aria-labelledby]="month.id"
+              [attr.aria-multiselectable]="selectionMode() === 'single' ? null : true">
+              <div data-vc="week" role="row" [style.grid-template-columns]="gridColumns()">
+                @if (weekNumbers()) {
+                  <abbr
+                    data-vc-week-numbers="title"
+                    class="text-decoration-none d-flex align-items-center justify-content-center fs-xs fw-semibold fg-3"
+                    role="columnheader"
+                    [attr.aria-label]="weekLabel()"
+                    >#</abbr
+                  >
+                }
+                @for (day of weekDays(); track day.short) {
+                  <abbr
+                    data-vc-week-day
+                    class="text-decoration-none"
+                    role="columnheader"
+                    [attr.aria-label]="day.long"
+                    >{{ day.short }}</abbr
+                  >
+                }
+              </div>
+              <div data-vc="dates" role="rowgroup">
+                @for (week of month.weeks; track $index) {
+                  <div data-vc-dates="row" role="row" [style.grid-template-columns]="gridColumns()">
+                    @if (weekNumbers()) {
+                      <div
+                        data-vc-week-number
+                        role="rowheader"
+                        class="d-flex align-items-center justify-content-center fs-xs fw-semibold fg-3">
+                        {{ week.number }}
+                      </div>
+                    }
+                    @for (day of week.days; track $index) {
+                      @if (day) {
+                        <div
+                          role="gridcell"
+                          [attr.data-vc-date]="day.iso"
+                          [attr.data-vc-date-month]="day.month"
+                          [attr.data-vc-date-today]="day.iso === today ? '' : null"
+                          [attr.data-vc-date-disabled]="
+                            isDisabled() || isDateDisabled(day.iso) ? '' : null
+                          "
+                          [attr.data-vc-date-selected]="selectedState(day.iso)"
+                          [attr.data-vc-date-hover]="hoverState(day.iso)"
+                          [attr.aria-selected]="selectedState(day.iso) !== null">
+                          <button
+                            type="button"
+                            data-vc-date-btn
+                            [attr.data-iso]="day.iso"
+                            [tabIndex]="day.iso === tabStop() && !day.month ? 0 : -1"
+                            [attr.aria-label]="dateLabel(day.iso)"
+                            [attr.aria-current]="day.iso === today ? 'date' : null"
+                            [attr.aria-disabled]="isDisabled() || isDateDisabled(day.iso) || null"
+                            (click)="pick(day.iso)"
+                            (keydown)="onKeydown($event, day.iso)"
+                            (mouseenter)="hovered.set(day.iso)"
+                            (mouseleave)="hovered.set(null)"
+                            (focus)="focused.set(day.iso)">
+                            {{ day.day }}
+                          </button>
+                        </div>
+                      } @else {
+                        <div data-vc-date role="gridcell"></div>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+    @if (monthSelection() || yearSelection()) {
+      <span class="visually-hidden" [id]="idPrefix + '-month-hint'">{{
+        monthSelectionLabel()
+      }}</span>
+      <span class="visually-hidden" [id]="idPrefix + '-year-hint'">{{ yearSelectionLabel() }}</span>
+    }
+    <ng-template #header let-id="id" let-index="index" let-month="month" let-year="year">
+      <div data-vc="header">
+        <div data-vc-header="content" aria-live="polite" [id]="id">
+          @if (monthSelection()) {
+            <button
+              type="button"
+              data-vc="month"
+              [attr.aria-describedby]="idPrefix + '-month-hint'"
+              (click)="togglePicker('months', index)">
+              {{ month }}
+            </button>
+          } @else {
+            <span data-vc="month">{{ month }}</span>
+          }
+          @if (yearSelection()) {
+            <button
+              type="button"
+              data-vc="year"
+              [attr.aria-describedby]="idPrefix + '-year-hint'"
+              (click)="togglePicker('years', index)">
+              {{ year }}
+            </button>
+          } @else {
+            <span data-vc="year">{{ year }}</span>
+          }
+        </div>
+      </div>
+    </ng-template>
   `,
   host: {
     'data-vc': 'calendar',
@@ -296,6 +455,7 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
     // color mode instead of the page's `data-bs-theme`; inherit the page's instead.
     '[style.color-scheme]': 'colorMode() ? null : "inherit"',
     '(focusout)': 'onFocusout($event)',
+    '(keydown)': 'onHostKeydown($event)',
   },
 })
 export class BsCalendar extends BsValueControl<BsDateValue> {
@@ -342,6 +502,22 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   readonly weekNumbering = input<BsWeekNumbering>(this.config.weekNumbering ?? 'iso');
   /** Accessible name of the week numbers column. */
   readonly weekLabel = input(this.config.weekLabel ?? 'Week');
+  /** Makes the month in the header a button that shows the months to pick from. */
+  readonly monthSelection = input(this.config.monthSelection ?? true, {
+    transform: booleanAttribute,
+  });
+  /** Makes the year in the header a button that shows the years to pick from. */
+  readonly yearSelection = input(this.config.yearSelection ?? true, {
+    transform: booleanAttribute,
+  });
+  /** Description of the month button in the header. */
+  readonly monthSelectionLabel = input(this.config.monthSelectionLabel ?? 'Choose month');
+  /** Description of the year button in the header. */
+  readonly yearSelectionLabel = input(this.config.yearSelectionLabel ?? 'Choose year');
+  /** Accessible name of the previous button while years are shown. */
+  readonly prevYearsLabel = input(this.config.prevYearsLabel ?? 'Previous years');
+  /** Accessible name of the next button while years are shown. */
+  readonly nextYearsLabel = input(this.config.nextYearsLabel ?? 'Next years');
 
   /** Emits when the user completes a selection: a date, or a range's end date. */
   readonly selectionComplete = output<BsDateValue>();
@@ -383,7 +559,59 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   });
   protected readonly hovered = signal<string | null>(null);
   private focusPending = false;
-  private readonly idPrefix = uniqueId('bs-calendar');
+  /** Whether the grid is switching, which removes the focused button. */
+  private switching = false;
+  protected readonly idPrefix = uniqueId('bs-calendar');
+
+  /** The grid of months or years shown instead of the days, if any. */
+  protected readonly picker = signal<CalendarPicker | null>(null);
+  /** Index of the month column whose header opened the picker. */
+  protected pickerColumn = 0;
+  /** Month whose header opened the picker: it is shown selected. */
+  protected readonly pickerTarget = signal({ year: 0, month: 0 });
+  /** Year of the months shown, or the focused year among the years shown. */
+  protected readonly pickerYear = signal(0);
+  /** Focused month (0 to 11) among the months shown. */
+  protected readonly pickerFocusMonth = signal(0);
+  /** First of the years shown. */
+  private readonly yearsStart = signal(0);
+  /** Size of the days grid, kept while the picker is shown so the calendar doesn't jump. */
+  protected readonly pickerSize = signal<{ width: number; height: number } | null>(null);
+
+  protected readonly yearsRange = computed(
+    () => `${this.yearsStart()} – ${this.yearsStart() + YEARS_PER_PAGE - 1}`,
+  );
+
+  protected readonly monthRows = computed(() => {
+    const year = this.pickerYear();
+    const target = this.pickerTarget();
+    const short = new Intl.DateTimeFormat(this.locale(), { month: 'short' });
+    const cells = Array.from({ length: 12 }, (_, month): PickerCell => {
+      const date = new Date(year, month, 1);
+      return {
+        value: month,
+        label: short.format(date),
+        disabled: this.isSpanDisabled(toIsoDate(year, month, 1), toIsoDate(year, month + 1, 0)),
+        selected: year === target.year && month === target.month,
+      };
+    });
+    return chunk(cells, MONTH_COLUMNS);
+  });
+
+  protected readonly yearRows = computed(() => {
+    const start = this.yearsStart();
+    const target = this.pickerTarget();
+    const cells = Array.from({ length: YEARS_PER_PAGE }, (_, i): PickerCell => {
+      const year = start + i;
+      return {
+        value: year,
+        label: String(year),
+        disabled: this.isSpanDisabled(toIsoDate(year, 0, 1), toIsoDate(year, 11, 31)),
+        selected: year === target.year,
+      };
+    });
+    return chunk(cells, YEAR_COLUMNS);
+  });
 
   protected readonly weekDays = computed(() => {
     const locale = this.locale();
@@ -465,7 +693,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     () => new Intl.DateTimeFormat(this.locale(), { dateStyle: 'full' }),
   );
 
-  protected monthName(month: CalendarMonth): string {
+  protected monthName(month: { year: number; month: number }): string {
     return this.monthFormat().format(new Date(month.year, month.month, 1));
   }
 
@@ -544,6 +772,10 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   }
 
   protected onFocusout(event: FocusEvent): void {
+    if (this.switching && !event.relatedTarget) {
+      // The focused button is removed when switching between days, months and years.
+      return;
+    }
     const next = event.relatedTarget;
     if (!(next instanceof Node) || !this.element.contains(next)) {
       this.markTouched();
@@ -600,6 +832,160 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
           : toIsoDate(date.getFullYear(), date.getMonth(), 1),
       );
     }
+  }
+
+  /** Shows the months or years to pick from, or the days again if they are shown. */
+  protected togglePicker(picker: CalendarPicker, column: number): void {
+    if (this.picker() === picker) {
+      this.closePicker();
+      return;
+    }
+    if (!this.picker()) {
+      const grid = this.element.querySelector('[data-vc="grid"]');
+      const rect = grid?.getBoundingClientRect();
+      this.pickerSize.set(rect ? { width: rect.width, height: rect.height } : null);
+      this.pickerColumn = column;
+      const month = requireDate(addMonths(this.view(), column));
+      this.pickerTarget.set({ year: month.getFullYear(), month: month.getMonth() });
+      this.pickerYear.set(month.getFullYear());
+      this.pickerFocusMonth.set(month.getMonth());
+    }
+    if (picker === 'years') {
+      this.yearsStart.set(this.pickerYear() - Math.floor(YEARS_PER_PAGE / 2));
+    }
+    this.picker.set(picker);
+    this.afterRender(() => this.focusPicker());
+  }
+
+  /** Shows the previous or next page of years. */
+  protected moveYears(pages: number): void {
+    this.yearsStart.update((start) => start + pages * YEARS_PER_PAGE);
+    this.pickerYear.update((year) => year + pages * YEARS_PER_PAGE);
+  }
+
+  protected pickMonth(cell: PickerCell): void {
+    if (!cell.disabled) {
+      this.showMonth(this.pickerYear(), cell.value);
+    }
+  }
+
+  protected pickYear(cell: PickerCell): void {
+    if (!cell.disabled) {
+      this.showMonth(cell.value, this.pickerTarget().month);
+    }
+  }
+
+  protected onHostKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.picker()) {
+      // Return to the days rather than letting a datepicker close its popup.
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.closePicker();
+    }
+  }
+
+  /** Moves focus among the months or years, which form a grid like the days. */
+  protected onPickerKeydown(event: KeyboardEvent, value: number): void {
+    const months = this.picker() === 'months';
+    const columns = months ? MONTH_COLUMNS : YEAR_COLUMNS;
+    const column = (months ? value : value - this.yearsStart()) % columns;
+    const page = months ? 12 : YEARS_PER_PAGE;
+    let step: number;
+    switch (event.key) {
+      case 'ArrowLeft':
+        step = this.isRtl() ? 1 : -1;
+        break;
+      case 'ArrowRight':
+        step = this.isRtl() ? -1 : 1;
+        break;
+      case 'ArrowUp':
+        step = -columns;
+        break;
+      case 'ArrowDown':
+        step = columns;
+        break;
+      case 'Home':
+        step = -column;
+        break;
+      case 'End':
+        step = columns - 1 - column;
+        break;
+      case 'PageUp':
+        step = -page;
+        break;
+      case 'PageDown':
+        step = page;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    if (!step) {
+      return;
+    }
+    if (months) {
+      const total = this.pickerYear() * 12 + value + step;
+      this.pickerYear.set(Math.floor(total / 12));
+      this.pickerFocusMonth.set(((total % 12) + 12) % 12);
+    } else {
+      const year = value + step;
+      const start = this.yearsStart();
+      this.pickerYear.set(year);
+      this.yearsStart.set(start + Math.floor((year - start) / YEARS_PER_PAGE) * YEARS_PER_PAGE);
+    }
+    this.afterRender(() => this.focusPicker());
+  }
+
+  /** Shows a month (clamped to `min` and `max`) in the picker's column, and the days again. */
+  private showMonth(year: number, month: number): void {
+    let start = toIsoDate(year, month, 1);
+    const min = parseIsoDate(this.min());
+    const max = parseIsoDate(this.max());
+    if (min && addMonths(start, 1) <= toIsoDate(min.getFullYear(), min.getMonth(), min.getDate())) {
+      start = toIsoDate(min.getFullYear(), min.getMonth(), 1);
+    }
+    if (max && start > toIsoDate(max.getFullYear(), max.getMonth(), max.getDate())) {
+      start = toIsoDate(max.getFullYear(), max.getMonth(), 1);
+    }
+    const shown = requireDate(start);
+    const day = requireDate(this.focused()).getDate();
+    const lastDay = new Date(shown.getFullYear(), shown.getMonth() + 1, 0).getDate();
+    this.view.set(addMonths(start, -this.pickerColumn));
+    this.focused.set(toIsoDate(shown.getFullYear(), shown.getMonth(), Math.min(day, lastDay)));
+    this.closePicker();
+  }
+
+  private closePicker(): void {
+    this.picker.set(null);
+    this.pickerSize.set(null);
+    this.afterRender(() => this.focusDate());
+  }
+
+  /** Whether no date from `first` to `last` is within `min` and `max`. */
+  private isSpanDisabled(first: string, last: string): boolean {
+    const min = this.min();
+    const max = this.max();
+    return (!!min && last < min) || (!!max && first > max);
+  }
+
+  private focusPicker(): void {
+    const selector =
+      this.picker() === 'months'
+        ? `[data-vc-months-month="${this.pickerFocusMonth()}"]`
+        : `[data-vc-years-year="${this.pickerYear()}"]`;
+    this.element.querySelector<HTMLElement>(selector)?.focus();
+  }
+
+  /** Runs a callback once the view has switched or moved, to focus a button in it. */
+  private afterRender(callback: () => void): void {
+    this.switching = true;
+    afterNextRender(
+      () => {
+        this.switching = false;
+        callback();
+      },
+      { injector: this.injector },
+    );
   }
 
   private isInView(iso: string, start = this.view()): boolean {
