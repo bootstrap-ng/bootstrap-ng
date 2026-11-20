@@ -759,6 +759,111 @@ describe('BsCalendar', () => {
       );
     });
 
+    describe('Japanese era years (wareki)', () => {
+      @Component({
+        imports: [BsCalendar],
+        template: `<div
+          bsCalendar
+          [locale]="locale()"
+          [value]="value()"
+          [yearSelection]="yearSelection()"
+          wareki></div>`,
+      })
+      class WarekiHost {
+        readonly locale = signal('ja-JP');
+        readonly value = signal('2026-03-31');
+        readonly yearSelection = signal(true);
+      }
+
+      async function warekiSetup() {
+        const fixture = TestBed.createComponent(WarekiHost);
+        fixture.autoDetectChanges();
+        await fixture.whenStable();
+        const root: HTMLElement = fixture.nativeElement;
+        const header = () => root.querySelector('[data-vc-header="content"]')!;
+        const headerYear = () => root.querySelector<HTMLElement>('[data-vc="year"]')!;
+        const year = (value: number) =>
+          root.querySelector<HTMLButtonElement>(`[data-vc-years-year="${value}"]`)!;
+        return { fixture, root, header, headerYear, year, component: fixture.componentInstance };
+      }
+
+      it('shows the era year before the month in the header', async () => {
+        const { fixture, header, headerYear, component } = await warekiSetup();
+        expect(headerYear().textContent.trim()).toBe('令和8年（2026）');
+        // Japanese puts the year first: 令和8年（2026） 3月.
+        expect(header().firstElementChild).toBe(headerYear());
+        expect(header().textContent.replace(/\s+/g, '')).toBe('令和8年（2026）3月');
+        // The era changed on 1 May 2019.
+        component.value.set('2019-04-30');
+        await fixture.whenStable();
+        expect(headerYear().textContent.trim()).toBe('平成31年（2019）');
+        component.value.set('2019-05-01');
+        await fixture.whenStable();
+        expect(headerYear().textContent.trim()).toMatch(/^令和(元|1)年（2019）$/);
+        component.yearSelection.set(false);
+        await fixture.whenStable();
+        expect(headerYear().tagName).toBe('SPAN');
+        expect(headerYear().textContent.trim()).toMatch(/^令和(元|1)年（2019）$/);
+      });
+
+      it('lists era years in three columns in the year view', async () => {
+        const { fixture, root, headerYear, year } = await warekiSetup();
+        headerYear().click();
+        await fixture.whenStable();
+        const grid = root.querySelector<HTMLElement>('[data-vc="years"]')!;
+        expect(grid.style.getPropertyValue('--bs-vc-columns')).toBe('3');
+        expect(root.querySelectorAll('[data-vc-years="row"]')).toHaveLength(5);
+        expect(year(2024).textContent.replace(/\s+/g, '')).toBe('令和6年（2024）');
+        expect(year(2024).querySelector('span')!.textContent).toBe('（2024）');
+        expect(year(2026).hasAttribute('data-vc-years-year-selected')).toBe(true);
+        // A year with two eras is named after the era it ends in.
+        expect(year(2019).textContent.replace(/\s+/g, '')).toMatch(/^令和(元|1)年（2019）$/);
+        expect(grid.getAttribute('aria-label')).toMatch(
+          /^令和(元|1)年（2019） – 令和15年（2033）$/,
+        );
+        root.querySelector<HTMLButtonElement>('[data-vc-arrow="prev"]')!.click();
+        await fixture.whenStable();
+        expect(year(2018).textContent.replace(/\s+/g, '')).toBe('平成30年（2018）');
+        expect(grid.getAttribute('aria-label')).toBe('平成16年（2004） – 平成30年（2018）');
+        root.querySelector<HTMLButtonElement>('[data-vc-arrow="next"]')!.click();
+        await fixture.whenStable();
+        // Arrow Down moves by a row of three.
+        year(2026).dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        await fixture.whenStable();
+        expect(document.activeElement).toBe(year(2029));
+        year(2024).click();
+        await fixture.whenStable();
+        expect(headerYear().textContent.trim()).toBe('令和6年（2024）');
+      });
+
+      it('uses the locale for era names', async () => {
+        const { fixture, header, headerYear, component } = await warekiSetup();
+        component.locale.set('en-US');
+        await fixture.whenStable();
+        expect(headerYear().textContent.trim()).toBe('8 Reiwa (2026)');
+        expect(header().firstElementChild).toBe(headerYear());
+        headerYear().click();
+        await fixture.whenStable();
+        expect(
+          header().ownerDocument.querySelector('[data-vc-years-year="2026"] span')!.textContent,
+        ).toBe('(2026)');
+      });
+
+      it('can be turned on with provideBsCalendarConfig()', async () => {
+        TestBed.configureTestingModule({ providers: [provideBsCalendarConfig({ wareki: true })] });
+        @Component({
+          imports: [BsCalendar],
+          template: `<div bsCalendar locale="ja-JP" value="2026-03-31"></div>`,
+        })
+        class ConfigHost {}
+        const fixture = TestBed.createComponent(ConfigHost);
+        fixture.autoDetectChanges();
+        await fixture.whenStable();
+        const root: HTMLElement = fixture.nativeElement;
+        expect(root.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('令和8年（2026）');
+      });
+    });
+
     it('keeps the control untouched when its focused header button is replaced', async () => {
       const { fixture, headerMonth, component } = await pickerSetup();
       headerMonth().focus();

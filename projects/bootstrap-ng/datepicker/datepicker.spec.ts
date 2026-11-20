@@ -307,6 +307,28 @@ describe('BsDatepicker', () => {
     );
     expect(numbers).toEqual(['23', '24', '25', '26', '27']);
   });
+
+  it('passes wareki to the calendar', async () => {
+    @Component({
+      imports: [BsDatepicker],
+      template: `<input
+        type="text"
+        aria-label="Date"
+        bsDatepicker
+        locale="ja-JP"
+        wareki
+        value="2026-03-31" />`,
+    })
+    class WarekiHost {}
+    const fixture = TestBed.createComponent(WarekiHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    document.body.append(root);
+    root.querySelector('input')!.focus();
+    await fixture.whenStable();
+    expect(root.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('令和8年（2026）');
+  });
 });
 
 describe('BsDatepicker API and options', () => {

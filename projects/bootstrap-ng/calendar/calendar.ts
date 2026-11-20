@@ -53,6 +53,8 @@ interface CalendarWeek {
 interface PickerCell {
   value: number;
   label: string;
+  /** Second line of the label, such as the Gregorian year under a Japanese era year. */
+  detail?: string | undefined;
   disabled: boolean;
   selected: boolean;
 }
@@ -63,6 +65,8 @@ type CalendarPicker = 'months' | 'years';
 /** Months per row in the month view, and years per row and per page in the year view. */
 const MONTH_COLUMNS = 4;
 const YEAR_COLUMNS = 5;
+/** Years per row in the year view with Japanese era years, whose labels are wider. */
+const WAREKI_YEAR_COLUMNS = 3;
 const YEARS_PER_PAGE = 15;
 
 interface CalendarMonth {
@@ -189,6 +193,8 @@ export interface BsCalendarConfig {
   prevYearsLabel: string;
   /** Accessible name of the next button while years are shown. */
   nextYearsLabel: string;
+  /** Shows years as Japanese era years (Wareki), such as 令和8年（2026）. */
+  wareki: boolean;
 }
 
 /** The defaults set with `provideBsCalendarConfig()`. */
@@ -256,7 +262,7 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
                 id: idPrefix + '-picker',
                 index: pickerColumn,
                 month: monthName(pickerTarget()),
-                year: pickerYear(),
+                year: yearLabel(pickerYear(), pickerTarget().month),
               }
             " />
           <div data-vc="content">
@@ -295,6 +301,7 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
                 data-vc="years"
                 class="justify-content-around"
                 role="grid"
+                [style.--bs-vc-columns]="wareki() ? yearColumns() : null"
                 [attr.aria-label]="yearsRange()">
                 @for (row of yearRows(); track $index) {
                   <div data-vc-years="row" role="row">
@@ -309,11 +316,16 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
                           [attr.data-vc-years-year-selected]="year.selected ? '' : null"
                           [class.fg-4]="year.disabled"
                           [class.pe-none]="year.disabled"
+                          [class.flex-column]="year.detail"
+                          [class.lh-1]="year.detail"
                           [tabIndex]="year.value === pickerYear() ? 0 : -1"
                           [attr.aria-disabled]="year.disabled || null"
                           (click)="pickYear(year)"
                           (keydown)="onPickerKeydown($event, year.value)">
                           {{ year.label }}
+                          @if (year.detail) {
+                            <span class="fs-xs">{{ year.detail }}</span>
+                          }
                         </button>
                       </div>
                     }
@@ -333,7 +345,7 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
                   id: month.id,
                   index: index,
                   month: monthName(month),
-                  year: month.year,
+                  year: yearLabel(month.year, month.month),
                 }
               " />
             <div
@@ -422,6 +434,10 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
     <ng-template #header let-id="id" let-index="index" let-month="month" let-year="year">
       <div data-vc="header">
         <div data-vc-header="content" aria-live="polite" [id]="id">
+          <!-- Japanese puts the year before the month: 令和8年（2026） 3月. -->
+          @if (wareki()) {
+            <ng-container *ngTemplateOutlet="yearPart; context: { index: index, year: year }" />
+          }
           @if (monthSelection()) {
             <button
               type="button"
@@ -433,19 +449,24 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
           } @else {
             <span data-vc="month">{{ month }}</span>
           }
-          @if (yearSelection()) {
-            <button
-              type="button"
-              data-vc="year"
-              [attr.aria-describedby]="idPrefix + '-year-hint'"
-              (click)="togglePicker('years', index)">
-              {{ year }}
-            </button>
-          } @else {
-            <span data-vc="year">{{ year }}</span>
+          @if (!wareki()) {
+            <ng-container *ngTemplateOutlet="yearPart; context: { index: index, year: year }" />
           }
         </div>
       </div>
+    </ng-template>
+    <ng-template #yearPart let-index="index" let-year="year">
+      @if (yearSelection()) {
+        <button
+          type="button"
+          data-vc="year"
+          [attr.aria-describedby]="idPrefix + '-year-hint'"
+          (click)="togglePicker('years', index)">
+          {{ year }}
+        </button>
+      } @else {
+        <span data-vc="year">{{ year }}</span>
+      }
     </ng-template>
   `,
   host: {
@@ -518,6 +539,13 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   readonly prevYearsLabel = input(this.config.prevYearsLabel ?? 'Previous years');
   /** Accessible name of the next button while years are shown. */
   readonly nextYearsLabel = input(this.config.nextYearsLabel ?? 'Next years');
+  /**
+   * Shows years as Japanese era years (Wareki) followed by the Gregorian year, such as
+   * 令和8年（2026）, in the header and the year view. Era names come from
+   * `Intl.DateTimeFormat`'s `japanese` calendar in the calendar's `locale`, so use a
+   * Japanese locale such as `ja-JP` for 令和; other locales show names such as Reiwa.
+   */
+  readonly wareki = input(this.config.wareki ?? false, { transform: booleanAttribute });
 
   /** Emits when the user completes a selection: a date, or a range's end date. */
   readonly selectionComplete = output<BsDateValue>();
@@ -578,8 +606,16 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   /** Size of the days grid, kept while the picker is shown so the calendar doesn't jump. */
   protected readonly pickerSize = signal<{ width: number; height: number } | null>(null);
 
-  protected readonly yearsRange = computed(
-    () => `${this.yearsStart()} – ${this.yearsStart() + YEARS_PER_PAGE - 1}`,
+  protected readonly yearsRange = computed(() => {
+    const start = this.yearsStart();
+    const end = start + YEARS_PER_PAGE - 1;
+    return this.wareki()
+      ? `${this.yearLabel(start, 11)} – ${this.yearLabel(end, 11)}`
+      : `${start} – ${end}`;
+  });
+  /** Years per row in the year view. */
+  protected readonly yearColumns = computed(() =>
+    this.wareki() ? WAREKI_YEAR_COLUMNS : YEAR_COLUMNS,
   );
 
   protected readonly monthRows = computed(() => {
@@ -603,14 +639,17 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     const target = this.pickerTarget();
     const cells = Array.from({ length: YEARS_PER_PAGE }, (_, i): PickerCell => {
       const year = start + i;
+      // A year with two eras, such as 2019, is named after the era it ends in (令和元年).
+      const era = this.eraYear(year, 11);
       return {
         value: year,
-        label: String(year),
+        label: era?.name ?? String(year),
+        detail: era?.gregorian,
         disabled: this.isSpanDisabled(toIsoDate(year, 0, 1), toIsoDate(year, 11, 31)),
         selected: year === target.year,
       };
     });
-    return chunk(cells, YEAR_COLUMNS);
+    return chunk(cells, this.yearColumns());
   });
 
   protected readonly weekDays = computed(() => {
@@ -695,6 +734,40 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
 
   protected monthName(month: { year: number; month: number }): string {
     return this.monthFormat().format(new Date(month.year, month.month, 1));
+  }
+
+  /** Formats Japanese era years, and whether to use full-width brackets. */
+  private readonly eraFormat = computed(() => {
+    if (!this.wareki()) {
+      return null;
+    }
+    const format = new Intl.DateTimeFormat(this.locale(), {
+      calendar: 'japanese',
+      era: 'long',
+      year: 'numeric',
+    });
+    return { format, japanese: format.resolvedOptions().locale.startsWith('ja') };
+  });
+
+  /** The Japanese era year of a month, such as 令和8年, and its Gregorian year in brackets. */
+  private eraYear(year: number, month: number): { name: string; gregorian: string } | null {
+    const era = this.eraFormat();
+    if (!era) {
+      return null;
+    }
+    return {
+      name: era.format.format(new Date(year, month, 1)),
+      gregorian: era.japanese ? `（${year}）` : `(${year})`,
+    };
+  }
+
+  /** The year shown in the header: `2026`, or `令和8年（2026）` with `wareki`. */
+  protected yearLabel(year: number, month: number): string {
+    const era = this.eraYear(year, month);
+    if (!era) {
+      return String(year);
+    }
+    return this.eraFormat()?.japanese ? era.name + era.gregorian : `${era.name} ${era.gregorian}`;
   }
 
   protected dateLabel(iso: string): string {
@@ -887,7 +960,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   /** Moves focus among the months or years, which form a grid like the days. */
   protected onPickerKeydown(event: KeyboardEvent, value: number): void {
     const months = this.picker() === 'months';
-    const columns = months ? MONTH_COLUMNS : YEAR_COLUMNS;
+    const columns = months ? MONTH_COLUMNS : this.yearColumns();
     const column = (months ? value : value - this.yearsStart()) % columns;
     const page = months ? 12 : YEARS_PER_PAGE;
     let step: number;

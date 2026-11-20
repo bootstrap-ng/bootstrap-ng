@@ -28,6 +28,10 @@ import { DatepickerFirstWeekdayExample } from './examples/first-weekday';
 import first_weekdayHtml from './examples/first-weekday.html' with { loader: 'text' };
 import { DatepickerWeekNumbersExample } from './examples/week-numbers';
 import week_numbersHtml from './examples/week-numbers.html' with { loader: 'text' };
+import { DatepickerWarekiExample } from './examples/wareki';
+import warekiHtml from './examples/wareki.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import warekiTs from './examples/wareki.ts' with { loader: 'text' };
 import { DatepickerPlacementExample } from './examples/placement';
 import placementHtml from './examples/placement.html' with { loader: 'text' };
 import { DatepickerSizesExample } from './examples/sizes';
@@ -126,6 +130,15 @@ const PAGE: DocsPageData = {
         'Add <code>weekNumbers</code> to show each week’s number before it. Weeks are numbered by ISO 8601, where week 1 holds the year’s first Thursday. Set <code>weekNumbering="simple"</code> to make week 1 the week holding 1 January, as in the US with <code>firstWeekday="0"</code>. The numbers are row headers of the date grid, so screen readers announce them with the dates.',
       example: DatepickerWeekNumbersExample,
       html: week_numbersHtml,
+    },
+    {
+      id: 'japanese-era-years',
+      title: 'Japanese era years',
+      description:
+        "Add <code>wareki</code> to show years as Japanese era years (和暦), followed by the Gregorian year, such as 令和8年（2026）. The year comes before the month in the header, and the year view lists era years in three columns. A year with two eras, such as 2019, is named after the era it ends in. Era names come from <code>Intl.DateTimeFormat</code>’s <code>japanese</code> calendar in the <code>locale</code>, so set a Japanese locale such as <code>ja-JP</code>. Values stay ISO dates; to show the picked date with its era, set <code>dateFormat</code> to options with <code>calendar: 'japanese'</code>.",
+      example: DatepickerWarekiExample,
+      html: warekiHtml,
+      ts: warekiTs,
     },
     {
       id: 'placement',
@@ -237,6 +250,12 @@ const PAGE: DocsPageData = {
           type: "'iso' | 'simple'",
           default: "'iso'",
           description: 'How weeks are numbered: ISO 8601, or from the week holding 1 January.',
+        },
+        {
+          name: 'wareki',
+          type: 'boolean',
+          default: 'false',
+          description: 'Shows years as Japanese era years, such as 令和8年（2026）.',
         },
         {
           name: 'locale',
@@ -387,6 +406,12 @@ const PAGE: DocsPageData = {
           type: "'iso' | 'simple'",
           default: "'iso'",
           description: 'How weeks are numbered: ISO 8601, or from the week holding 1 January.',
+        },
+        {
+          name: 'wareki',
+          type: 'boolean',
+          default: 'false',
+          description: 'Shows years as Japanese era years, such as 令和8年（2026）.',
         },
         {
           name: 'locale',
