@@ -4,6 +4,8 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 ## Unreleased
 
+- Calendar and datepicker: `wareki` year view lists one year per row.
+
 ## 6.0.0-alpha.8 - 2026-11-20
 
 - Breaking: form control `controlSize` is renamed to `size`.

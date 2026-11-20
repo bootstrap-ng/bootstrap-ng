@@ -806,15 +806,16 @@ describe('BsCalendar', () => {
         expect(headerYear().textContent.trim()).toMatch(/^令和(元|1)年（2019）$/);
       });
 
-      it('lists era years in three columns in the year view', async () => {
+      it('lists era years one per row in the year view', async () => {
         const { fixture, root, headerYear, year } = await warekiSetup();
         headerYear().click();
         await fixture.whenStable();
         const grid = root.querySelector<HTMLElement>('[data-vc="years"]')!;
-        expect(grid.style.getPropertyValue('--bs-vc-columns')).toBe('3');
-        expect(root.querySelectorAll('[data-vc-years="row"]')).toHaveLength(5);
-        expect(year(2024).textContent.replace(/\s+/g, '')).toBe('令和6年（2024）');
-        expect(year(2024).querySelector('span')!.textContent).toBe('（2024）');
+        expect(grid.style.getPropertyValue('--bs-vc-columns')).toBe('1');
+        expect(grid.classList).toContain('overflow-y-auto');
+        expect(root.querySelectorAll('[data-vc-years="row"]')).toHaveLength(15);
+        expect(year(2024).textContent.trim()).toBe('令和6年（2024）');
+        expect(year(2024).classList).toContain('fs-sm');
         expect(year(2026).hasAttribute('data-vc-years-year-selected')).toBe(true);
         // A year with two eras is named after the era it ends in.
         expect(year(2019).textContent.replace(/\s+/g, '')).toMatch(/^令和(元|1)年（2019）$/);
@@ -827,10 +828,16 @@ describe('BsCalendar', () => {
         expect(grid.getAttribute('aria-label')).toBe('平成16年（2004） – 平成30年（2018）');
         root.querySelector<HTMLButtonElement>('[data-vc-arrow="next"]')!.click();
         await fixture.whenStable();
-        // Arrow Down moves by a row of three.
+        // Arrow Down moves to the next year, Home and End to the first and last year shown.
         year(2026).dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
         await fixture.whenStable();
-        expect(document.activeElement).toBe(year(2029));
+        expect(document.activeElement).toBe(year(2027));
+        year(2027).dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+        await fixture.whenStable();
+        expect(document.activeElement).toBe(year(2033));
+        year(2033).dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+        await fixture.whenStable();
+        expect(document.activeElement).toBe(year(2019));
         year(2024).click();
         await fixture.whenStable();
         expect(headerYear().textContent.trim()).toBe('令和6年（2024）');
@@ -845,8 +852,8 @@ describe('BsCalendar', () => {
         headerYear().click();
         await fixture.whenStable();
         expect(
-          header().ownerDocument.querySelector('[data-vc-years-year="2026"] span')!.textContent,
-        ).toBe('(2026)');
+          header().ownerDocument.querySelector('[data-vc-years-year="2026"]')!.textContent.trim(),
+        ).toBe('8 Reiwa (2026)');
       });
 
       it('can be turned on with provideBsCalendarConfig()', async () => {

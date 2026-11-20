@@ -53,8 +53,6 @@ interface CalendarWeek {
 interface PickerCell {
   value: number;
   label: string;
-  /** Second line of the label, such as the Gregorian year under a Japanese era year. */
-  detail?: string | undefined;
   disabled: boolean;
   selected: boolean;
 }
@@ -65,8 +63,8 @@ type CalendarPicker = 'months' | 'years';
 /** Months per row in the month view, and years per row and per page in the year view. */
 const MONTH_COLUMNS = 4;
 const YEAR_COLUMNS = 5;
-/** Years per row in the year view with Japanese era years, whose labels are wider. */
-const WAREKI_YEAR_COLUMNS = 3;
+/** Japanese era years, whose labels are wide, are listed one per row. */
+const WAREKI_YEAR_COLUMNS = 1;
 const YEARS_PER_PAGE = 15;
 
 interface CalendarMonth {
@@ -299,9 +297,13 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
             } @else {
               <div
                 data-vc="years"
-                class="justify-content-around"
                 role="grid"
+                [class.justify-content-around]="!wareki()"
+                [class.row-gap-1]="wareki()"
+                [class.overflow-y-auto]="wareki()"
+                [class.position-relative]="wareki()"
                 [style.--bs-vc-columns]="wareki() ? yearColumns() : null"
+                [style.max-height.px]="wareki() ? pickerSize()?.content : null"
                 [attr.aria-label]="yearsRange()">
                 @for (row of yearRows(); track $index) {
                   <div data-vc-years="row" role="row">
@@ -316,16 +318,12 @@ export function provideBsCalendarConfig(config: Partial<BsCalendarConfig>): Prov
                           [attr.data-vc-years-year-selected]="year.selected ? '' : null"
                           [class.fg-4]="year.disabled"
                           [class.pe-none]="year.disabled"
-                          [class.flex-column]="year.detail"
-                          [class.lh-1]="year.detail"
+                          [class.fs-sm]="wareki()"
                           [tabIndex]="year.value === pickerYear() ? 0 : -1"
                           [attr.aria-disabled]="year.disabled || null"
                           (click)="pickYear(year)"
                           (keydown)="onPickerKeydown($event, year.value)">
                           {{ year.label }}
-                          @if (year.detail) {
-                            <span class="fs-xs">{{ year.detail }}</span>
-                          }
                         </button>
                       </div>
                     }
@@ -604,7 +602,12 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   /** First of the years shown. */
   private readonly yearsStart = signal(0);
   /** Size of the days grid, kept while the picker is shown so the calendar doesn't jump. */
-  protected readonly pickerSize = signal<{ width: number; height: number } | null>(null);
+  protected readonly pickerSize = signal<{
+    width: number;
+    height: number;
+    /** Height of the days below the header, which the scrolling list of era years fills. */
+    content: number | null;
+  } | null>(null);
 
   protected readonly yearsRange = computed(() => {
     const start = this.yearsStart();
@@ -640,11 +643,9 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     const cells = Array.from({ length: YEARS_PER_PAGE }, (_, i): PickerCell => {
       const year = start + i;
       // A year with two eras, such as 2019, is named after the era it ends in (令和元年).
-      const era = this.eraYear(year, 11);
       return {
         value: year,
-        label: era?.name ?? String(year),
-        detail: era?.gregorian,
+        label: this.yearLabel(year, 11),
         disabled: this.isSpanDisabled(toIsoDate(year, 0, 1), toIsoDate(year, 11, 31)),
         selected: year === target.year,
       };
@@ -916,7 +917,16 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     if (!this.picker()) {
       const grid = this.element.querySelector('[data-vc="grid"]');
       const rect = grid?.getBoundingClientRect();
-      this.pickerSize.set(rect ? { width: rect.width, height: rect.height } : null);
+      const content = grid?.querySelector('[data-vc="content"]')?.getBoundingClientRect();
+      this.pickerSize.set(
+        rect
+          ? {
+              width: rect.width,
+              height: rect.height,
+              content: content?.height ?? null,
+            }
+          : null,
+      );
       this.pickerColumn = column;
       const month = requireDate(addMonths(this.view(), column));
       this.pickerTarget.set({ year: month.getFullYear(), month: month.getMonth() });
@@ -927,13 +937,17 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
       this.yearsStart.set(this.pickerYear() - Math.floor(YEARS_PER_PAGE / 2));
     }
     this.picker.set(picker);
-    this.afterRender(() => this.focusPicker());
+    this.afterRender(() => {
+      this.focusPicker();
+      this.centerYear();
+    });
   }
 
   /** Shows the previous or next page of years. */
   protected moveYears(pages: number): void {
     this.yearsStart.update((start) => start + pages * YEARS_PER_PAGE);
     this.pickerYear.update((year) => year + pages * YEARS_PER_PAGE);
+    this.afterRender(() => this.centerYear());
   }
 
   protected pickMonth(cell: PickerCell): void {
@@ -961,8 +975,10 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   protected onPickerKeydown(event: KeyboardEvent, value: number): void {
     const months = this.picker() === 'months';
     const columns = months ? MONTH_COLUMNS : this.yearColumns();
-    const column = (months ? value : value - this.yearsStart()) % columns;
     const page = months ? 12 : YEARS_PER_PAGE;
+    // In a list of one year per row, Home and End go to the first and last year shown.
+    const row = columns === 1 ? page : columns;
+    const column = (months ? value : value - this.yearsStart()) % row;
     let step: number;
     switch (event.key) {
       case 'ArrowLeft':
@@ -981,7 +997,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
         step = -column;
         break;
       case 'End':
-        step = columns - 1 - column;
+        step = row - 1 - column;
         break;
       case 'PageUp':
         step = -page;
@@ -1047,6 +1063,15 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
         ? `[data-vc-months-month="${this.pickerFocusMonth()}"]`
         : `[data-vc-years-year="${this.pickerYear()}"]`;
     this.element.querySelector<HTMLElement>(selector)?.focus();
+  }
+
+  /** Scrolls the list of Japanese era years so the focused year is in the middle. */
+  private centerYear(): void {
+    const list = this.element.querySelector<HTMLElement>('[data-vc="years"]');
+    const year = list?.querySelector<HTMLElement>(`[data-vc-years-year="${this.pickerYear()}"]`);
+    if (list && year && list.scrollHeight > list.clientHeight) {
+      list.scrollTop = year.offsetTop - (list.clientHeight - year.offsetHeight) / 2;
+    }
   }
 
   /** Runs a callback once the view has switched or moved, to focus a button in it. */
