@@ -135,7 +135,7 @@ export const appConfig: ApplicationConfig = {
       fn: 'provideBsCalendarConfig',
       path: '/forms/datepicker',
       inputs:
-        'firstWeekday, monthsCount, locale, prevLabel, nextLabel, hideOutsideDays, weekNumbers, weekNumbering, weekLabel, monthSelection, yearSelection, monthSelectionLabel, yearSelectionLabel, prevYearsLabel, nextYearsLabel',
+        'firstWeekday, monthsCount, locale, prevLabel, nextLabel, hideOutsideDays, weekNumbers, weekNumbering, weekLabel, monthSelection, yearSelection, monthSelectionLabel, yearSelectionLabel, prevYearsLabel, nextYearsLabel, wareki',
     },
     {
       fn: 'provideBsChipInputConfig',
@@ -147,7 +147,7 @@ export const appConfig: ApplicationConfig = {
       fn: 'provideBsDatepickerConfig',
       path: '/forms/datepicker',
       inputs:
-        'firstWeekday, monthsCount, weekNumbers, weekNumbering, locale, dateFormat, placement, calendarLabel',
+        'firstWeekday, monthsCount, weekNumbers, weekNumbering, wareki, locale, dateFormat, placement, calendarLabel, size',
     },
     {
       fn: 'provideBsFileDropzoneConfig',

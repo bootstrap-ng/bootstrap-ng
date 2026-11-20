@@ -1,0 +1,28 @@
+<div class="d-flex flex-wrap align-items-end gap-3">
+  <div>
+    <label bsFormLabel for="datepickerWareki">Date</label>
+    <input
+      type="text"
+      bsFormControl
+      bsDatepicker
+      id="datepickerWareki"
+      class="w-12"
+      autocomplete="off"
+      locale="ja-JP"
+      firstWeekday="0"
+      wareki
+      placeholder="YYYY-MM-DD" />
+  </div>
+  <button
+    type="button"
+    bsButton="outline"
+    theme="secondary"
+    bsDatepicker
+    locale="ja-JP"
+    firstWeekday="0"
+    wareki
+    [dateFormat]="eraDate"
+    [(value)]="date">
+    <span bsDatepickerDisplay>日付を選択</span>
+  </button>
+</div>

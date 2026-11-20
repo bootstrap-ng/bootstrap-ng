@@ -57,6 +57,8 @@ export interface BsDatepickerConfig {
   weekNumbers: boolean;
   /** How weeks are numbered: ISO 8601 or from 1 January. */
   weekNumbering: BsWeekNumbering;
+  /** Shows years in the calendar as Japanese era years (Wareki), such as 令和8年（2026）. */
+  wareki: boolean;
   /** Locale for dates and month and day names, such as `en-US`, instead of `LOCALE_ID`. */
   locale: string;
   /** How selected dates are shown. Defaults to the locale's short date. */
@@ -153,6 +155,12 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
   readonly weekNumbers = input(this.config.weekNumbers ?? false, { transform: booleanAttribute });
   /** How weeks are numbered: ISO 8601 or from 1 January. */
   readonly weekNumbering = input<BsWeekNumbering>(this.config.weekNumbering ?? 'iso');
+  /**
+   * Shows years in the calendar as Japanese era years (Wareki), such as 令和8年（2026）.
+   * Use with a Japanese `locale`. To show the selected date with its era too, set
+   * `dateFormat` to options with `calendar: 'japanese'`.
+   */
+  readonly wareki = input(this.config.wareki ?? false, { transform: booleanAttribute });
   /**
    * Locale for dates and month and day names, such as `en-US`. Defaults to Angular's
    * `LOCALE_ID`; `undefined` uses the browser's language.
@@ -368,6 +376,7 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
       monthsCount: this.monthsCount(),
       weekNumbers: this.weekNumbers(),
       weekNumbering: this.weekNumbering(),
+      wareki: this.wareki(),
       locale: this.locale(),
       colorMode: this.colorMode(),
       disabled: this.isDisabled(),
