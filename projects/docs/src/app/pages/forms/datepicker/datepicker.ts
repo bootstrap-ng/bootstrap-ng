@@ -135,7 +135,7 @@ const PAGE: DocsPageData = {
       id: 'japanese-era-years',
       title: 'Japanese era years',
       description:
-        "Add <code>wareki</code> to show years as Japanese era years (和暦), followed by the Gregorian year, such as 令和8年（2026）. The year comes before the month in the header, and the year view lists era years in three columns. A year with two eras, such as 2019, is named after the era it ends in. Era names come from <code>Intl.DateTimeFormat</code>’s <code>japanese</code> calendar in the <code>locale</code>, so set a Japanese locale such as <code>ja-JP</code>. Values stay ISO dates; to show the picked date with its era, set <code>dateFormat</code> to options with <code>calendar: 'japanese'</code>.",
+        "Add <code>wareki</code> to show years as Japanese era years (和暦), followed by the Gregorian year, such as 令和8年（2026）. The year comes before the month in the header, and the year view lists era years one per row. A year with two eras, such as 2019, is named after the era it ends in. Era names come from <code>Intl.DateTimeFormat</code>’s <code>japanese</code> calendar in the <code>locale</code>, so set a Japanese locale such as <code>ja-JP</code>. Values stay ISO dates; to show the picked date with its era, set <code>dateFormat</code> to options with <code>calendar: 'japanese'</code>.",
       example: DatepickerWarekiExample,
       html: warekiHtml,
       ts: warekiTs,
