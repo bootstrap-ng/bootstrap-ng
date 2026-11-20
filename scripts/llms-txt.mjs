@@ -34,6 +34,7 @@ ${sections.join('\n\n')}
 
 - [Full documentation](${baseUrl}llms-full.txt): every page of these docs, with example code and API tables, in one Markdown file
 - [Source code](https://github.com/bootstrap-ng/bootstrap-ng): the library and this docs site
+- [Install skill](https://github.com/bootstrap-ng/bootstrap-ng/blob/main/skills/bootstrap-ng-install/SKILL.md): an agent skill for adding bootstrap-ng to an Angular application (\`npx skills add bootstrap-ng/bootstrap-ng\`)
 - [Bootstrap 6 docs](https://getbootstrap.com/docs/6.0/): the CSS, markup and theming that bootstrap-ng builds on
 `;
 

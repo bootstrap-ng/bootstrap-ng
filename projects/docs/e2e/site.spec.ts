@@ -113,6 +113,20 @@ test('the home page For Agents menu links to llms.txt and chat apps', async ({ p
   );
 });
 
+test('the home page For Agents menu copies the skill install command', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('');
+  await page.getByRole('button', { name: 'For Agents' }).click();
+  await page.locator('.menu.show').getByRole('button', { name: 'Install agent skill' }).click();
+  await expect(page.locator('.toast')).toContainText('Copied the install command');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    'npx skills add bootstrap-ng/bootstrap-ng',
+  );
+});
+
 test('the header marks the current section', async ({ page }) => {
   await page.goto('components/alert/');
   const main = page.locator('nav[aria-label="Main"]');
