@@ -6,6 +6,7 @@ import {
   offset,
   type Placement,
   shift,
+  size,
 } from '@floating-ui/dom';
 
 type BsSide = 'top' | 'bottom' | 'left' | 'right' | 'start' | 'end';
@@ -38,6 +39,11 @@ export interface FloatingOptions {
    * reference if there is no room next to it.
    */
   crossAxisShift?: boolean;
+  /**
+   * Limits its height to the space left in the viewport and scrolls the rest, when it
+   * is taller than that space.
+   */
+  fitHeight?: boolean;
 }
 
 /** CSS position of a floating element. */
@@ -60,6 +66,7 @@ export function autoPosition(
       arrow: arrowElement,
       strategy = 'absolute',
       crossAxisShift = false,
+      fitHeight = false,
       ...rest
     } = options();
     const middleware = [
@@ -69,6 +76,9 @@ export function autoPosition(
       }),
       shift({ padding: 4, crossAxis: crossAxisShift }),
     ];
+    if (fitHeight) {
+      middleware.push(size({ padding: 4, apply: fitAvailableHeight }));
+    }
     if (arrowElement) {
       middleware.push(arrow({ element: arrowElement }));
     }
@@ -105,4 +115,22 @@ export function autoPosition(
   return autoUpdate(reference, floating, () => {
     void update();
   });
+}
+
+/** Caps the floating element at the available height, but only when it needs it. */
+function fitAvailableHeight({
+  availableHeight,
+  elements,
+}: {
+  availableHeight: number;
+  elements: { floating: HTMLElement };
+}): void {
+  const { style } = elements.floating;
+  // Measure the height that the element's own CSS gives it.
+  style.maxHeight = '';
+  style.overflowY = '';
+  if (elements.floating.offsetHeight > availableHeight) {
+    style.maxHeight = `${Math.max(0, Math.floor(availableHeight))}px`;
+    style.overflowY = 'auto';
+  }
 }

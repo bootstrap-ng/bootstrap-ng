@@ -445,6 +445,7 @@ export class BsTypeahead<T = unknown> implements ControlValueAccessor {
     this.stopPositioning = autoPosition(this.element, element, () => ({
       placement: this.placement(),
       offset: 2,
+      fitHeight: true,
     }));
   }
 

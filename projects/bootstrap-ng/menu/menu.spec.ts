@@ -57,6 +57,45 @@ describe('BsMenu', () => {
     await vi.waitFor(() => expect(menu.style.position).toBe('fixed'));
   });
 
+  it('fits a tall menu into the viewport and scrolls it, but leaves a short one alone', async () => {
+    @Component({
+      imports: [BsMenu, BsMenuToggle],
+      template: `
+        <div style="position: fixed; top: 8px; left: 8px">
+          <button type="button" class="toggle" [bsMenuToggle]="menu">Menu</button>
+          <div bsMenu #menu="bsMenu">
+            @for (item of items(); track $index) {
+              <button type="button" class="menu-item" style="display: block; height: 40px">
+                {{ item }}
+              </button>
+            }
+          </div>
+        </div>
+      `,
+    })
+    class TallHost {
+      readonly items = signal(Array.from({ length: 60 }, (_, i) => `Item ${i}`));
+    }
+    const fixture = TestBed.createComponent(TallHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    document.body.append(root);
+    onTestFinished(() => root.remove());
+    const menu = root.querySelector<HTMLElement>('.menu')!;
+    root.querySelector<HTMLButtonElement>('.toggle')!.click();
+    await vi.waitFor(() => expect(menu.style.overflowY).toBe('auto'));
+    expect(menu.getBoundingClientRect().bottom).toBeLessThanOrEqual(window.innerHeight);
+
+    root.querySelector<HTMLButtonElement>('.toggle')!.click();
+    fixture.componentInstance.items.set(['One', 'Two']);
+    await fixture.whenStable();
+    root.querySelector<HTMLButtonElement>('.toggle')!.click();
+    await vi.waitFor(() => expect(menu.style.position).not.toBe(''));
+    await vi.waitFor(() => expect(menu.style.maxHeight).toBe(''));
+    expect(menu.style.overflowY).toBe('');
+  });
+
   async function setup() {
     const fixture = TestBed.createComponent(Host);
     await fixture.whenStable();

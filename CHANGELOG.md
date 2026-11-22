@@ -4,6 +4,7 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 ## Unreleased
 
+- Menu, combobox and typeahead: a menu taller than the space left in the viewport is capped to it and scrolls.
 - Collapse: no opening animation when it renders already open.
 - OTP input: Undo and Redo work, taps and arrow keys follow the slots in right-to-left layouts, and a native form reset updates the slots.
 - Toaster and screen reader announcements: work while a modal dialog is open.
