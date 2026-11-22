@@ -24,8 +24,6 @@ updates:
           - minor
           - patch
     ignore:
-      # Bootstrap 6 is installed from a pinned twbs/bootstrap commit
-      - dependency-name: bootstrap
       # Pinned to match the preinstalled Chromium build
       - dependency-name: playwright
         update-types:
