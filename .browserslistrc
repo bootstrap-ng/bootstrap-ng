@@ -10,8 +10,8 @@
 # support policies. Check with `npx browserslist` after any change.
 
 baseline widely available
-not Chrome < 130
-not Edge < 130
-not Firefox < 132
+not Chrome < 138
+not Edge < 138
+not Firefox < 147
 not iOS < 18
 not Safari < 18

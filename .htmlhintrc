@@ -29,7 +29,7 @@
   "link-rel-canonical-require": false,
   "main-require": false,
   "meta-charset-require": true,
-  "meta-description-require": true,
+  "meta-description-require": false,
   "meta-viewport-require": true,
   "script-disabled": false,
   "space-tab-mixed-disabled": "space",
