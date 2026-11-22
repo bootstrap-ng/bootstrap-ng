@@ -1,4 +1,5 @@
 import { DestroyRef, DOCUMENT, inject, Injectable } from '@angular/core';
+import { modalHost } from './modal';
 
 /** Time between clearing a live region and writing the new message. */
 const ANNOUNCE_DELAY = 100;
@@ -50,13 +51,18 @@ export class BsLiveAnnouncer {
 
   private region(politeness: 'polite' | 'assertive'): HTMLElement {
     let region = this.regions.get(politeness);
+    // Screen readers ignore a region outside an open modal dialog, which makes the
+    // rest of the page inert, so the region moves into the dialog on top.
+    const host = modalHost(this.document);
     if (!region?.isConnected) {
       region = this.document.createElement('div');
       region.className = 'visually-hidden';
       region.setAttribute('aria-live', politeness);
       region.setAttribute('aria-atomic', 'true');
-      this.document.body.append(region);
+      host.append(region);
       this.regions.set(politeness, region);
+    } else if (region.parentElement !== host) {
+      host.append(region);
     }
     return region;
   }

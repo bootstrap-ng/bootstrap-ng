@@ -42,4 +42,24 @@ describe('BsLiveAnnouncer', () => {
     await new Promise((resolve) => setTimeout(resolve, 150));
     expect(region('polite')).toBeNull();
   });
+
+  it('moves its region into an open modal dialog, outside which the page is inert', async () => {
+    const announcer = TestBed.inject(BsLiveAnnouncer);
+    announcer.announce('Before');
+    const polite = region('polite')!;
+    const dialog = document.createElement('dialog');
+    document.body.append(dialog);
+    dialog.showModal();
+    try {
+      announcer.announce('Inside');
+      expect(polite.parentElement).toBe(dialog);
+      await vi.waitFor(() => expect(polite.textContent).toBe('Inside'));
+
+      dialog.close();
+      announcer.announce('After');
+      expect(polite.parentElement).toBe(document.body);
+    } finally {
+      dialog.remove();
+    }
+  });
 });
