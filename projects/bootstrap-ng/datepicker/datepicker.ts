@@ -342,7 +342,8 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
     const valid = parts.every((part) => parseIsoDate(part) && !this.isDateDisabled(part.trim()));
     const mode = this.selectionMode();
     const count = mode === 'single' ? 1 : mode === 'range' ? 2 : Infinity;
-    if (!valid || parts.length > count) {
+    // A range needs both dates. Its start alone would be a half range in the form.
+    if (!valid || parts.length > count || (mode === 'range' && parts.length === 1)) {
       // Put the current value back.
       this.element.value = this.display();
       return;
@@ -440,7 +441,13 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
       calendar.instance.focus();
     }
 
-    const valueSub = calendar.instance.value.subscribe((value) => this.updateValue(value));
+    const valueSub = calendar.instance.value.subscribe((value) => {
+      // A range's start date stays in the calendar until its end date is picked, so the
+      // form never gets a half range, and dismissing the popup keeps the previous range.
+      if (this.selectionMode() !== 'range' || selectedDates(value).length !== 1) {
+        this.updateValue(value);
+      }
+    });
     const completeSub = calendar.instance.selectionComplete.subscribe(() => {
       this.hide();
       this.returnFocus();
