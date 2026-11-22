@@ -282,6 +282,8 @@ export class BsMenu implements OnDestroy {
       placement: this.placement(),
       offset: 2,
       strategy: this.strategy(),
+      // A scrolling menu would clip its submenus, so menus with submenus keep their height.
+      fitHeight: !this.element.querySelector('.submenu'),
     }));
   }
 
