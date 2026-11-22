@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   afterRenderEffect,
   booleanAttribute,
   Directive,
@@ -7,6 +8,7 @@ import {
   input,
   linkedSignal,
   output,
+  signal,
 } from '@angular/core';
 import { uniqueId, waitForTransition } from 'bootstrap-ng/util';
 
@@ -27,6 +29,7 @@ import { uniqueId, waitForTransition } from 'bootstrap-ng/util';
     '[class.show]': 'isOpen()',
     '[class.collapse-horizontal]': 'horizontal()',
     '[id]': 'id()',
+    '[style.transition]': 'firstFrame() ? "none" : null',
   },
 })
 export class BsCollapse {
@@ -50,7 +53,17 @@ export class BsCollapse {
   /** Emits after the content is hidden and its transition has finished. */
   readonly hidden = output();
 
+  /**
+   * Bootstrap's CSS animates an open collapse from zero size with `@starting-style`,
+   * which also plays when it renders already open, such as on page load. Turn the
+   * transition off until the first frame has painted.
+   */
+  protected readonly firstFrame = signal(true);
+
   constructor() {
+    afterNextRender(() => {
+      requestAnimationFrame(() => this.firstFrame.set(false));
+    });
     let rendered: boolean | undefined;
     afterRenderEffect(() => {
       const open = this.isOpen();

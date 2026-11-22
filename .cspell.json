@@ -14,7 +14,9 @@
     "esbenp",
     "GITLEAKS",
     "htmlhint",
+    "inputmode",
     "llms",
+    "maxlength",
     "nvmrc",
     "Oliff",
     "ossf",
@@ -28,6 +30,7 @@
     "tagname",
     "twbs",
     "TYPELESS",
+    "wareki",
     "WCAG",
     "ZIZMOR"
   ],

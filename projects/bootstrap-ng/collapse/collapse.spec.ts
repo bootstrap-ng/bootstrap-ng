@@ -69,4 +69,17 @@ describe('BsCollapse', () => {
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('.collapse').classList).toContain('show');
   });
+
+  it('skips the opening transition when it renders already open', async () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.open.set(true);
+    fixture.detectChanges();
+    const content: HTMLElement = fixture.nativeElement.querySelector('.collapse');
+    expect(content.style.transition).toBe('none');
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(content.style.transition).toBe('');
+    });
+  });
 });
