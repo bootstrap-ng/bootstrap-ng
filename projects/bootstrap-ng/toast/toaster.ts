@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { BS_CLOSE_BUTTON_CONFIG, BsCloseButton } from 'bootstrap-ng/close-button';
-import { BsTheme, themeClass } from 'bootstrap-ng/util';
+import { BsTheme, modalHost, themeClass } from 'bootstrap-ng/util';
 import { BS_TOAST_CONFIG, BsToast, BsToastClose } from './toast';
 
 /** Where `BsToaster` stacks its toasts on the screen, such as `'bottom-end'`. */
@@ -150,7 +150,8 @@ export class BsToasterContainer {
 
 /**
  * Shows toasts from code. The toasts stack in a fixed `.toast-container` that is
- * added to the page the first time a toast is shown.
+ * added to the page the first time a toast is shown. While a modal dialog is open,
+ * the container moves into it, so its toasts stay above the backdrop and usable.
  *
  * ```ts
  * private readonly toaster = inject(BsToaster);
@@ -185,6 +186,7 @@ export class BsToaster {
     let removed!: () => void;
     const afterHidden = new Promise<void>((resolve) => (removed = resolve));
     const container = this.getContainer().instance;
+    this.moveContainer();
     const ref: BsToastRef = {
       hide: () => {
         dismissed = true;
@@ -225,11 +227,34 @@ export class BsToaster {
       this.appRef.attachView(container.hostView);
       this.document.body.appendChild(container.location.nativeElement);
       this.container = container;
+      // `toggle` and `close` don't bubble, so listen in the capture phase.
+      this.document.addEventListener('toggle', this.onDialogToggle, true);
+      this.document.addEventListener('close', this.onDialogToggle, true);
       this.appRef.onDestroy(() => {
+        this.document.removeEventListener('toggle', this.onDialogToggle, true);
+        this.document.removeEventListener('close', this.onDialogToggle, true);
         container.destroy();
         this.container = null;
       });
     }
     return this.container;
+  }
+
+  private readonly onDialogToggle = (event: Event) => {
+    if (event.target instanceof HTMLDialogElement) {
+      this.moveContainer();
+    }
+  };
+
+  /**
+   * Keeps the toasts in the open modal dialog on top, if any. Outside it they would be
+   * covered by its backdrop and inert.
+   */
+  private moveContainer(): void {
+    const element = this.container?.location.nativeElement as HTMLElement | undefined;
+    const host = modalHost(this.document);
+    if (element && element.parentElement !== host) {
+      host.append(element);
+    }
   }
 }

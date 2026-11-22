@@ -107,4 +107,26 @@ describe('BsToaster', () => {
     await ref.afterHidden;
     await vi.waitFor(() => expect(toasts().length).toBe(0));
   });
+
+  it('shows toasts inside an open modal dialog, and moves them back when it closes', async () => {
+    const toaster = TestBed.inject(BsToaster);
+    const dialog = document.createElement('dialog');
+    document.body.append(dialog);
+    dialog.showModal();
+    try {
+      const ref = toaster.show({ body: 'Inside', autohide: false });
+      await vi.waitFor(() => expect(toasts()[0]?.classList).toContain('show'));
+      expect(container()!.parentElement).toBe(dialog);
+
+      dialog.close();
+      await vi.waitFor(() => expect(container()!.parentElement).toBe(document.body));
+
+      dialog.showModal();
+      await vi.waitFor(() => expect(container()!.parentElement).toBe(dialog));
+      ref.hide();
+      await ref.afterHidden;
+    } finally {
+      dialog.remove();
+    }
+  });
 });

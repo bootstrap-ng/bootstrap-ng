@@ -4,6 +4,7 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 ## Unreleased
 
+- Toaster and screen reader announcements: work while a modal dialog is open.
 - Datepicker: a range only reaches the form once both dates are picked, and dismissing the popup keeps the previous range.
 - Calendar and datepicker: `wareki` year view lists one year per row.
 
