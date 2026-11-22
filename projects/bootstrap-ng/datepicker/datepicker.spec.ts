@@ -201,6 +201,31 @@ describe('BsDatepicker', () => {
     expect(calendar()).not.toBeNull();
   });
 
+  it('keeps a half range out of the value and restores the previous range on dismiss', async () => {
+    const { fixture, input, calendar, day, component } = await setup();
+    const selected = (iso: string) =>
+      calendar()!.querySelector(`[data-vc-date="${iso}"]`)!.hasAttribute('data-vc-date-selected');
+    component.mode.set('range');
+    component.date.setValue(['2026-06-10', '2026-06-14']);
+    input.focus();
+    await fixture.whenStable();
+    day('2026-06-20').click();
+    await fixture.whenStable();
+    expect(selected('2026-06-20')).toBe(true);
+    expect(component.date.value).toEqual(['2026-06-10', '2026-06-14']);
+    expect(input.value).toBe('2026-06-10 – 2026-06-14');
+
+    calendar()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await fixture.whenStable();
+    expect(calendar()).toBeNull();
+    expect(component.date.value).toEqual(['2026-06-10', '2026-06-14']);
+
+    input.click();
+    await fixture.whenStable();
+    expect(selected('2026-06-10')).toBe(true);
+    expect(selected('2026-06-20')).toBe(false);
+  });
+
   it('restores the text of a button without a display when cleared', async () => {
     @Component({
       imports: [BsDatepicker],
@@ -489,7 +514,7 @@ describe('BsDatepicker API and options', () => {
     expect(component.dates.value).toEqual([]);
   });
 
-  it('parses a typed range and rejects more than two dates', async () => {
+  it('parses a typed range and rejects one date or more than two', async () => {
     const { fixture, component, input, type } = await setup();
     component.mode.set('range');
     component.dates.setValue([]);
@@ -498,6 +523,10 @@ describe('BsDatepicker API and options', () => {
     expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
     expect(input.value).toBe('2026-06-01 – 2026-06-08');
     await type('2026-06-01 - 2026-06-02 - 2026-06-03');
+    expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
+    expect(input.value).toBe('2026-06-01 – 2026-06-08');
+    // A start date alone is not a range.
+    await type('2026-06-05');
     expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
     expect(input.value).toBe('2026-06-01 – 2026-06-08');
     // Unchanged text is ignored.

@@ -4,6 +4,7 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 ## Unreleased
 
+- Datepicker: a range only reaches the form once both dates are picked, and dismissing the popup keeps the previous range.
 - Calendar and datepicker: `wareki` year view lists one year per row.
 
 ## 6.0.0-alpha.8 - 2026-11-20
