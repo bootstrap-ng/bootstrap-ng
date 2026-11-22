@@ -140,6 +140,7 @@ export class BsOtp {
     '(focus)': 'onFocus()',
     '(blur)': 'onBlur()',
     '(pointerdown)': 'onPointerDown($event)',
+    '(keydown)': 'onKeydown($event)',
     '(keyup)': 'sync()',
     '(select)': 'sync()',
   },
@@ -173,10 +174,20 @@ export class BsOtpInput {
   };
   private dispatching = false;
 
+  /** A native form reset restores the value without an `input` event. */
+  private readonly onReset = (event: Event) => {
+    if (event.target === this.element.form) {
+      // The browser restores the default value after the event.
+      setTimeout(() => this.sync());
+    }
+  };
+
   constructor() {
-    inject(DestroyRef).onDestroy(() =>
-      this.document.removeEventListener('selectionchange', this.onSelectionChange),
-    );
+    this.document.addEventListener('reset', this.onReset, true);
+    inject(DestroyRef).onDestroy(() => {
+      this.document.removeEventListener('selectionchange', this.onSelectionChange);
+      this.document.removeEventListener('reset', this.onReset, true);
+    });
     // Forms write the value straight to the element, so pick it up after each render.
     afterEveryRender({ read: () => this.sync() });
   }
@@ -203,7 +214,9 @@ export class BsOtpInput {
       this.setValue(sanitized);
     }
     if (this.document.activeElement === this.element) {
-      this.selectSlot(this.firstEmptyIndex());
+      // After typing, move to the next slot; after autofill, to the first empty one.
+      const caret = this.element.selectionStart ?? this.element.value.length;
+      this.selectSlot(Math.min(caret, this.firstEmptyIndex()));
     }
     this.afterChange();
   }
@@ -228,50 +241,53 @@ export class BsOtpInput {
     if (!inserted) {
       return;
     }
-    this.element.setRangeText(inserted, start, end, 'end');
-    this.setValue(this.element.value);
-    this.afterChange();
+    this.element.setSelectionRange(start, end);
+    // The browser's editing command keeps the paste in its undo history and fires
+    // `input`, which `onInput` handles. It is deprecated, but has no replacement.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- see above
+    if (!this.document.execCommand('insertText', false, inserted)) {
+      this.element.setRangeText(inserted, start, end, 'end');
+      this.setValue(this.element.value);
+      this.afterChange();
+    }
   }
 
   protected onBeforeInput(event: InputEvent): void {
-    const { inputType, data } = event;
-    const value = this.element.value;
-    if (inputType === 'insertText' && data?.length === 1) {
-      // Overwrite the character at the caret instead of inserting one.
-      event.preventDefault();
-      const char = this.sanitize(data);
-      if (!char) {
-        return;
-      }
-      const start = this.element.selectionStart ?? 0;
-      const end = this.element.selectionEnd ?? start;
-      const index = Math.min(start, this.maxlength() - 1);
-      const chars = Array.from(value);
-      if (end > start) {
-        // Replace the whole selection, like a native input.
-        chars.splice(start, end - start, char);
-      } else {
-        chars[index] = char;
-      }
-      this.setValue(chars.join(''));
-      this.selectSlot(index + 1);
-      this.afterChange();
-    } else if (inputType === 'deleteContentBackward') {
-      event.preventDefault();
-      const start = this.element.selectionStart ?? 0;
-      const end = this.element.selectionEnd ?? start;
-      const chars = Array.from(value);
-      if (end > start) {
-        chars.splice(start, end - start);
-        this.setValue(chars.join(''));
-        this.selectSlot(start);
-      } else if (start > 0) {
-        chars.splice(start - 1, 1);
-        this.setValue(chars.join(''));
-        this.selectSlot(start - 1);
-      }
-      this.afterChange();
+    const { inputType, data, isComposing } = event;
+    if (inputType !== 'insertText' || isComposing || data?.length !== 1) {
+      return;
     }
+    if (!this.sanitize(data)) {
+      event.preventDefault();
+      return;
+    }
+    // Overwrite the character at the caret by selecting it, and let the browser make
+    // the edit, so Undo and Redo keep working.
+    const start = this.element.selectionStart ?? 0;
+    if (start === this.element.selectionEnd) {
+      this.selectSlot(start);
+    }
+  }
+
+  /** In right-to-left layouts the slots run right to left, so the arrow keys follow them. */
+  protected onKeydown(event: KeyboardEvent): void {
+    const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
+    if (
+      (key !== 'ArrowLeft' && key !== 'ArrowRight') ||
+      altKey ||
+      ctrlKey ||
+      metaKey ||
+      shiftKey ||
+      !this.isRtl()
+    ) {
+      return;
+    }
+    event.preventDefault();
+    const start = this.element.selectionStart ?? 0;
+    const end = this.element.selectionEnd ?? start;
+    const right = key === 'ArrowRight';
+    const index = end - start > 1 ? (right ? start : end) : start + (right ? -1 : 1);
+    this.selectSlot(Math.min(index, this.firstEmptyIndex()));
   }
 
   protected onFocus(): void {
@@ -288,9 +304,11 @@ export class BsOtpInput {
 
   protected onPointerDown(event: PointerEvent): void {
     const slots = [...(this.element.parentElement?.querySelectorAll('.otp-slot') ?? [])];
-    const index = slots.findIndex(
-      (slot, i) => event.clientX <= slot.getBoundingClientRect().right || i === slots.length - 1,
-    );
+    const rtl = this.isRtl();
+    const index = slots.findIndex((slot, i) => {
+      const { left, right } = slot.getBoundingClientRect();
+      return (rtl ? event.clientX >= left : event.clientX <= right) || i === slots.length - 1;
+    });
     if (index === -1) {
       return;
     }
@@ -325,6 +343,11 @@ export class BsOtpInput {
     if (value.length === this.maxlength()) {
       this.otp.complete.emit(value);
     }
+  }
+
+  private isRtl(): boolean {
+    const slots = this.element.parentElement?.querySelector('.otp-slots') ?? this.element;
+    return getComputedStyle(slots).direction === 'rtl';
   }
 
   private firstEmptyIndex(): number {

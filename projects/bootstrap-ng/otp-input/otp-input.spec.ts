@@ -1,8 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { userEvent } from 'vitest/browser';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BsOtp, BsOtpInput, BsOtpType } from './otp-input';
+
+/** Real key presses, so the browser edits the input and records Undo history. */
+// eslint-disable-next-line @angular-eslint/no-experimental -- Vitest's API, not Angular's
+const press = (keys: string) => userEvent.keyboard(keys);
 
 describe('BsOtp', () => {
   @Component({
@@ -76,29 +81,55 @@ describe('BsOtp', () => {
     const { fixture, input, slots, beforeInput, component } = await setup();
     input.focus();
     await fixture.whenStable();
-    input.setSelectionRange(0, 1);
-    await beforeInput('insertText', '9');
+    input.setSelectionRange(0, 0);
+    await press('9');
+    await fixture.whenStable();
     expect(component.code.value).toBe('92');
+    // The next slot is selected, ready to overwrite.
+    expect([input.selectionStart, input.selectionEnd]).toEqual([1, 2]);
     await beforeInput('insertText', 'x');
     expect(component.code.value).toBe('92');
     expect(slots()[0]).toBe('9');
     input.setSelectionRange(2, 2);
-    await beforeInput('deleteContentBackward');
+    await press('{Backspace}');
+    await fixture.whenStable();
     expect(component.code.value).toBe('9');
   });
 
+  it('keeps edits in the undo history', async () => {
+    const { fixture, input, paste, component } = await setup();
+    input.focus();
+    await fixture.whenStable();
+    await press('3');
+    await fixture.whenStable();
+    expect(component.code.value).toBe('123');
+    await paste('456');
+    expect(component.code.value).toBe('123456');
+    await press('{Control>}z{/Control}');
+    await fixture.whenStable();
+    expect(component.code.value).toBe('123');
+    await press('{Control>}z{/Control}');
+    await fixture.whenStable();
+    expect(component.code.value).toBe('12');
+    await press('{Control>}{Shift>}z{/Shift}{/Control}');
+    await fixture.whenStable();
+    expect(component.code.value).toBe('123');
+  });
+
   it('replaces a selection of several characters', async () => {
-    const { fixture, input, beforeInput, component } = await setup();
+    const { fixture, input, component } = await setup();
     component.code.setValue('123456');
     input.focus();
     await fixture.whenStable();
     input.setSelectionRange(0, 6);
-    await beforeInput('insertText', '9');
+    await press('9');
+    await fixture.whenStable();
     expect(component.code.value).toBe('9');
     component.code.setValue('123456');
     await fixture.whenStable();
     input.setSelectionRange(2, 4);
-    await beforeInput('insertText', '0');
+    await press('0');
+    await fixture.whenStable();
     expect(component.code.value).toBe('12056');
   });
 
@@ -174,18 +205,20 @@ describe('BsOtp', () => {
   });
 
   it('deletes a selection or the character before the caret', async () => {
-    const { fixture, input, beforeInput, component } = await setup();
+    const { fixture, input, component } = await setup();
     component.code.setValue('123456');
     input.focus();
     await fixture.whenStable();
     input.setSelectionRange(1, 3);
-    await beforeInput('deleteContentBackward');
+    await press('{Backspace}');
+    await fixture.whenStable();
     expect(component.code.value).toBe('1456');
     // The slot that took the deleted characters' place is selected, ready to overwrite.
     expect([input.selectionStart, input.selectionEnd]).toEqual([1, 2]);
 
     input.setSelectionRange(0, 0);
-    await beforeInput('deleteContentBackward');
+    await press('{Backspace}');
+    await fixture.whenStable();
     expect(component.code.value).toBe('1456');
   });
 
@@ -306,15 +339,63 @@ describe('BsOtp', () => {
   });
 
   it('accepts letters and digits for the alphanumeric type', async () => {
-    const { fixture, input, beforeInput, component } = await setup();
+    const { fixture, input, component } = await setup();
     component.type.set('alphanumeric');
     component.code.setValue('');
     input.focus();
     await fixture.whenStable();
     expect(input.getAttribute('pattern')).toBe('[A-Za-z0-9]*');
-    await beforeInput('insertText', 'a');
-    await beforeInput('insertText', '1');
-    await beforeInput('insertText', '-');
+    await press('a1-');
+    await fixture.whenStable();
     expect(component.code.value).toBe('a1');
+  });
+
+  it('follows the visible slots with taps and arrow keys in right-to-left layouts', async () => {
+    const { fixture, host, input, component } = await setup();
+    const style = document.createElement('style');
+    style.textContent = '.otp-slots { display: flex } .otp-slot { width: 2rem }';
+    document.head.append(style);
+    host.dir = 'rtl';
+    onTestFinished(() => style.remove());
+    component.code.setValue('1234');
+    input.focus();
+    await fixture.whenStable();
+    const slot = host.querySelectorAll('.otp-slot')[1].getBoundingClientRect();
+    input.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        clientX: slot.left + slot.width / 2,
+        clientY: slot.top + slot.height / 2,
+        cancelable: true,
+      }),
+    );
+    expect([input.selectionStart, input.selectionEnd]).toEqual([1, 2]);
+
+    await press('{ArrowLeft}');
+    expect([input.selectionStart, input.selectionEnd]).toEqual([2, 3]);
+    await press('{ArrowRight}{ArrowRight}');
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 1]);
+  });
+
+  it('shows the restored value after a native form reset', async () => {
+    @Component({
+      imports: [BsOtp, BsOtpInput],
+      template: `<form>
+        <div bsOtp><input bsOtpInput maxlength="4" aria-label="Code" value="12" /></div>
+      </form>`,
+    })
+    class FormHost {}
+    const fixture = TestBed.createComponent(FormHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    const input = root.querySelector('input')!;
+    const slots = () =>
+      Array.from(root.querySelectorAll('.otp-slot')).map((s) => s.textContent?.trim());
+    input.focus();
+    await press('34');
+    await fixture.whenStable();
+    expect(slots()).toEqual(['1', '2', '3', '4']);
+    root.querySelector('form')!.reset();
+    await vi.waitFor(() => expect(slots()).toEqual(['1', '2', '', '']));
   });
 });
