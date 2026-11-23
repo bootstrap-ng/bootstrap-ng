@@ -66,7 +66,7 @@
     "@vitest/coverage-v8": "^5.1.1",
     "@vitest/eslint-plugin": "^1.6.28",
     "angular-eslint": "^22.8.0",
-    "bootstrap": "6.0.0-alpha.1",
+    "bootstrap": "^6.0.0-alpha.2",
     "bundlewatch": "^1.2.0",
     "eslint": "^10.15.0",
     "eslint-plugin-playwright": "^2.12.2",
