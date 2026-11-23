@@ -2,6 +2,10 @@
 
 Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may include breaking changes.
 
+## Unreleased
+
+- Docs and dev dependency target Bootstrap 6.0.0-alpha.2.
+
 ## 6.0.0-alpha.9 - 2026-11-22
 
 - Menu, combobox and typeahead: a menu taller than the space left in the viewport is capped to it and scrolls.
