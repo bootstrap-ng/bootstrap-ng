@@ -351,6 +351,9 @@ export class BsTypeahead<T = unknown> implements ControlValueAccessor {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    if (event.isComposing) {
+      return;
+    }
     const count = this.results().length;
     switch (event.key) {
       case 'ArrowDown':

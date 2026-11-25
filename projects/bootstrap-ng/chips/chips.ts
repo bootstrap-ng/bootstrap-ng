@@ -317,6 +317,9 @@ export class BsChipInput extends BsValueControl<string[]> {
   }
 
   protected onInputKeydown(event: KeyboardEvent): void {
+    if (event.isComposing) {
+      return;
+    }
     const input = this.input().nativeElement;
     const atStart = input.selectionStart === 0 && input.selectionEnd === 0;
     const last = this.value().length - 1;

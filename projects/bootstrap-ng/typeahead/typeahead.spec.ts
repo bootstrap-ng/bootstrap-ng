@@ -129,8 +129,13 @@ describe('BsTypeahead', () => {
     input.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  function key(name: string): KeyboardEvent {
-    const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
+  function key(name: string, options: KeyboardEventInit = {}): KeyboardEvent {
+    const event = new KeyboardEvent('keydown', {
+      key: name,
+      bubbles: true,
+      cancelable: true,
+      ...options,
+    });
     input.dispatchEvent(event);
     return event;
   }
@@ -189,6 +194,18 @@ describe('BsTypeahead', () => {
     expect(host.control.value).toBe('Kiwi');
     expect(key('Enter').defaultPrevented).toBe(false);
     expect(listbox()).toBeNull();
+  });
+
+  it('ignores keyboard shortcuts while IME composition is active', async () => {
+    await setup();
+    type('ap');
+    await vi.waitFor(() => expect(options().length).toBe(3));
+    key('ArrowDown', { isComposing: true });
+    expect(input.hasAttribute('aria-activedescendant')).toBe(false);
+    key('Enter', { isComposing: true });
+    expect(input.value).toBe('ap');
+    expect(host.control.value).toBe('ap');
+    expect(host.picked()).toBeNull();
   });
 
   it('picks a suggestion with the mouse', async () => {

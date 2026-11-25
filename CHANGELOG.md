@@ -4,6 +4,9 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 ## Unreleased
 
+- Icon: inline and loaded SVGs reject obfuscated `javascript:` URLs and strip animation elements that can set `href` at runtime.
+- Chip input and typeahead: arrow keys and Enter no longer run while IME composition is active.
+- Rating: decreasing from zero no longer raises the value when `resettable` is off.
 - Docs and dev dependency target Bootstrap 6.0.0-alpha.2.
 
 ## 6.0.0-alpha.9 - 2026-11-22

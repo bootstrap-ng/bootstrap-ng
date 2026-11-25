@@ -210,18 +210,80 @@ async function fetchSvg(url: string): Promise<SVGSVGElement> {
   return clean(doc.documentElement, `Icon ${url}`);
 }
 
+const UNSAFE_SVG_LOCAL_NAMES = new Set([
+  'animate',
+  'animatemotion',
+  'animatetransform',
+  'discard',
+  'foreignobject',
+  'handler',
+  'script',
+  'set',
+]);
+
+function characterFromCodePoint(code: number): string | null {
+  if (!Number.isInteger(code) || code < 0 || code > 0x10_ffff) {
+    return null;
+  }
+  try {
+    return String.fromCodePoint(code);
+  } catch {
+    return null;
+  }
+}
+
+/** Decodes a few attribute entities that browsers expand when matching URL schemes. */
+function decodeAttributeEntities(value: string): string {
+  return value
+    .replace(
+      /&#(\d+);/g,
+      (entity, digits: string) => characterFromCodePoint(Number(digits)) ?? entity,
+    )
+    .replace(
+      /&#x([0-9a-f]+);/gi,
+      (entity, hex: string) => characterFromCodePoint(Number.parseInt(hex, 16)) ?? entity,
+    );
+}
+
+function stripControls(value: string): string {
+  return Array.from(value)
+    .filter((char) => {
+      const code = char.codePointAt(0) ?? 0;
+      return code > 0x1f && (code < 0x7f || code > 0x9f);
+    })
+    .join('');
+}
+
+/** Normalizes a URL attribute so schemes hidden with entities or whitespace are visible. */
+function normalizedUrlScheme(value: string): string {
+  const decoded = stripControls(decodeAttributeEntities(value));
+  return decoded.trim().toLowerCase().replace(/\s+/g, '');
+}
+
+function isUnsafeUrl(value: string): boolean {
+  const scheme = normalizedUrlScheme(value);
+  const scriptScheme = 'script:';
+  return (
+    scheme.startsWith(`java${scriptScheme}`) ||
+    scheme.startsWith(`vb${scriptScheme}`) ||
+    scheme.startsWith('data:text/html')
+  );
+}
+
 /** Removes scripts and event handlers from an SVG, and sizes and colors it like text. */
 function clean(svg: Element | undefined, description: string): SVGSVGElement {
   // Checked by name, since the server has no SVGSVGElement class.
   if (svg?.localName !== 'svg' || svg.namespaceURI !== 'http://www.w3.org/2000/svg') {
     throw new Error(`${description} is not an SVG.`);
   }
-  for (const element of Array.from(svg.querySelectorAll('script, foreignObject'))) {
-    element.remove();
+  for (const element of Array.from(svg.querySelectorAll('*'))) {
+    if (UNSAFE_SVG_LOCAL_NAMES.has(element.localName.toLowerCase())) {
+      element.remove();
+    }
   }
   for (const element of [svg, ...Array.from(svg.querySelectorAll('*'))]) {
     for (const { name, value } of Array.from(element.attributes)) {
-      if (/^on/i.test(name) || (/href$/i.test(name) && /^\s*javascript:/i.test(value))) {
+      if (/^on/i.test(name) || (/(?:^|:)href$/i.test(name) && isUnsafeUrl(value))) {
         element.removeAttribute(name);
       }
     }

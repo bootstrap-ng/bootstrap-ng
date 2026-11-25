@@ -225,6 +225,37 @@ describe('BsIconRegistry', () => {
     expect(() => registry.parse('nothing')).toThrow('is not an SVG');
   });
 
+  it('strips obfuscated javascript: links and SVG animation that sets href', () => {
+    const registry = TestBed.inject(BsIconRegistry);
+    const tab = registry.parse(
+      '<svg xmlns="http://www.w3.org/2000/svg"><a href="java&#9;script:alert(1)"><path d="M0 0"/></a></svg>',
+    );
+    expect(tab.querySelector('a')!.hasAttribute('href')).toBe(false);
+
+    const animated = registry.parse(
+      '<svg xmlns="http://www.w3.org/2000/svg"><a><set attributeName="href" to="javascript:alert(1)"/></a></svg>',
+    );
+    expect(animated.querySelector('set')).toBeNull();
+    expect(animated.querySelector('a')!.hasAttribute('href')).toBe(false);
+
+    const xlink = registry.parse(
+      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="javascript:alert(1)"/></svg>',
+    );
+    expect(xlink.querySelector('use')!.hasAttribute('xlink:href')).toBe(false);
+
+    const mixedCase = registry.parse(
+      '<svg xmlns="http://www.w3.org/2000/svg"><foreignObject srcdoc="&lt;script&gt;alert(1)&lt;/script&gt;"/><animateTransform/><path d="M0 0"/></svg>',
+    );
+    expect(mixedCase.querySelector('foreignObject')).toBeNull();
+    expect(mixedCase.querySelector('animateTransform')).toBeNull();
+    expect(mixedCase.querySelector('path')).not.toBeNull();
+
+    const fragment = registry.parse(
+      '<svg xmlns="http://www.w3.org/2000/svg"><a href="#&amp;#1114112;"><path d="M0 0"/></a></svg>',
+    );
+    expect(fragment.querySelector('a')!.getAttribute('href')).toBe('#&#1114112;');
+  });
+
   it('fetches each URL once and returns copies', async () => {
     const registry = TestBed.inject(BsIconRegistry);
     const url = svgUrl('<svg xmlns="http://www.w3.org/2000/svg"/>');

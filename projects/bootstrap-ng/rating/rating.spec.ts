@@ -128,6 +128,16 @@ describe('BsRating', () => {
     expect(component.value()).toBe(2);
   });
 
+  it('does not raise the value when decreasing from zero without resettable', async () => {
+    const { fixture, host, component } = await setup();
+    component.value.set(0);
+    await fixture.whenStable();
+    key(host, 'ArrowDown');
+    expect(component.value()).toBe(0);
+    key(host, 'ArrowLeft');
+    expect(component.value()).toBe(0);
+  });
+
   it('clears the value when resettable', async () => {
     const { fixture, host, stars, component } = await setup();
     component.resettable.set(true);
