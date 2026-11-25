@@ -72,6 +72,16 @@ describe('BsChipInput', () => {
     expect(root.querySelector('label')!.htmlFor).toBe(input.id);
   });
 
+  it('ignores Enter while IME composition is active', async () => {
+    const { input, chips, component } = await setup();
+    input.value = 'さ';
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, isComposing: true }),
+    );
+    await vi.waitFor(() => expect(component.tags.value).toEqual(['One', 'Two']));
+    expect(chips()).toHaveLength(2);
+  });
+
   it('adds chips with Enter and the separator', async () => {
     const { chips, type, component } = await setup();
     await type('Three', 'Enter');

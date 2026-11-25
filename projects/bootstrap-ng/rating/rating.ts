@@ -243,6 +243,7 @@ export class BsRating extends BsValueControl<number> {
     const rtl = getComputedStyle(this.element).direction === 'rtl';
     const lowest = this.resettable() ? 0 : step;
     let next: number;
+    let decreasing = false;
     switch (event.key) {
       case 'ArrowUp':
       case rtl ? 'ArrowLeft' : 'ArrowRight':
@@ -250,6 +251,7 @@ export class BsRating extends BsValueControl<number> {
         break;
       case 'ArrowDown':
       case rtl ? 'ArrowRight' : 'ArrowLeft':
+        decreasing = true;
         next = Math.ceil(value / step) * step - step;
         break;
       case 'Home':
@@ -269,7 +271,8 @@ export class BsRating extends BsValueControl<number> {
         return;
     }
     event.preventDefault();
-    this.select(Math.min(this.max(), Math.max(lowest, next)));
+    const capped = decreasing ? Math.min(value, Math.max(lowest, next)) : Math.max(lowest, next);
+    this.select(Math.min(this.max(), capped));
   }
 
   private select(value: number): void {
