@@ -22,6 +22,11 @@ on:
 permissions:
   contents: read
 
+# Cancel superseded runs when a pull request branch is pushed again (e.g. after a force-push).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
