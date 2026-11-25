@@ -2,16 +2,22 @@
 name: 'Check spelling'
 on:
   pull_request:
-    branches-ignore:
-      - 'dependabot/**'
+    # ready_for_review is needed so the check runs when a draft pull request is marked ready.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   spellcheck:
     runs-on: ubuntu-slim
-    if: github.event.pull_request.draft != true
+    # Skip drafts and Dependabot pull requests. (branches-ignore on pull_request filters the
+    # base branch, not the head branch, so it never matched Dependabot's branches.)
+    if: github.event.pull_request.draft != true && github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
