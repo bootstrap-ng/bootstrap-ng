@@ -544,6 +544,18 @@ describe('BsDatepicker API and options', () => {
     expect(input.value).toBe('en-US:10');
   });
 
+  it('formats typed text that matches the current value', async () => {
+    const { fixture, component, input, type } = await setup();
+    component.mode.set('single');
+    component.dates.setValue('2026-06-10');
+    component.dateFormat.set({ month: 'long', day: 'numeric' });
+    await fixture.whenStable();
+    expect(input.value).toBe('June 10');
+    await type('2026-06-10');
+    expect(component.dates.value).toBe('2026-06-10');
+    expect(input.value).toBe('June 10');
+  });
+
   it('takes defaults from provideBsDatepickerConfig and provideBsCalendarConfig', async () => {
     TestBed.configureTestingModule({
       providers: [

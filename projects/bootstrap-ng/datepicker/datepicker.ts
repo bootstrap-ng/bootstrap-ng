@@ -350,6 +350,9 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
     }
     const dates = parts.map((part) => part.trim());
     this.updateValue(mode === 'single' ? (dates[0] ?? null) : [...dates].sort());
+    // Show the formatted dates, even when they match the current value and the
+    // display effect doesn't run again.
+    this.element.value = this.display();
   }
 
   protected onFocusout(event: Event): void {
