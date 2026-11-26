@@ -297,6 +297,16 @@ test('arrow keys move focus between toolbar buttons', async ({ page }) => {
   await expect(toolbar.getByRole('button', { name: '1' })).toBeFocused();
 });
 
+test('radio toggle buttons select one option at a time', async ({ page }) => {
+  await page.goto('components/button-group/');
+  const group = example(page, 'radio-toggles').getByRole('group', {
+    name: 'Basic radio toggle button group',
+  });
+  await group.getByText('Radio 2').click();
+  await expect(group.getByRole('radio', { name: 'Radio 2' })).toBeChecked();
+  await expect(group.getByRole('radio', { name: 'Radio 1' })).not.toBeChecked();
+});
+
 test('a tooltip shows on hover and on focus', async ({ page }) => {
   await page.goto('components/tooltip/');
   const demo = example(page, 'basic');

@@ -6,6 +6,10 @@ import { ButtonGroupToolbarExample } from './examples/toolbar';
 import toolbarHtml from './examples/toolbar.html' with { loader: 'text' };
 import { ButtonGroupSizesExample } from './examples/sizes';
 import sizesHtml from './examples/sizes.html' with { loader: 'text' };
+import { ButtonGroupCheckboxExample } from './examples/checkbox';
+import checkboxHtml from './examples/checkbox.html' with { loader: 'text' };
+import { ButtonGroupRadioExample } from './examples/radio';
+import radioHtml from './examples/radio.html' with { loader: 'text' };
 
 const PAGE: DocsPageData = {
   title: 'Button group',
@@ -19,6 +23,22 @@ const PAGE: DocsPageData = {
         '<code>bsButtonGroup</code> adds <code>.btn-group</code> and <code>role="group"</code>. Give each group an <code>aria-label</code>.',
       example: ButtonGroupBasicExample,
       html: basicHtml,
+    },
+    {
+      id: 'checkbox-toggles',
+      title: 'Checkbox toggle buttons',
+      description:
+        'Wrap a checkbox in a <code>&lt;label&gt;</code> with <code>.btn-check</code> and button classes to make a toggle button. The input stays in the page for keyboard and screen reader users, and the label shows the checked state.',
+      example: ButtonGroupCheckboxExample,
+      html: checkboxHtml,
+    },
+    {
+      id: 'radio-toggles',
+      title: 'Radio toggle buttons',
+      description:
+        'Use radios with a shared <code>name</code> so only one button in the group is selected. Add <code>disabled</code> to an input to disable that option.',
+      example: ButtonGroupRadioExample,
+      html: radioHtml,
     },
     {
       id: 'toolbar',
