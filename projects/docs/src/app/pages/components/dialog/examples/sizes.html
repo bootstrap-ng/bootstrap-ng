@@ -1,0 +1,23 @@
+<div class="d-flex flex-wrap gap-2">
+  @for (size of sizes; track size) {
+    <button type="button" bsButton theme="primary" (click)="dialog.show()">
+      Open .dialog-{{ size }}
+    </button>
+
+    <dialog
+      bsDialog
+      #dialog="bsDialog"
+      [class]="`dialog-${size}`"
+      [attr.aria-labelledby]="`sizes-dialog-title-${size}`">
+      <div class="dialog-header">
+        <h2 class="dialog-title" [id]="`sizes-dialog-title-${size}`">.dialog-{{ size }}</h2>
+        <button bsCloseButton bsDialogClose></button>
+      </div>
+      <div class="dialog-body">
+        <p>
+          This dialog uses the <code>.dialog-{{ size }}</code> width.
+        </p>
+      </div>
+    </dialog>
+  }
+</div>

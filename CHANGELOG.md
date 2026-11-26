@@ -4,6 +4,7 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 ## Unreleased
 
+- Dialog service: `size` accepts `'2xl'`.
 - Icon: inline and loaded SVGs reject obfuscated `javascript:` URLs and strip animation elements that can set `href` at runtime.
 - Chip input and typeahead: arrow keys and Enter no longer run while IME composition is active.
 - Rating: decreasing from zero no longer raises the value when `resettable` is off.
