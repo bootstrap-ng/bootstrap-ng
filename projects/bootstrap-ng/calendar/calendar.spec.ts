@@ -202,6 +202,44 @@ describe('BsCalendar', () => {
     expect(component.date.value).toBe('2026-06-12');
   });
 
+  it('skips disabled dates when moving with the keyboard', async () => {
+    const { fixture, button } = await setup();
+    button('2026-06-04').focus();
+    button('2026-06-04').dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true }),
+    );
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(button('2026-06-03'));
+    expect(document.activeElement).not.toBe(button('2026-06-02'));
+  });
+
+  it('stops keyboard navigation before stepping past the valid ISO range', async () => {
+    @Component({
+      imports: [BsCalendar],
+      template: `<div bsCalendar locale="en-US" max="9998-12-31" value="9998-06-10"></div>`,
+    })
+    class MaxHost {}
+    const fixture = TestBed.createComponent(MaxHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host: HTMLElement = fixture.nativeElement.querySelector('[bsCalendar]');
+    const button = host.querySelector<HTMLButtonElement>(
+      '[data-vc-date-btn][data-iso="9998-06-10"]',
+    )!;
+    button.focus();
+    button.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'PageDown',
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(button);
+    expect(host.querySelector('[data-vc-date-btn][data-iso="10000-06-10"]')).toBeNull();
+  });
+
   it('selects ranges and multiple dates', async () => {
     const { fixture, button, cell, component } = await setup();
     component.mode.set('range');
@@ -297,8 +335,9 @@ describe('BsCalendar', () => {
     expect(document.activeElement).toBe(button('2026-07-21'));
     expect(button('2026-07-21').tabIndex).toBe(0);
     await key('2026-07-21', 'PageUp', true);
-    expect(host.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('2025');
-    expect(document.activeElement).toBe(button('2025-07-21'));
+    // Before min (2026-06-03), so focus stays in 2026.
+    expect(host.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('2026');
+    expect(document.activeElement).toBe(button('2026-07-21'));
   });
 
   it('swaps Arrow Left and Right in right-to-left layouts, and moves by week and year', async () => {
@@ -318,18 +357,18 @@ describe('BsCalendar', () => {
     await key('2026-06-10', 'ArrowLeft');
     expect(document.activeElement).toBe(button('2026-06-09'));
     await key('2026-06-09', 'ArrowUp');
-    expect(document.activeElement).toBe(button('2026-06-02'));
+    expect(document.activeElement).toBe(button('2026-06-09'));
 
     host.dir = 'rtl';
-    await key('2026-06-02', 'ArrowLeft');
-    expect(document.activeElement).toBe(button('2026-06-03'));
-    await key('2026-06-03', 'ArrowRight');
-    expect(document.activeElement).toBe(button('2026-06-02'));
+    await key('2026-06-09', 'ArrowLeft');
+    expect(document.activeElement).toBe(button('2026-06-10'));
+    await key('2026-06-10', 'ArrowRight');
+    expect(document.activeElement).toBe(button('2026-06-09'));
     host.dir = '';
 
-    await key('2026-06-02', 'PageDown', true);
+    await key('2026-06-09', 'PageDown', true);
     expect(host.querySelector('[data-vc="year"]')!.textContent.trim()).toBe('2027');
-    expect(document.activeElement).toBe(button('2027-06-02'));
+    expect(document.activeElement).toBe(button('2027-06-09'));
     // Other keys, such as letters, are left alone.
     expect((await key('2027-06-02', 'a')).defaultPrevented).toBe(false);
   });
@@ -500,6 +539,32 @@ describe('BsCalendar', () => {
       const yearsGrid = () => host.querySelector('[data-vc="years"]')!;
       return { ...ctx, headerMonth, headerYear, month, year, yearsGrid };
     }
+
+    it('disables months when dateDisabled blocks every day in the month', async () => {
+      @Component({
+        imports: [BsCalendar],
+        template: `<div
+          bsCalendar
+          locale="en-US"
+          min="2026-01-01"
+          max="2026-12-31"
+          [dateDisabled]="blockMay"
+          value="2026-06-10"></div>`,
+      })
+      class BlockHost {
+        readonly blockMay = (iso: string) => iso.startsWith('2026-05');
+      }
+      const fixture = TestBed.createComponent(BlockHost);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const host: HTMLElement = fixture.nativeElement.querySelector('[bsCalendar]');
+      host.querySelector<HTMLButtonElement>('button[data-vc="month"]')!.click();
+      await fixture.whenStable();
+      const may = host.querySelector<HTMLButtonElement>('[data-vc-months-month="4"]')!;
+      const june = host.querySelector<HTMLButtonElement>('[data-vc-months-month="5"]')!;
+      expect(may.getAttribute('aria-disabled')).toBe('true');
+      expect(june.hasAttribute('aria-disabled')).toBe(false);
+    });
 
     it('picks a month from the month view', async () => {
       const { fixture, host, headerMonth, month, button, component } = await pickerSetup();

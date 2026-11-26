@@ -443,7 +443,14 @@ export class BsDatepicker extends BsValueControl<BsDateValue> implements Validat
       return;
     }
     this.setTextError(null);
-    this.updateValue(this.selectionMode() === 'single' ? (dates[0] ?? null) : [...dates].sort());
+    const mode = this.selectionMode();
+    const value: BsDateValue =
+      mode === 'single'
+        ? (dates[0] ?? null)
+        : mode === 'multiple'
+          ? [...new Set(dates)].sort()
+          : [...dates].sort();
+    this.updateValue(value);
     // Show the formatted dates, even when they match the current value and the
     // display effect doesn't run again.
     this.element.value = this.display();
@@ -459,21 +466,24 @@ export class BsDatepicker extends BsValueControl<BsDateValue> implements Validat
     const whole = this.readDate(text);
     const dates = whole ? [whole] : [];
     if (!whole) {
-      // Keep the separators, to join back dates that contain them, such as "Nov 27, 2026".
-      const tokens = text.split(/(\s*(?:,|–|—|\s-\s|\bto\b)\s*)/);
-      for (let start = 0; start < tokens.length;) {
-        // The longest run of tokens from `start` that is a date. Even tokens are text.
-        let end = tokens.length - 1;
-        let date = this.readDate(tokens.slice(start).join(''));
-        while (!date && end > start) {
-          end -= 2;
-          date = this.readDate(tokens.slice(start, end + 1).join(''));
+      dates.push(...this.readIsoHyphenRange(text, mode));
+      if (!dates.length) {
+        // Keep the separators, to join back dates that contain them, such as "Nov 27, 2026".
+        const tokens = text.split(/(\s*(?:,|–|—|\s-\s|\bto\b)\s*)/);
+        for (let start = 0; start < tokens.length;) {
+          // The longest run of tokens from `start` that is a date. Even tokens are text.
+          let end = tokens.length - 1;
+          let date = this.readDate(tokens.slice(start).join(''));
+          while (!date && end > start) {
+            end -= 2;
+            date = this.readDate(tokens.slice(start, end + 1).join(''));
+          }
+          if (!date) {
+            return 'parse';
+          }
+          dates.push(date);
+          start = end + 2;
         }
-        if (!date) {
-          return 'parse';
-        }
-        dates.push(date);
-        start = end + 2;
       }
     }
     // A range needs both dates. Its start alone would be a half range in the form.
@@ -487,6 +497,22 @@ export class BsDatepicker extends BsValueControl<BsDateValue> implements Validat
     }
     const dateDisabled = this.dateDisabled();
     return dateDisabled && dates.some((iso) => dateDisabled(iso)) ? 'disabled' : dates;
+  }
+
+  /** Reads a range typed as `YYYY-MM-DD-YYYY-MM-DD`. */
+  private readIsoHyphenRange(text: string, mode: BsDateSelectionMode): string[] {
+    if (mode !== 'range') {
+      return [];
+    }
+    const rangeMatch = /^(\d{4}-\d{2}-\d{2})-(\d{4}-\d{2}-\d{2})$/.exec(text.trim());
+    const rawStart = rangeMatch?.[1];
+    const rawEnd = rangeMatch?.[2];
+    if (!rawStart || !rawEnd) {
+      return [];
+    }
+    const start = this.readDate(rawStart);
+    const end = this.readDate(rawEnd);
+    return start && end ? [start, end] : [];
   }
 
   /** Reads one typed date with `dateParser`, the `dateFormat` options, wareki or as ISO. */
@@ -641,6 +667,8 @@ export class BsDatepicker extends BsValueControl<BsDateValue> implements Validat
     this.cleanups = [
       () => valueSub.unsubscribe(),
       () => completeSub.unsubscribe(),
+      () => host.removeEventListener('keydown', onKeydown),
+      () => host.removeEventListener('focusout', onFocusout),
       () => this.document.removeEventListener('click', onDocumentClick, true),
       autoPosition(reference, host, () => ({ placement: this.placement(), offset: 4 })),
     ];

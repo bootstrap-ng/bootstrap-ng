@@ -1,7 +1,12 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { BsDateSelectionMode, BsDateValue, provideBsCalendarConfig } from 'bootstrap-ng/calendar';
+import {
+  BsDateSelectionMode,
+  BsDateValue,
+  parseIsoDate,
+  provideBsCalendarConfig,
+} from 'bootstrap-ng/calendar';
 import { BsFormControl, BsFormControlSize } from 'bootstrap-ng/forms';
 import {
   BsDateFormat,
@@ -373,6 +378,7 @@ describe('BsDatepicker API and options', () => {
           max="2026-06-20"
           [selectionMode]="mode()"
           [dateFormat]="dateFormat()"
+          [dateParser]="dateParser()"
           [open]="open()"
           (openChange)="changes.push($event)"
           [formControl]="dates" />
@@ -384,6 +390,7 @@ describe('BsDatepicker API and options', () => {
     readonly picker = viewChild.required<BsDatepicker>('picker');
     readonly mode = signal<BsDateSelectionMode>('multiple');
     readonly dateFormat = signal<BsDateFormat | null>(null);
+    readonly dateParser = signal<BsDateParser | null>(null);
     readonly open = signal(false);
     dates = new FormControl<BsDateValue>(['2026-06-10']);
     changes: boolean[] = [];
@@ -455,6 +462,31 @@ describe('BsDatepicker API and options', () => {
     expect(calendar()!.previousElementSibling).toBe(root.querySelector('label'));
   });
 
+  it('removes popup host listeners when the calendar closes', async () => {
+    const { fixture, input, calendar, picker } = await setup();
+    const removed: string[] = [];
+    const original = HTMLElement.prototype.removeEventListener;
+    const spy = vi.spyOn(HTMLElement.prototype, 'removeEventListener').mockImplementation(function (
+      this: HTMLElement,
+      type: string,
+      ...args: [EventListenerOrEventListenerObject, (boolean | AddEventListenerOptions)?]
+    ) {
+      if (this.id?.startsWith('bs-datepicker')) {
+        removed.push(type);
+      }
+      original.call(this, type, ...args);
+    });
+    input.focus();
+    await fixture.whenStable();
+    expect(calendar()).not.toBeNull();
+    picker.hide();
+    await fixture.whenStable();
+    expect(calendar()).toBeNull();
+    expect(removed).toContain('keydown');
+    expect(removed).toContain('focusout');
+    spy.mockRestore();
+  });
+
   it('closes on Escape in the input', async () => {
     const { fixture, input, calendar } = await setup();
     input.focus();
@@ -505,6 +537,14 @@ describe('BsDatepicker API and options', () => {
     expect(calendar()).toBeNull();
   });
 
+  it('deduplicates typed dates in multiple mode', async () => {
+    const { component, input, type } = await setup();
+    component.dates.setValue([]);
+    await type('2026-06-10, 2026-06-10');
+    expect(component.dates.value).toEqual(['2026-06-10']);
+    expect(input.value).toBe('2026-06-10');
+  });
+
   it('parses several typed dates in multiple mode, sorted', async () => {
     const { component, input, type } = await setup();
     await type('2026-06-12, 2026-06-03');
@@ -525,6 +565,21 @@ describe('BsDatepicker API and options', () => {
     await type('2026-06-08 to 2026-06-01');
     expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
     expect(input.value).toBe('2026-06-01 – 2026-06-08');
+    await type('2026-06-01-2026-06-08');
+    expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
+    expect(input.value).toBe('2026-06-01 – 2026-06-08');
+    component.dateFormat.set(null);
+    component.dates.setValue([]);
+    component.dateParser.set((text) =>
+      text === '2026-06-01' ? '2026-06-02' : parseIsoDate(text) ? text.trim() : null,
+    );
+    await fixture.whenStable();
+    await type('2026-06-01-2026-06-08');
+    expect(component.dates.value).toEqual(['2026-06-02', '2026-06-08']);
+    component.dateParser.set(null);
+    await fixture.whenStable();
+    await type('2026-06-01 – 2026-06-08');
+    expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
     await type('2026-06-01 - 2026-06-02 - 2026-06-03');
     expect(component.dates.value).toEqual(['2026-06-01', '2026-06-08']);
     expect(input.value).toBe('2026-06-01 – 2026-06-08');

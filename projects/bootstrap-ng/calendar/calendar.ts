@@ -859,35 +859,45 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   protected onKeydown(event: KeyboardEvent, iso: string): void {
     const weekday = (requireDate(iso).getDay() - this.firstWeekday() + 7) % 7;
     let next: string;
+    let step: (candidate: string) => string;
     switch (event.key) {
       case 'ArrowLeft':
-        next = addDays(iso, this.isRtl() ? 1 : -1);
+        step = (d) => addDays(d, this.isRtl() ? 1 : -1);
+        next = step(iso);
         break;
       case 'ArrowRight':
-        next = addDays(iso, this.isRtl() ? -1 : 1);
+        step = (d) => addDays(d, this.isRtl() ? -1 : 1);
+        next = step(iso);
         break;
       case 'ArrowUp':
-        next = addDays(iso, -7);
+        step = (d) => addDays(d, -7);
+        next = step(iso);
         break;
       case 'ArrowDown':
-        next = addDays(iso, 7);
+        step = (d) => addDays(d, 7);
+        next = step(iso);
         break;
       case 'Home':
+        step = (d) => addDays(d, 1);
         next = addDays(iso, -weekday);
         break;
       case 'End':
+        step = (d) => addDays(d, -1);
         next = addDays(iso, 6 - weekday);
         break;
       case 'PageUp':
-        next = addMonths(iso, event.shiftKey ? -12 : -1);
+        step = (d) => addMonths(d, event.shiftKey ? -12 : -1);
+        next = step(iso);
         break;
       case 'PageDown':
-        next = addMonths(iso, event.shiftKey ? 12 : 1);
+        step = (d) => addMonths(d, event.shiftKey ? 12 : 1);
+        next = step(iso);
         break;
       default:
         return;
     }
     event.preventDefault();
+    next = this.skipDisabled(iso, next, step);
     if (next === this.focused()) {
       // The signal won't change, so focus the date now rather than after a render.
       this.focusDate();
@@ -1050,11 +1060,53 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     this.afterRender(() => this.focusDate());
   }
 
-  /** Whether no date from `first` to `last` is within `min` and `max`. */
+  /** Whether no date from `first` to `last` can be selected. */
   private isSpanDisabled(first: string, last: string): boolean {
+    if (this.isDisabled()) {
+      return true;
+    }
     const min = this.min();
     const max = this.max();
-    return (!!min && last < min) || (!!max && first > max);
+    if ((!!min && last < min) || (!!max && first > max)) {
+      return true;
+    }
+    return !this.spanHasSelectableDay(first, last);
+  }
+
+  /** Whether at least one date between `first` and `last` can be selected. */
+  private spanHasSelectableDay(first: string, last: string): boolean {
+    const [start, end] = first <= last ? [first, last] : [last, first];
+    let iso = start;
+    for (;;) {
+      if (!this.isDateDisabled(iso)) {
+        return true;
+      }
+      if (iso >= end) {
+        return false;
+      }
+      iso = addDays(iso, 1);
+    }
+  }
+
+  private skipDisabled(iso: string, next: string, step: (candidate: string) => string): string {
+    if (this.isDisabled() || !parseIsoDate(next)) {
+      return iso;
+    }
+    if (!this.isDateDisabled(next)) {
+      return next;
+    }
+    let candidate = next;
+    for (let i = 0; i < 400; i++) {
+      if (!this.isDateDisabled(candidate)) {
+        return candidate;
+      }
+      const further = step(candidate);
+      if (further === candidate || !parseIsoDate(further)) {
+        break;
+      }
+      candidate = further;
+    }
+    return iso;
   }
 
   private focusPicker(): void {
