@@ -4,6 +4,8 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 ## Unreleased
 
+- Datepicker: typed multiple selection deduplicates dates; range mode accepts unspaced ISO hyphen pairs; the popup removes host listeners when it closes.
+- Calendar: keyboard navigation skips disabled days; month and year pickers respect `dateDisabled`.
 - Dialog service: `size` accepts `'2xl'`.
 - Datepicker: typed text that matches the current value is formatted again.
 - Form adorn: a `bs-icon` in `bsFormAdornIcon` takes the adorn icon size.
