@@ -1,0 +1,95 @@
+<h1>VS Code extension</h1>
+<p class="fs-lg fg-2">
+  Autocomplete, hovers, snippets and diagnostics for bootstrap-ng in Angular templates, in Visual
+  Studio Code and other editors that use Open VSX.
+</p>
+
+<h2 class="mt-11" id="install" docsHeading>Install</h2>
+<p>Install the extension from either marketplace:</p>
+<ul>
+  <li>
+    <a href="https://marketplace.visualstudio.com/items?itemName=coliff.bootstrap-ng"
+      >VS Code Marketplace</a
+    >
+  </li>
+  <li>
+    <a href="https://open-vsx.org/extension/coliff/bootstrap-ng">Open VSX Registry</a> for Cursor,
+    VSCodium, Windsurf and other compatible editors
+  </li>
+</ul>
+<p>Or install it from the command line:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="install" language="shellscript" />
+
+<h2 class="mt-11" id="features" docsHeading>Features</h2>
+<p>
+  The extension works in HTML templates and in inline Angular template strings. Commands, settings,
+  diagnostics and hovers follow the VS Code display language (English and Japanese).
+</p>
+<ul>
+  <li>
+    Completions for <code>bs*</code> directives, their inputs and outputs, and documented values
+    such as <code>theme</code>.
+  </li>
+  <li>
+    Completions and hovers for Bootstrap 6 classes in <code>class</code> attributes, including
+    responsive variants such as <code>md:col-6</code>.
+  </li>
+  <li>Completions for bootstrap-ng imports.</li>
+  <li>Hovers with a short description and a link to these docs.</li>
+  <li>
+    Snippets for common components and form controls, such as <code>bs-alert</code>,
+    <code>bs-dialog</code> and <code>bs-form-field</code>.
+  </li>
+  <li>
+    Warnings for attribute values outside the documented set, with quick fixes that correct
+    misspelled values.
+  </li>
+  <li>
+    Hints on Bootstrap 5 <code>data-bs-toggle</code> and <code>data-bs-dismiss</code> attributes
+    that name the bootstrap-ng directive to use instead, with quick fixes for tooltips, popovers and
+    close buttons.
+  </li>
+  <li>
+    Warnings when a standalone component's template uses a directive it doesn't import, with a quick
+    fix that adds the import.
+  </li>
+  <li>
+    A <strong>Bootstrap-ng: Open Documentation</strong> command that opens the docs for the symbol
+    under the cursor.
+  </li>
+</ul>
+
+<h2 class="mt-11" id="settings" docsHeading>Settings</h2>
+<p>All diagnostics are on by default. Turn them off in your VS Code settings:</p>
+<div class="table-responsive mb-5">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Setting</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>bootstrap-ng.validateAttributeValues</code></td>
+        <td>Warns about unknown static attribute values.</td>
+      </tr>
+      <tr>
+        <td><code>bootstrap-ng.hintBootstrap5DataApi</code></td>
+        <td>Hints about Bootstrap 5 <code>data-bs-*</code> attributes.</td>
+      </tr>
+      <tr>
+        <td><code>bootstrap-ng.validateImports</code></td>
+        <td>Warns when a template uses a directive that its component doesn't import.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p>To add missing imports to inline templates when you save, add this to your settings:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="fixAllOnSave" language="json" />
+
+<h2 class="mt-11" id="source" docsHeading>Source code</h2>
+<p>
+  The extension is open source. Report issues and contribute on
+  <a href="https://github.com/bootstrap-ng/bootstrap-ng-vs-code-extension">GitHub</a>.
+</p>
