@@ -22,7 +22,7 @@ const PAGE: DocsPageData = {
       id: 'example',
       title: 'Example',
       description:
-        '<code>bsFormAdorn</code> goes on a <code>&lt;label&gt;</code> that looks like a form control and holds a <code>bsFormControl="ghost"</code> input. Clicking the icon or padding focuses the input, because the wrapper is its label. <code>bsFormAdornIcon</code> and <code>bsFormAdornText</code> set <code>aria-hidden</code>, so adornments don’t join the input’s name. Don’t put buttons inside the wrapper.',
+        '<code>bsFormAdorn</code> goes on a <code>&lt;label&gt;</code> that looks like a form control and holds a <code>bsFormControl="ghost"</code> input. Clicking the icon or padding focuses the input, because the wrapper is its label. <code>bsFormAdornIcon</code> and <code>bsFormAdornText</code> set <code>aria-hidden</code>, so adornments don’t join the input’s name. An inline <code>&lt;svg&gt;</code> or a <code>&lt;bs-icon&gt;</code> in <code>bsFormAdornIcon</code> takes the adorn icon size. Don’t put buttons inside the wrapper.',
       example: FormAdornBasicExample,
       html: basicHtml,
     },
