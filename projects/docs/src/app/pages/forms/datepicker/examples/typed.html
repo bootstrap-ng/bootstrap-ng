@@ -1,0 +1,25 @@
+<div bsFormField>
+  <label bsFormLabel>Delivery date</label>
+  <input
+    type="text"
+    bsFormControl
+    bsDatepicker
+    #picker="bsDatepicker"
+    class="w-12"
+    autocomplete="off"
+    locale="en-GB"
+    min="2026-01-01"
+    max="2026-12-31"
+    invalidBehavior="keep"
+    placeholder="DD/MM/YYYY"
+    [dateFormat]="format"
+    [formControl]="date" />
+  <small bsFormText>Type a date in 2026, such as 27/11/2026, or pick one.</small>
+  <div bsInvalidFeedback>
+    @if (picker.textError() === 'parse') {
+      Enter the date as DD/MM/YYYY.
+    } @else {
+      Choose a date in 2026.
+    }
+  </div>
+</div>

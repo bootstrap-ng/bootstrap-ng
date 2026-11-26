@@ -5,7 +5,10 @@ import { BsDateSelectionMode, BsDateValue, provideBsCalendarConfig } from 'boots
 import { BsFormControl, BsFormControlSize } from 'bootstrap-ng/forms';
 import {
   BsDateFormat,
+  BsDateInvalidBehavior,
+  BsDateParser,
   BsDatepicker,
+  BsDateTextInvalid,
   BsDatepickerDisplay,
   provideBsDatepickerConfig,
 } from './datepicker';
@@ -617,5 +620,175 @@ describe('BsDatepicker API and options', () => {
     button.dispatchEvent(new FocusEvent('focus'));
     await fixture.whenStable();
     expect(root.querySelector('[data-vc="calendar"]')).toBeNull();
+  });
+});
+
+describe('BsDatepicker typed text', () => {
+  @Component({
+    imports: [BsDatepicker, ReactiveFormsModule],
+    template: `
+      <input
+        type="text"
+        aria-label="Date"
+        bsDatepicker
+        #picker="bsDatepicker"
+        min="2026-06-01"
+        max="2026-12-31"
+        [locale]="locale()"
+        [wareki]="wareki()"
+        [selectionMode]="mode()"
+        [dateFormat]="dateFormat()"
+        [dateParser]="dateParser()"
+        [invalidBehavior]="invalidBehavior()"
+        [dateDisabled]="isHoliday"
+        (textInvalid)="invalid.push($event)"
+        [formControl]="date" />
+    `,
+  })
+  class TextHost {
+    readonly picker = viewChild.required<BsDatepicker>('picker');
+    readonly locale = signal('ja-JP');
+    readonly wareki = signal(false);
+    readonly mode = signal<BsDateSelectionMode>('single');
+    readonly dateFormat = signal<BsDateFormat | null>({
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    readonly dateParser = signal<BsDateParser | null>(null);
+    readonly invalidBehavior = signal<BsDateInvalidBehavior>('revert');
+    readonly isHoliday = (iso: string) => iso === '2026-07-20';
+    date = new FormControl<BsDateValue>('2026-06-10');
+    invalid: BsDateTextInvalid[] = [];
+  }
+
+  async function setup() {
+    const fixture = TestBed.createComponent(TextHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    document.body.append(root);
+    const input = root.querySelector('input')!;
+    const type = async (text: string) => {
+      input.value = text;
+      input.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+    };
+    const component = fixture.componentInstance;
+    return { fixture, input, type, component, picker: component.picker() };
+  }
+
+  afterEach(() => document.body.querySelectorAll('[ng-version]').forEach((el) => el.remove()));
+
+  it('reads dates typed in the format it shows, and as ISO', async () => {
+    const { input, type, component } = await setup();
+    expect(input.value).toBe('2026/06/10');
+    await type('2026/07/04');
+    expect(component.date.value).toBe('2026-07-04');
+    expect(input.value).toBe('2026/07/04');
+    await type('2026-08-01');
+    expect(component.date.value).toBe('2026-08-01');
+    expect(input.value).toBe('2026/08/01');
+  });
+
+  it('reads month names and dates with commas in multiple and range modes', async () => {
+    const { fixture, type, component } = await setup();
+    component.locale.set('en-US');
+    component.dateFormat.set({ dateStyle: 'medium' });
+    component.mode.set('multiple');
+    component.date.setValue([]);
+    await fixture.whenStable();
+    await type('Jul 4, 2026, Jun 12, 2026');
+    expect(component.date.value).toEqual(['2026-06-12', '2026-07-04']);
+    component.mode.set('range');
+    await fixture.whenStable();
+    await type('Jun 1, 2026 – June 8, 2026');
+    expect(component.date.value).toEqual(['2026-06-01', '2026-06-08']);
+  });
+
+  it('reads Japanese era dates with wareki', async () => {
+    const { fixture, type, component } = await setup();
+    component.dateFormat.set(null);
+    await type('令和8年7月4日');
+    expect(component.date.value).toBe('2026-06-10');
+    component.wareki.set(true);
+    await fixture.whenStable();
+    await type('令和8年7月4日');
+    expect(component.date.value).toBe('2026-07-04');
+    await type('令和8/7/5');
+    expect(component.date.value).toBe('2026-07-05');
+  });
+
+  it('reads dates with dateParser first, still checking min, max and dateDisabled', async () => {
+    const { fixture, type, component } = await setup();
+    component.dateParser.set((text) => {
+      const match = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(text);
+      return match ? `${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}` : null;
+    });
+    await fixture.whenStable();
+    await type('4.7.2026');
+    expect(component.date.value).toBe('2026-07-04');
+    await type('2026/07/05');
+    expect(component.date.value).toBe('2026-07-05');
+    await type('4.7.2027');
+    expect(component.date.value).toBe('2026-07-05');
+    expect(component.invalid).toEqual([{ text: '4.7.2027', reason: 'out-of-range' }]);
+  });
+
+  it('reports text it does not accept and reverts it by default', async () => {
+    const { input, type, component, picker } = await setup();
+    await type('2026/13/45');
+    await type('2026/05/01');
+    await type('2026/07/20');
+    expect(component.invalid).toEqual([
+      { text: '2026/13/45', reason: 'parse' },
+      { text: '2026/05/01', reason: 'out-of-range' },
+      { text: '2026/07/20', reason: 'disabled' },
+    ]);
+    expect(input.value).toBe('2026/06/10');
+    expect(component.date.value).toBe('2026-06-10');
+    expect(picker.textError()).toBeNull();
+    expect(component.date.valid).toBe(true);
+  });
+
+  it('reports a range with one date, or too many dates', async () => {
+    const { fixture, type, component } = await setup();
+    component.mode.set('range');
+    component.date.setValue([]);
+    await fixture.whenStable();
+    await type('2026/06/05');
+    await type('2026/06/05 – 2026/06/06 – 2026/06/07');
+    expect(component.invalid.map((event) => event.reason)).toEqual(['count', 'count']);
+  });
+
+  it('keeps text it does not accept with invalidBehavior="keep", as a form error', async () => {
+    const { fixture, input, type, component, picker } = await setup();
+    component.invalidBehavior.set('keep');
+    await fixture.whenStable();
+    await type('2026/13/45');
+    expect(input.value).toBe('2026/13/45');
+    expect(picker.textError()).toBe('parse');
+    expect(component.date.value).toBeNull();
+    expect(component.date.errors).toEqual({ bsDate: { reason: 'parse' } });
+
+    await type('2026/07/04');
+    expect(picker.textError()).toBeNull();
+    expect(component.date.value).toBe('2026-07-04');
+    expect(component.date.valid).toBe(true);
+
+    await type('nope');
+    expect(component.date.errors).toEqual({ bsDate: { reason: 'parse' } });
+    component.date.reset();
+    await fixture.whenStable();
+    expect(picker.textError()).toBeNull();
+    expect(component.date.valid).toBe(true);
+    expect(input.value).toBe('');
+
+    await type('2026/05/01');
+    expect(component.date.errors).toEqual({ bsDate: { reason: 'out-of-range' } });
+    await type('');
+    expect(picker.textError()).toBeNull();
+    expect(component.date.value).toBeNull();
+    expect(component.date.valid).toBe(true);
   });
 });

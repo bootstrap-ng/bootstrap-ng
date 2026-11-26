@@ -11,6 +11,7 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 - Chip input and typeahead: arrow keys and Enter no longer run while IME composition is active.
 - Rating: decreasing from zero no longer raises the value when `resettable` is off.
 - Docs and dev dependency target Bootstrap 6.0.0-alpha.2.
+- Datepicker: typed dates are read in the `dateFormat` options' format (and as Japanese era dates with `wareki`), with a `dateParser` input for other formats, a `textInvalid` output, and `invalidBehavior="keep"` to keep rejected text with a `textError` signal and `bsDate` form error.
 
 ## 6.0.0-alpha.9 - 2026-11-22
 

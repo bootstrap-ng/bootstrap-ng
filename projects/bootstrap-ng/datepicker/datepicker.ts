@@ -24,7 +24,13 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  AbstractControl,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
+} from '@angular/forms';
 import { autoPosition, BsPlacement, configToken, provideConfig, uniqueId } from 'bootstrap-ng/util';
 import {
   BS_CALENDAR_CONFIG,
@@ -36,12 +42,40 @@ import {
   selectedDates,
 } from 'bootstrap-ng/calendar';
 import { BsFormControlSize, BsValueControl } from 'bootstrap-ng/forms';
+import { parseFormattedDate } from './date-parser';
 
 /** How a datepicker shows dates: `Intl.DateTimeFormat` options or a function. */
 export type BsDateFormat = Intl.DateTimeFormatOptions | BsDateFormatter;
 
 /** Formats a date for a datepicker. */
 export type BsDateFormatter = (date: Date, locale: string | undefined) => string;
+
+/**
+ * Reads one typed date for a datepicker: returns it as `YYYY-MM-DD`, or null for text
+ * that isn't a date it can read.
+ */
+export type BsDateParser = (text: string, locale: string | undefined) => string | null;
+
+/**
+ * Why the text typed in a datepicker wasn't accepted: it isn't a date (`parse`), a date is
+ * before `min` or after `max` (`out-of-range`) or turned off by `dateDisabled` (`disabled`),
+ * or it has the wrong number of dates for the selection mode (`count`).
+ */
+export type BsDateTextError = 'parse' | 'out-of-range' | 'disabled' | 'count';
+
+/** Typed text that a datepicker didn't accept, and why. */
+export interface BsDateTextInvalid {
+  text: string;
+  reason: BsDateTextError;
+}
+
+/** What a datepicker does with typed text it doesn't accept. */
+export type BsDateInvalidBehavior = 'revert' | 'keep';
+
+/** The formats that `wareki` datepickers also read, such as 令和8年11月27日 and 令和8/11/27. */
+const WAREKI_FORMATS: Intl.DateTimeFormatOptions[] = (['long', 'numeric'] as const).map(
+  (month) => ({ calendar: 'japanese', era: 'long', year: 'numeric', month, day: 'numeric' }),
+);
 
 /**
  * Defaults for the inputs of datepickers. Inputs set on a component win over them. Options
@@ -63,6 +97,10 @@ export interface BsDatepickerConfig {
   locale: string;
   /** How selected dates are shown. Defaults to the locale's short date. */
   dateFormat: BsDateFormat | null;
+  /** Reads typed dates, before the built-in parsing. */
+  dateParser: BsDateParser | null;
+  /** What happens to typed text that isn't accepted: put back or kept to fix. */
+  invalidBehavior: BsDateInvalidBehavior;
   /** Where the calendar opens. */
   placement: BsPlacement;
   /** Accessible name of the calendar popup. */
@@ -93,7 +131,8 @@ export function provideBsDatepickerConfig(config: Partial<BsDatepickerConfig>): 
  * `[(value)]`.
  *
  * On an input, the calendar opens on focus and click; Arrow Down moves focus into it,
- * and dates can also be typed as `YYYY-MM-DD`. On macOS and iPadOS the input gets
+ * and dates can also be typed as `YYYY-MM-DD`, in the numeric or month-name format set
+ * with `dateFormat` options, or in any format a `dateParser` reads. On macOS and iPadOS the input gets
  * `inputmode="numeric"` (unless it has its own) for an on-screen keyboard with the keys
  * a date needs. On a button, a click opens the calendar and focuses it. Escape, a click
  * outside or moving focus away closes it.
@@ -107,6 +146,7 @@ export function provideBsDatepickerConfig(config: Partial<BsDatepickerConfig>): 
   exportAs: 'bsDatepicker',
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => BsDatepicker), multi: true },
+    { provide: NG_VALIDATORS, useExisting: forwardRef(() => BsDatepicker), multi: true },
   ],
   host: {
     // An input with a popup calendar is a combobox (the APG date picker combobox).
@@ -124,7 +164,7 @@ export function provideBsDatepickerConfig(config: Partial<BsDatepickerConfig>): 
     '(focusout)': 'onFocusout($event)',
   },
 })
-export class BsDatepicker extends BsValueControl<BsDateValue> {
+export class BsDatepicker extends BsValueControl<BsDateValue> implements Validator {
   private readonly config = { ...inject(BS_CALENDAR_CONFIG), ...inject(BS_DATEPICKER_CONFIG) };
   private readonly localeId = inject(LOCALE_ID);
   private readonly element =
@@ -168,6 +208,27 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
   readonly locale = input<string | undefined>(this.config.locale ?? this.localeId);
   /** How selected dates are shown. Defaults to the locale's short date. */
   readonly dateFormat = input<BsDateFormat | null>(this.config.dateFormat ?? null);
+  /**
+   * Reads typed dates, such as ones in the format a `dateFormat` function shows. Dates it
+   * returns null for are read in the `dateFormat` options' format, as wareki dates with
+   * `wareki`, or as `YYYY-MM-DD`. Each date of a range or multiple selection is read on its
+   * own, and still checked against `min`, `max` and `dateDisabled`.
+   */
+  readonly dateParser = input<BsDateParser | null>(this.config.dateParser ?? null);
+  /**
+   * What happens to typed text that isn't accepted. `revert` puts the selected dates back;
+   * `keep` leaves the text to fix, clears the value and sets `textError`, which forms see as
+   * a `bsDate` validation error.
+   */
+  readonly invalidBehavior = input<BsDateInvalidBehavior>(this.config.invalidBehavior ?? 'revert');
+  /** Emits typed text that isn't accepted, and why. */
+  readonly textInvalid = output<BsDateTextInvalid>();
+  private readonly textErrorState = signal<BsDateTextError | null>(null);
+  /**
+   * Why the typed text kept in the input (with `invalidBehavior="keep"`) isn't accepted, or
+   * null while it is. Cleared by accepted text, a picked date or a new value.
+   */
+  readonly textError = this.textErrorState.asReadonly();
   /** Forces a color mode for the calendar: `light` or `dark`. */
   readonly colorMode = input<'light' | 'dark' | null>(null);
   /** Where the calendar opens. */
@@ -204,6 +265,8 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
   private returningFocus = false;
   private cleanups: (() => void)[] = [];
   private originalContent: Node[] | null = null;
+  private invalidTextValue: BsDateValue | undefined;
+  private onValidatorChange: () => void = () => undefined;
 
   constructor() {
     super();
@@ -223,8 +286,12 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
       // Inputs show the dates as their value; buttons without a `bsDatepickerDisplay`
       // show them as their text.
       const display = this.display();
+      const textError = this.textError();
       if (this.element instanceof HTMLInputElement) {
-        this.element.value = display;
+        // Text that isn't accepted stays, to be fixed, with `invalidBehavior="keep"`.
+        if (!textError) {
+          this.element.value = display;
+        }
       } else if (!this.displayElement()) {
         if (display) {
           // Keep the original content, to show it again when the value is cleared.
@@ -234,6 +301,14 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
           this.element.replaceChildren(...this.originalContent);
           this.originalContent = null;
         }
+      }
+    });
+
+    effect(() => {
+      // A new value replaces text that wasn't accepted.
+      const value = this.value();
+      if (value !== this.invalidTextValue) {
+        untracked(() => this.setTextError(null));
       }
     });
 
@@ -261,6 +336,22 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
     });
 
     inject(DestroyRef).onDestroy(() => this.destroyCalendar());
+  }
+
+  override writeValue(value: BsDateValue | null | undefined): void {
+    this.setTextError(null);
+    super.writeValue(value);
+  }
+
+  /** @internal Reports text kept with `invalidBehavior="keep"` as a `bsDate` error. */
+  validate(_control: AbstractControl): ValidationErrors | null {
+    const reason = this.textError();
+    return reason ? { bsDate: { reason } } : null;
+  }
+
+  /** @internal */
+  registerOnValidatorChange(fn: () => void): void {
+    this.onValidatorChange = fn;
   }
 
   /** Opens the calendar. */
@@ -335,24 +426,104 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
       return;
     }
     const text = this.element.value.trim();
-    if (text === this.display()) {
+    if (text === this.display() && !this.textError()) {
       return;
     }
-    const parts = text ? text.split(/\s*(?:,|–|—|\s-\s|\bto\b)\s*/) : [];
-    const valid = parts.every((part) => parseIsoDate(part) && !this.isDateDisabled(part.trim()));
-    const mode = this.selectionMode();
-    const count = mode === 'single' ? 1 : mode === 'range' ? 2 : Infinity;
-    // A range needs both dates. Its start alone would be a half range in the form.
-    if (!valid || parts.length > count || (mode === 'range' && parts.length === 1)) {
-      // Put the current value back.
-      this.element.value = this.display();
+    const dates = this.readText(text);
+    if (typeof dates === 'string') {
+      this.textInvalid.emit({ text, reason: dates });
+      if (this.invalidBehavior() === 'keep') {
+        this.setTextError(dates);
+        this.invalidTextValue = this.emptyValue;
+        this.updateValue(this.invalidTextValue);
+      } else {
+        // Put the current value back.
+        this.element.value = this.display();
+      }
       return;
     }
-    const dates = parts.map((part) => part.trim());
-    this.updateValue(mode === 'single' ? (dates[0] ?? null) : [...dates].sort());
+    this.setTextError(null);
+    this.updateValue(this.selectionMode() === 'single' ? (dates[0] ?? null) : [...dates].sort());
     // Show the formatted dates, even when they match the current value and the
     // display effect doesn't run again.
     this.element.value = this.display();
+  }
+
+  /** Reads typed text as ISO dates, or returns why it can't. */
+  private readText(text: string): string[] | BsDateTextError {
+    if (!text) {
+      return [];
+    }
+    const mode = this.selectionMode();
+    const count = mode === 'single' ? 1 : mode === 'range' ? 2 : Infinity;
+    const whole = this.readDate(text);
+    const dates = whole ? [whole] : [];
+    if (!whole) {
+      // Keep the separators, to join back dates that contain them, such as "Nov 27, 2026".
+      const tokens = text.split(/(\s*(?:,|–|—|\s-\s|\bto\b)\s*)/);
+      for (let start = 0; start < tokens.length;) {
+        // The longest run of tokens from `start` that is a date. Even tokens are text.
+        let end = tokens.length - 1;
+        let date = this.readDate(tokens.slice(start).join(''));
+        while (!date && end > start) {
+          end -= 2;
+          date = this.readDate(tokens.slice(start, end + 1).join(''));
+        }
+        if (!date) {
+          return 'parse';
+        }
+        dates.push(date);
+        start = end + 2;
+      }
+    }
+    // A range needs both dates. Its start alone would be a half range in the form.
+    if (dates.length > count || (mode === 'range' && dates.length === 1)) {
+      return 'count';
+    }
+    const min = this.min();
+    const max = this.max();
+    if (dates.some((iso) => (!!min && iso < min) || (!!max && iso > max))) {
+      return 'out-of-range';
+    }
+    const dateDisabled = this.dateDisabled();
+    return dateDisabled && dates.some((iso) => dateDisabled(iso)) ? 'disabled' : dates;
+  }
+
+  /** Reads one typed date with `dateParser`, the `dateFormat` options, wareki or as ISO. */
+  private readDate(text: string): string | null {
+    const part = text.trim();
+    if (!part) {
+      return null;
+    }
+    const locale = this.locale();
+    const parsed = this.dateParser()?.(part, locale)?.trim();
+    if (parsed && parseIsoDate(parsed)) {
+      return parsed;
+    }
+    const format = this.dateFormat();
+    return (
+      (format && typeof format === 'object' ? parseFormattedDate(part, locale, format) : null) ??
+      (this.wareki() ? this.readWareki(part, locale) : null) ??
+      (parseIsoDate(part) ? part : null)
+    );
+  }
+
+  private readWareki(text: string, locale: string | undefined): string | null {
+    for (const format of WAREKI_FORMATS) {
+      const iso = parseFormattedDate(text, locale, format);
+      if (iso) {
+        return iso;
+      }
+    }
+    return null;
+  }
+
+  private setTextError(error: BsDateTextError | null): void {
+    if (untracked(this.textErrorState) !== error) {
+      this.textErrorState.set(error);
+      this.invalidTextValue = undefined;
+      this.onValidatorChange();
+    }
   }
 
   protected onFocusout(event: Event): void {
@@ -360,13 +531,6 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
     if (next && !this.contains(next)) {
       this.hide();
     }
-  }
-
-  /** Whether a date can't be selected because of `min`, `max` or `dateDisabled`. */
-  private isDateDisabled(iso: string): boolean {
-    const min = this.min();
-    const max = this.max();
-    return (!!min && iso < min) || (!!max && iso > max) || !!this.dateDisabled()?.(iso);
   }
 
   private calendarInputs(): Record<string, unknown> {
@@ -448,6 +612,7 @@ export class BsDatepicker extends BsValueControl<BsDateValue> {
       // A range's start date stays in the calendar until its end date is picked, so the
       // form never gets a half range, and dismissing the popup keeps the previous range.
       if (this.selectionMode() !== 'range' || selectedDates(value).length !== 1) {
+        this.setTextError(null);
         this.updateValue(value);
       }
     });
