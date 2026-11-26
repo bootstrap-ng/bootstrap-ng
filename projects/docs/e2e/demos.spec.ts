@@ -64,6 +64,23 @@ test('a dialog traps focus, closes on Escape and restores focus', async ({ page 
   await expect(opener).toBeFocused();
 });
 
+test('dialog size examples open at their widths', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto('components/dialog/');
+  const sizes = example(page, 'sizes');
+  await sizes.getByRole('button', { name: 'Open .dialog-lg' }).click();
+  const large = page.getByRole('dialog', { name: '.dialog-lg' });
+  await expect(large).toBeVisible();
+  expect((await large.boundingBox())?.width).toBe(800);
+  await page.keyboard.press('Escape');
+  await expect(large).toBeHidden();
+  const fullscreen = example(page, 'fullscreen');
+  await fullscreen.getByRole('button', { name: 'Open .dialog-fullscreen' }).click();
+  const dialog = page.getByRole('dialog', { name: '.dialog-fullscreen' });
+  await expect(dialog).toBeVisible();
+  expect((await dialog.boundingBox())?.width).toBe(1600);
+});
+
 test('a drawer opens from its toggle and closes from its close button', async ({ page }) => {
   await page.goto('components/drawer/');
   const demo = example(page, 'basic');

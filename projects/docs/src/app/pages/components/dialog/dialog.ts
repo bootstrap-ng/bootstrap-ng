@@ -14,6 +14,14 @@ import serviceHtml from './examples/service.html' with { loader: 'text' };
 import serviceTs from './examples/service.ts' with { loader: 'text' };
 import { DialogNonmodalExample } from './examples/nonmodal';
 import nonmodalHtml from './examples/nonmodal.html' with { loader: 'text' };
+import { DialogSizesExample } from './examples/sizes';
+import sizesHtml from './examples/sizes.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import sizesTs from './examples/sizes.ts' with { loader: 'text' };
+import { DialogFullscreenExample } from './examples/fullscreen';
+import fullscreenHtml from './examples/fullscreen.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import fullscreenTs from './examples/fullscreen.ts' with { loader: 'text' };
 
 const PAGE: DocsPageData = {
   title: 'Dialog',
@@ -52,6 +60,24 @@ const PAGE: DocsPageData = {
         'Set <code>[modal]="false"</code> to open the dialog inline with <code>show()</code>. The rest of the page stays interactive.',
       example: DialogNonmodalExample,
       html: nonmodalHtml,
+    },
+    {
+      id: 'sizes',
+      title: 'Optional sizes',
+      description:
+        'Add <code>.dialog-sm</code>, <code>.dialog-lg</code>, <code>.dialog-xl</code> or <code>.dialog-2xl</code> to the <code>&lt;dialog&gt;</code> to change its width. Without one, the dialog uses the default medium width. With <code>BsDialogService</code>, pass the <code>size</code> option instead.',
+      example: DialogSizesExample,
+      html: sizesHtml,
+      ts: sizesTs,
+    },
+    {
+      id: 'fullscreen',
+      title: 'Fullscreen',
+      description:
+        "Add <code>.dialog-fullscreen</code> to cover the whole viewport, or a responsive class such as <code>.md-down:dialog-fullscreen</code> to cover it only below a breakpoint. With <code>BsDialogService</code>, pass <code>size: 'fullscreen'</code> or a responsive class in <code>class</code>.",
+      example: DialogFullscreenExample,
+      html: fullscreenHtml,
+      ts: fullscreenTs,
     },
     {
       id: 'service',
@@ -158,7 +184,7 @@ const PAGE: DocsPageData = {
           name: 'open(content, options?)',
           type: 'BsDialogRef',
           description:
-            "Opens a modal dialog with a component or template. Options: inputs, size ('sm', 'md', 'lg', 'xl' or 'fullscreen'), scrollable, backdrop, keyboard, animation, ariaLabelledBy, ariaLabel, class and injector. For a component, the ref also has componentInstance.",
+            "Opens a modal dialog with a component or template. Options: inputs, size ('sm', 'md', 'lg', 'xl', '2xl' or 'fullscreen'), scrollable, backdrop, keyboard, animation, ariaLabelledBy, ariaLabel, class and injector. For a component, the ref also has componentInstance.",
         },
         {
           name: 'openDrawer(content, options?)',

@@ -22,7 +22,7 @@ import { BS_DIALOG_CONFIG, BsDialog } from './dialog';
 import { BsDialogBase } from './dialog-base';
 
 /** Width of a dialog opened by `BsDialogService`. */
-export type BsDialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullscreen';
+export type BsDialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'fullscreen';
 
 /** Options shared by `BsDialogService.open()` and `BsDialogService.openDrawer()`. */
 export interface BsOverlayOptions {
