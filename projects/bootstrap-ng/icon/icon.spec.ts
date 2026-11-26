@@ -44,6 +44,16 @@ class Host {
   error: unknown = null;
 }
 
+@Component({
+  imports: [BsIcon],
+  template: `
+    <span class="form-adorn-icon" style="--bs-form-adorn-icon-size: 24px; font-size: 10px">
+      <bs-icon />
+    </span>
+  `,
+})
+class AdornHost {}
+
 async function setup(config?: Parameters<typeof provideBsIcons>[0]) {
   TestBed.configureTestingModule({ providers: config ? [provideBsIcons(config)] : [] });
   TestBed.inject(BsIconRegistry).register('test', testLibrary);
@@ -68,6 +78,14 @@ describe('BsIcon', () => {
     expect(svg.getAttribute('aria-hidden')).toBe('true');
     expect(getComputedStyle(icon).display).toBe('inline-flex');
     expect(host.loads).toBe(1);
+  });
+
+  it('takes the form adorn icon size inside bsFormAdornIcon', async () => {
+    const fixture = TestBed.createComponent(AdornHost);
+    await fixture.whenStable();
+    const icon: HTMLElement = fixture.nativeElement.querySelector('bs-icon');
+    expect(icon.getBoundingClientRect().width).toBe(24);
+    expect(icon.getBoundingClientRect().height).toBe(24);
   });
 
   it('is decorative without a label and an image with one', async () => {

@@ -43,6 +43,11 @@ import { BsIconRegistry } from './icon-registry';
       block-size: 1em;
       vertical-align: -0.125em;
     }
+    /* Bootstrap sizes only a direct svg child of .form-adorn-icon */
+    :host-context(.form-adorn-icon) {
+      inline-size: var(--bs-form-adorn-icon-size, 1em);
+      block-size: var(--bs-form-adorn-icon-size, 1em);
+    }
   `,
 })
 export class BsIcon {
