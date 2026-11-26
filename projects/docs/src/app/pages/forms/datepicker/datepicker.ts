@@ -28,6 +28,10 @@ import { DatepickerFirstWeekdayExample } from './examples/first-weekday';
 import first_weekdayHtml from './examples/first-weekday.html' with { loader: 'text' };
 import { DatepickerWeekNumbersExample } from './examples/week-numbers';
 import week_numbersHtml from './examples/week-numbers.html' with { loader: 'text' };
+import { DatepickerTypedExample } from './examples/typed';
+import typedHtml from './examples/typed.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import typedTs from './examples/typed.ts' with { loader: 'text' };
 import { DatepickerWarekiExample } from './examples/wareki';
 import warekiHtml from './examples/wareki.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
@@ -87,6 +91,15 @@ const PAGE: DocsPageData = {
       example: DatepickerMinMaxExample,
       html: min_maxHtml,
       ts: min_maxTs,
+    },
+    {
+      id: 'typed-dates',
+      title: 'Typed dates',
+      description:
+        'Inputs accept dates typed as <code>YYYY-MM-DD</code>, and in the format <code>dateFormat</code> options show, such as <code>27/11/2026</code> or <code>Nov 27, 2026</code>. With <code>wareki</code>, they also accept Japanese era dates such as 令和8年11月27日. For other formats, such as one a <code>dateFormat</code> function shows, set <code>dateParser</code> to a function that returns the typed date as <code>YYYY-MM-DD</code>, or <code>null</code> to fall back to the built-in parsing. Typed dates are still checked against <code>min</code>, <code>max</code> and <code>dateDisabled</code>. Text that isn’t accepted is put back to the selected dates, and <code>textInvalid</code> emits it with the reason. Set <code>invalidBehavior="keep"</code> to leave it in the input to fix instead: the value becomes empty, <code>textError</code> gives the reason, and forms get a <code>bsDate</code> validation error, so <code>bsInvalidFeedback</code> shows.',
+      example: DatepickerTypedExample,
+      html: typedHtml,
+      ts: typedTs,
     },
     {
       id: 'month-and-year',
@@ -278,6 +291,20 @@ const PAGE: DocsPageData = {
             'How dates are shown. Inputs show ISO dates by default, buttons the locale’s medium date.',
         },
         {
+          name: 'dateParser',
+          type: '((text, locale) => string | null) | null',
+          default: 'null',
+          description:
+            'Reads a typed date as YYYY-MM-DD, or returns null to fall back to the built-in parsing.',
+        },
+        {
+          name: 'invalidBehavior',
+          type: "'revert' | 'keep'",
+          default: "'revert'",
+          description:
+            'What happens to typed text that isn’t accepted: put back, or kept with a bsDate form error.',
+        },
+        {
           name: 'placement',
           type: 'BsPlacement',
           default: "'bottom-start'",
@@ -319,6 +346,12 @@ const PAGE: DocsPageData = {
           type: 'boolean',
           description: 'Emits when the calendar opens or closes.',
         },
+        {
+          name: 'textInvalid',
+          type: 'BsDateTextInvalid',
+          description:
+            "Emits typed text that isn’t accepted, with the reason: 'parse', 'out-of-range', 'disabled' or 'count'.",
+        },
       ],
       methods: [
         {
@@ -340,6 +373,12 @@ const PAGE: DocsPageData = {
           name: 'display',
           type: 'Signal<string>',
           description: 'The selected dates as text.',
+        },
+        {
+          name: 'textError',
+          type: "Signal<'parse' | 'out-of-range' | 'disabled' | 'count' | null>",
+          description:
+            'Why the text kept with invalidBehavior="keep" isn’t accepted, or null while it is.',
         },
       ],
     },

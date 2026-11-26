@@ -196,6 +196,24 @@ test('a datepicker shows week numbers', async ({ page }) => {
   await expect(calendar.getByRole('rowheader').first()).toHaveText(/^\s*\d+\s*$/);
 });
 
+test('a datepicker reads typed dates and keeps text it rejects', async ({ page }) => {
+  await page.goto('forms/datepicker/');
+  const demo = example(page, 'typed-dates');
+  const input = demo.getByRole('combobox', { name: 'Delivery date' });
+  await input.fill('31/02/2026');
+  // Tab moves focus into the calendar, and Escape closes it, marking the input touched.
+  await input.press('Tab');
+  await page.keyboard.press('Escape');
+  await expect(input).toHaveValue('31/02/2026');
+  await expect(input).toHaveAttribute('aria-invalid', 'true');
+  await expect(demo.getByText('Enter the date as DD/MM/YYYY.')).toBeVisible();
+  await input.fill('27/11/2026');
+  await input.press('Tab');
+  await page.keyboard.press('Escape');
+  await expect(input).toHaveValue('27/11/2026');
+  await expect(input).not.toHaveAttribute('aria-invalid');
+});
+
 test('a menu opens with the keyboard and moves focus between items', async ({ page }) => {
   await page.goto('components/menu/');
   const demo = example(page, 'basic');

@@ -147,7 +147,7 @@ export const appConfig: ApplicationConfig = {
       fn: 'provideBsDatepickerConfig',
       path: '/forms/datepicker',
       inputs:
-        'firstWeekday, monthsCount, weekNumbers, weekNumbering, wareki, locale, dateFormat, placement, calendarLabel, size',
+        'firstWeekday, monthsCount, weekNumbers, weekNumbering, wareki, locale, dateFormat, dateParser, invalidBehavior, placement, calendarLabel, size',
     },
     {
       fn: 'provideBsFileDropzoneConfig',
