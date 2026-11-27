@@ -2,18 +2,19 @@
 
 Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may include breaking changes.
 
-## Unreleased
+## 6.0.0-alpha.10 - 2026-11-27
 
+- Datepicker: typed dates are read in the `dateFormat` options' format (and as Japanese era dates with `wareki`), with a `dateParser` input for other formats, a `textInvalid` output, and `invalidBehavior="keep"` to keep rejected text with a `textError` signal and `bsDate` form error.
+- Datepicker: typed text that matches the current value is formatted again.
 - Datepicker: typed multiple selection deduplicates dates; range mode accepts unspaced ISO hyphen pairs; the popup removes host listeners when it closes.
 - Calendar: keyboard navigation skips disabled days; month and year pickers respect `dateDisabled`.
 - Dialog service: `size` accepts `'2xl'`.
-- Datepicker: typed text that matches the current value is formatted again.
 - Form adorn: a `bs-icon` in `bsFormAdornIcon` takes the adorn icon size.
 - Icon: inline and loaded SVGs reject obfuscated `javascript:` URLs and strip animation elements that can set `href` at runtime.
 - Chip input and typeahead: arrow keys and Enter no longer run while IME composition is active.
 - Rating: decreasing from zero no longer raises the value when `resettable` is off.
 - Docs and dev dependency target Bootstrap 6.0.0-alpha.2.
-- Datepicker: typed dates are read in the `dateFormat` options' format (and as Japanese era dates with `wareki`), with a `dateParser` input for other formats, a `textInvalid` output, and `invalidBehavior="keep"` to keep rejected text with a `textError` signal and `bsDate` form error.
+- Docs: button group toggle examples, dialog size and fullscreen examples, and a VS Code extension page.
 
 ## 6.0.0-alpha.9 - 2026-11-22
 
