@@ -1149,12 +1149,14 @@ export class BsTable<T> {
   protected resizeKey(event: KeyboardEvent, column: BsTableColumn<T>, th: HTMLElement): void {
     const step = event.shiftKey ? 50 : 10;
     const width = column.width ?? th.getBoundingClientRect().width;
+    // The handle sits on the column's end edge, so in right-to-left layouts ArrowLeft widens it.
+    const rtl = getComputedStyle(th).direction === 'rtl';
     switch (event.key) {
-      case 'ArrowRight':
+      case rtl ? 'ArrowLeft' : 'ArrowRight':
       case 'ArrowUp':
         this.setWidth(column.key, width + step);
         break;
-      case 'ArrowLeft':
+      case rtl ? 'ArrowRight' : 'ArrowLeft':
       case 'ArrowDown':
         this.setWidth(column.key, width - step);
         break;

@@ -391,6 +391,16 @@ describe('BsTable', () => {
     await fixture.whenStable();
     expect(host.columns()[0].width).toBe(210);
 
+    // In right-to-left layouts the handle is on the left edge, so the horizontal arrows swap.
+    table.dir = 'rtl';
+    press('ArrowLeft');
+    await fixture.whenStable();
+    expect(host.columns()[0].width).toBe(220);
+    press('ArrowRight');
+    await fixture.whenStable();
+    expect(host.columns()[0].width).toBe(210);
+    table.dir = '';
+
     const th = handle.closest('th')!;
     const start = th.getBoundingClientRect().width;
     const rect = handle.getBoundingClientRect();
