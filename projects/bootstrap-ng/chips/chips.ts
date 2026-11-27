@@ -118,7 +118,7 @@ export function provideBsChipInputConfig(config: Partial<BsChipInputConfig>): Pr
  *
  * Type and press Enter or the separator to add a chip. Backspace in the empty input
  * selects the last chip, and pressing it again removes it. Arrow keys, Home and End move
- * between chips; Ctrl/Cmd+A selects them all. Additions and removals are announced to
+ * between chips, following the text direction; Ctrl/Cmd+A selects them all. Additions and removals are announced to
  * screen readers.
  *
  * ```html
@@ -323,6 +323,8 @@ export class BsChipInput extends BsValueControl<string[]> {
     const input = this.input().nativeElement;
     const atStart = input.selectionStart === 0 && input.selectionEnd === 0;
     const last = this.value().length - 1;
+    // In right-to-left layouts the chips run right to left, so the arrow keys follow them.
+    const back = this.isRtl() ? 'ArrowRight' : 'ArrowLeft';
 
     switch (event.key) {
       case 'Enter':
@@ -337,7 +339,7 @@ export class BsChipInput extends BsValueControl<string[]> {
           this.focusChip(last);
         }
         break;
-      case 'ArrowLeft':
+      case back:
         if (atStart && last >= 0) {
           event.preventDefault();
           this.select(last, event.shiftKey);
@@ -353,6 +355,7 @@ export class BsChipInput extends BsValueControl<string[]> {
 
   protected onChipKeydown(event: KeyboardEvent, index: number): void {
     const last = this.value().length - 1;
+    const rtl = this.isRtl();
     const move = (to: number) => {
       event.preventDefault();
       if (to > last) {
@@ -372,10 +375,10 @@ export class BsChipInput extends BsValueControl<string[]> {
         this.removeAt(selected.length ? selected : [index]);
         break;
       }
-      case 'ArrowLeft':
+      case rtl ? 'ArrowRight' : 'ArrowLeft':
         move(Math.max(index - 1, 0));
         break;
-      case 'ArrowRight':
+      case rtl ? 'ArrowLeft' : 'ArrowRight':
         move(index + 1);
         break;
       case 'Home':
@@ -438,6 +441,10 @@ export class BsChipInput extends BsValueControl<string[]> {
     }
     this.anchor = index;
     this.selected.set(new Set([index]));
+  }
+
+  private isRtl(): boolean {
+    return getComputedStyle(this.input().nativeElement).direction === 'rtl';
   }
 
   private focusChip(index: number): void {

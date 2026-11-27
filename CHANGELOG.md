@@ -6,6 +6,7 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 
 - Table: the left and right arrow keys on a column resize handle follow the handle in right-to-left layouts.
 - Scrollspy: Ctrl/Cmd, Shift and Alt clicks on a link open it in a new tab or window again instead of scrolling.
+- Chip input: arrow keys follow the chips in right-to-left layouts.
 - Breaking: `BsTypeaheadPopup`, the typeahead's internal suggestion list, is no longer exported.
 - Docs: the `parseIsoDate`, `toIsoDate`, `selectedDates`, `weekNumber` and `formatFileSize` helpers.
 

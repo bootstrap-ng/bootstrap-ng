@@ -115,7 +115,7 @@ const PAGE: DocsPageData = {
       id: 'keyboard-behavior',
       title: 'Keyboard behavior',
       description:
-        'In the input: <kbd>Enter</kbd> or the separator adds a chip, <kbd>Backspace</kbd> in an empty input selects the last chip, <kbd>←</kbd> at the start moves to the chips, and <kbd>Escape</kbd> clears the text. On a chip: <kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd> move between chips (with <kbd>Shift</kbd> to extend the selection), <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>A</kbd> selects all, and <kbd>Backspace</kbd> or <kbd>Delete</kbd> removes the selected chips. Additions and removals are announced to screen readers. Pasting <code>a, b, c</code> adds three chips.',
+        'In the input: <kbd>Enter</kbd> or the separator adds a chip, <kbd>Backspace</kbd> in an empty input selects the last chip, <kbd>←</kbd> at the start moves to the chips, and <kbd>Escape</kbd> clears the text. On a chip: <kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd> move between chips (with <kbd>Shift</kbd> to extend the selection), <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>A</kbd> selects all, and <kbd>Backspace</kbd> or <kbd>Delete</kbd> removes the selected chips. In right-to-left layouts <kbd>→</kbd> and <kbd>←</kbd> swap, following the chips. Additions and removals are announced to screen readers. Pasting <code>a, b, c</code> adds three chips.',
       example: ChipsKeyboardExample,
       html: keyboardHtml,
       ts: keyboardTs,
