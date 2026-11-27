@@ -12,12 +12,23 @@ export interface DocsApiEntry {
   selector: 'docs-api-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <!-- Focusable so keyboard users can scroll the table on narrow screens. -->
-    <div class="overflow-auto" tabindex="0" role="region" [attr.aria-label]="label()">
+    <!--
+      Focusable so keyboard users can scroll the table. Long tables scroll inside the region,
+      which keeps the sticky header in view.
+    -->
+    <div
+      class="overflow-auto"
+      [style.max-height]="'75vh'"
+      tabindex="0"
+      role="region"
+      [attr.aria-label]="label()">
       <table class="table">
-        <!-- Table cells paint the body background, so clear it to let the thead background show. -->
-        <thead class="bg-secondary bg-20" [style.--bs-table-bg]="'transparent'">
-          <tr>
+        <!--
+          Table cells paint the body background, so clear it to let the thead background show.
+          The opaque bg-body under the tinted row stops body rows showing through the sticky header.
+        -->
+        <thead class="sticky-top bg-body" [style.--bs-table-bg]="'transparent'">
+          <tr class="bg-secondary bg-opacity-20">
             <th scope="col">Name</th>
             <th scope="col">Type</th>
             @if (showDefault()) {
