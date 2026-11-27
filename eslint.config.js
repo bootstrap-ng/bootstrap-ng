@@ -5,6 +5,7 @@ const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 const vitest = require('@vitest/eslint-plugin');
 const playwright = require('eslint-plugin-playwright');
+const css = require('@eslint/css').default;
 
 /**
  * @param {string} prefix
@@ -297,6 +298,27 @@ module.exports = defineConfig([
     files: ['projects/docs/src/app/pages/**/examples/*.html', '**/*.spec.ts/**'],
     rules: {
       '@angular-eslint/template/no-inline-styles': 'off',
+    },
+  },
+  {
+    files: ['**/*.css'],
+    plugins: { css },
+    language: 'css/css',
+    extends: ['css/recommended'],
+    rules: {
+      // Bootstrap defines its custom properties in its own stylesheet, which ESLint never sees.
+      'css/no-invalid-properties': ['error', { allowUnknownVariables: true }],
+      // Bootstrap 6 targets current browsers, and these progressive enhancements degrade
+      // gracefully where they aren't supported.
+      'css/use-baseline': [
+        'error',
+        {
+          allowProperties: ['resize', 'scrollbar-gutter'],
+          allowPropertyValues: { 'background-attachment': ['fixed'] },
+        },
+      ],
+      // The homepage backdrop in styles.css needs one `!important`.
+      'css/no-important': 'off',
     },
   },
 ]);

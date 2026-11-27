@@ -57,7 +57,7 @@ const ACTIVE_OFFSET = 96;
       </nav>
     }
   `,
-  styleUrl: './toc.scss',
+  styleUrl: './toc.css',
 })
 export class DocsToc {
   private readonly document = inject(DOCUMENT);
