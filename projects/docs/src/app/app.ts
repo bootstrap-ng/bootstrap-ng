@@ -38,7 +38,7 @@ import { DocsToc } from './toc';
     '[attr.data-bs-theme]': "isHome() ? 'dark' : null",
   },
   templateUrl: './app.html',
-  styleUrl: './app.scss',
+  styleUrl: './app.css',
 })
 export class App {
   // Start from the browser's URL rather than `/`, so hydrating a prerendered page renders the

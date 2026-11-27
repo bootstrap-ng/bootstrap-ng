@@ -51,7 +51,7 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss"
+          "style": "css"
         }
       },
       "root": "projects/docs",
@@ -65,7 +65,7 @@
             "server": "projects/docs/src/main.server.ts",
             "outputMode": "static",
             "tsConfig": "projects/docs/tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
+            "inlineStyleLanguage": "css",
             "externalDependencies": ["img/bg.svg"],
             "assets": [
               {
@@ -73,7 +73,7 @@
                 "input": "projects/docs/public"
               }
             ],
-            "styles": ["projects/docs/src/styles.scss"]
+            "styles": ["projects/docs/src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -127,7 +127,11 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["projects/docs/**/*.ts", "projects/docs/**/*.html"]
+            "lintFilePatterns": [
+              "projects/docs/**/*.ts",
+              "projects/docs/**/*.html",
+              "projects/docs/**/*.css"
+            ]
           }
         }
       }

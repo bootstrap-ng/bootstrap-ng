@@ -113,7 +113,7 @@ const MAX_RESULTS = 8;
       </div>
     </dialog>
   `,
-  styleUrl: './search.scss',
+  styleUrl: './search.css',
 })
 export class DocsSearch {
   private readonly document = inject(DOCUMENT);

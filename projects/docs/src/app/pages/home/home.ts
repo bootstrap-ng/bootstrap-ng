@@ -9,7 +9,7 @@ import { DocsCopyButton } from '../../shared/copy-button';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'd-block mx-auto px-5 py-12' },
   templateUrl: './home.html',
-  styleUrl: './home.scss',
+  styleUrl: './home.css',
 })
 export default class Home {
   private readonly toaster = inject(BsToaster);

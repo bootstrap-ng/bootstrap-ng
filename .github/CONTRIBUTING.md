@@ -58,7 +58,7 @@ ESLint is configured in `eslint.config.js`. It is type-aware and strict (typescr
 - Type element references as `inject<ElementRef<HTMLElement>>(ElementRef)`.
 - Mark a promise you intentionally don't await with `void`.
 
-Prettier formats TypeScript, HTML and SCSS under `projects/`. Run `npm run format` before committing.
+Prettier formats TypeScript, HTML and CSS under `projects/`. Run `npm run format` before committing.
 
 ### Tests
 
