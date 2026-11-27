@@ -1,0 +1,94 @@
+<h1>Content Security Policy</h1>
+<p class="fs-lg fg-2">
+  Run bootstrap-ng under a strict Content Security Policy (CSP), with nonces for Angular's styles
+  and no <code>'unsafe-eval'</code>.
+</p>
+
+<h2 class="mt-11" id="overview" docsHeading>What bootstrap-ng needs</h2>
+<p>
+  bootstrap-ng doesn't use <code>eval()</code>, inline scripts or Bootstrap's JavaScript, so it adds
+  nothing to <code>script-src</code>. Its needs are about styles and the files it loads:
+</p>
+<ul>
+  <li>
+    A few components, such as <code>bs-icon</code>, data tables and the clear button of
+    <code>clearable</code> form controls, have component styles. Angular adds them in
+    <code>&lt;style&gt;</code> elements, which need a <a href="#nonce">nonce</a> or
+    <code>'unsafe-inline'</code> in <code>style-src</code>.
+  </li>
+  <li>
+    Components set style properties from script, for example to position tooltips, popovers and
+    menus with Floating UI, or to size progress bars. A CSP doesn't block styles set this way.
+  </li>
+  <li>
+    With <a href="#server-rendering">server-side rendering</a>, the same styles are written as
+    <code>style</code> attributes in the HTML, which <code>style-src-attr</code> controls.
+  </li>
+  <li>
+    Bootstrap's CSS from jsDelivr and icons that <code>bs-icon</code> loads from jsDelivr need
+    <a href="#external-files">their origin allowed</a>.
+  </li>
+</ul>
+
+<h2 class="mt-11" id="example" docsHeading>Example policy</h2>
+<p>
+  A policy for an app that loads Bootstrap's CSS and icons from jsDelivr. Replace
+  <code>RANDOM</code> with a new random value for each response:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="policy" language="shellscript" />
+
+<h2 class="mt-11" id="nonce" docsHeading>Nonces for component styles</h2>
+<p>
+  Tell Angular the nonce so that it adds it to the <code>&lt;style&gt;</code> elements it creates.
+  Have your server put the same nonce in the <code>ngCspNonce</code> attribute of the root element
+  and in the policy header of each response:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="nonceAttribute" language="angular-html" />
+<p>Or provide it with the <code>CSP_NONCE</code> token when you know it while the app starts:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="nonceToken" language="angular-ts" />
+<p>
+  Without a nonce, add <code>'unsafe-inline'</code> to <code>style-src</code> instead. Component
+  styles blocked by the policy leave those components without their extra styles, and the browser
+  reports a CSP violation in the console.
+</p>
+
+<h2 class="mt-11" id="scripts" docsHeading>Inline scripts</h2>
+<p>
+  Angular's own inline scripts, such as the event replay script of hydrated pages, are not
+  bootstrap-ng's. Allow them with the nonce, or let the Angular CLI hash them with
+  <code>autoCsp</code> in <code>angular.json</code>:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="autoCsp" language="json" />
+
+<h2 class="mt-11" id="server-rendering" docsHeading>Server-side rendering</h2>
+<p>
+  Styles that components bind, such as the width of a stacked progress bar, the fill of a range or
+  the color of a password strength meter, are written as <code>style</code> attributes in
+  server-rendered HTML. A policy without <code>'unsafe-inline'</code> blocks these attributes until
+  the values change in the browser. Allow them with <code>style-src-attr 'unsafe-inline'</code>,
+  which still blocks <code>&lt;style&gt;</code> elements without a nonce. See
+  <a routerLink="/getting-started/server-rendering">Server-side rendering</a> for the rest of the
+  setup.
+</p>
+
+<h2 class="mt-11" id="external-files" docsHeading>External files</h2>
+<ul>
+  <li>
+    Loading Bootstrap's CSS from jsDelivr needs <code>https://cdn.jsdelivr.net</code> in
+    <code>style-src</code>. Bundle it with your app instead to keep <code>style-src 'self'</code>.
+  </li>
+  <li>
+    <code>bs-icon</code> fetches SVG files, from jsDelivr by default, which needs their origin in
+    <code>connect-src</code>.
+    <a routerLink="/components/icon" fragment="self-hosting">Self-host the icons</a> or bundle them
+    to keep <code>connect-src 'self'</code>.
+  </li>
+</ul>
+
+<h2 class="mt-11" id="trusted-types" docsHeading>Trusted Types</h2>
+<p>
+  Angular supports Trusted Types. <code>bs-icon</code> parses SVG markup by setting
+  <code>innerHTML</code> on an inert <code>&lt;template&gt;</code> and cleans it before use, so a
+  policy with <code>require-trusted-types-for 'script'</code> needs a default Trusted Types policy
+  to show icons.
+</p>

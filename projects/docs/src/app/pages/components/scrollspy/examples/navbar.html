@@ -1,0 +1,37 @@
+<nav #navbar class="navbar navbar-expand bg-1 px-3 mb-3 rounded-2" aria-label="Scrollspy navbar">
+  <span class="navbar-brand">Navbar</span>
+  <ul class="nav nav-pills">
+    <li class="nav-item">
+      <a class="nav-link" href="#spy-navbar-first">First</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#spy-navbar-second">Second</a>
+    </li>
+    <li class="nav-item">
+      <button type="button" class="nav-link" [bsMenuToggle]="more">More</button>
+      <div bsMenu #more="bsMenu">
+        <a class="menu-item" href="#spy-navbar-third">Third</a>
+        <a class="menu-item" href="#spy-navbar-fourth">Fourth</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+<div
+  [bsScrollspy]="navbar"
+  smoothScroll
+  class="overflow-y-auto position-relative bg-1 p-3 rounded-2"
+  style="height: 200px"
+  tabindex="0"
+  role="region"
+  aria-label="Navbar scrollspy content">
+  @for (section of sections; track section) {
+    <section [id]="`spy-navbar-${section}`">
+      <h3 class="h5 text-capitalize">{{ section }} heading</h3>
+      <p>
+        This is some placeholder content for the scrollspy page. As you scroll, the link for this
+        heading is highlighted. Links in a menu work too, and the menu's toggle is highlighted with
+        them.
+      </p>
+    </section>
+  }
+</div>

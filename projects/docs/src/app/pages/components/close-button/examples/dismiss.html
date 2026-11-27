@@ -1,0 +1,10 @@
+@if (visible()) {
+  <div class="d-flex align-items-center gap-3 p-3 border rounded">
+    <p class="mb-0 me-auto">Your changes were saved.</p>
+    <button bsCloseButton aria-label="Dismiss message" (click)="visible.set(false)"></button>
+  </div>
+} @else {
+  <button type="button" bsButton="outline" theme="primary" (click)="visible.set(true)">
+    Show message
+  </button>
+}

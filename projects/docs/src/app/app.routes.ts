@@ -52,6 +52,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/getting-started/internationalization'),
   },
   {
+    path: 'getting-started/content-security-policy',
+    title: 'Content Security Policy · bootstrap-ng',
+    loadComponent: () => import('./pages/getting-started/content-security-policy'),
+  },
+  {
     path: 'getting-started/vs-code',
     title: 'VS Code extension · bootstrap-ng',
     loadComponent: () => import('./pages/getting-started/vs-code'),

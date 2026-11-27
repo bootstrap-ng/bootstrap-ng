@@ -1,0 +1,28 @@
+<div class="row">
+  <div class="col-4">
+    <div bsListGroup #list aria-label="List group sections">
+      @for (item of items; track item) {
+        <a bsListGroupItem [href]="`#spy-list-${item}`">Item {{ item }}</a>
+      }
+    </div>
+  </div>
+  <div class="col-8">
+    <div
+      [bsScrollspy]="list"
+      class="overflow-y-auto position-relative"
+      style="height: 200px"
+      tabindex="0"
+      role="region"
+      aria-label="List group scrollspy content">
+      @for (item of items; track item) {
+        <section [id]="`spy-list-${item}`">
+          <h3 class="h5">Item {{ item }}</h3>
+          <p>
+            This is some placeholder content for the scrollspy page. As you scroll, the list group
+            item for this heading is highlighted.
+          </p>
+        </section>
+      }
+    </div>
+  </div>
+</div>
