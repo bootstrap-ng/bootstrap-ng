@@ -96,6 +96,18 @@ export class BsScrollspy {
   private rendered = false;
 
   private readonly onNavClick = (event: MouseEvent) => {
+    // Leave Ctrl/Cmd, Shift and Alt clicks, which open the link in a new tab or window or
+    // download it, to the browser.
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
     const link = (event.target as Element).closest<HTMLElement>('[href]');
     const section = link && this.sectionByLink.get(link);
     if (!section) {
