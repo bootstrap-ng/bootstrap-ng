@@ -277,6 +277,31 @@ describe('BsChipInput', () => {
     expect(chips().some((chip) => chip.classList.contains('active'))).toBe(false);
   });
 
+  it('follows the text direction with the arrow keys in right-to-left layouts', async () => {
+    const { fixture, host, input, chips } = await setup();
+    host.dir = 'rtl';
+    const key = async (target: HTMLElement, key: string) => {
+      const event = new KeyboardEvent('keydown', { key, cancelable: true });
+      target.dispatchEvent(event);
+      await fixture.whenStable();
+      return event;
+    };
+    input.focus();
+    input.setSelectionRange(0, 0);
+    // ArrowLeft points away from the chips, so it stays with the text.
+    expect((await key(input, 'ArrowLeft')).defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(input);
+
+    expect((await key(input, 'ArrowRight')).defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(chips()[1]);
+    await key(chips()[1], 'ArrowRight');
+    expect(document.activeElement).toBe(chips()[0]);
+    await key(chips()[0], 'ArrowLeft');
+    expect(document.activeElement).toBe(chips()[1]);
+    await key(chips()[1], 'ArrowLeft');
+    expect(document.activeElement).toBe(input);
+  });
+
   it('extends the selection with Shift and removes all selected chips at once', async () => {
     const { fixture, input, chips, component } = await setup();
     component.tags.setValue(['A', 'B', 'C', 'D']);
