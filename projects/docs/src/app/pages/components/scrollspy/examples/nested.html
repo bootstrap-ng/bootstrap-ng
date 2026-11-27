@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="col-4">
+    <nav #nestedNav class="h-100 pe-3 border-end" aria-label="Nested sections">
+      <div bsNav variant="pills" vertical>
+        <a class="nav-link" href="#spy-nested-1">Item 1</a>
+        <div bsNav variant="pills" vertical>
+          <a class="nav-link ms-3 my-1" href="#spy-nested-1-1">Item 1-1</a>
+          <a class="nav-link ms-3 my-1" href="#spy-nested-1-2">Item 1-2</a>
+        </div>
+        <a class="nav-link" href="#spy-nested-2">Item 2</a>
+        <a class="nav-link" href="#spy-nested-3">Item 3</a>
+        <div bsNav variant="pills" vertical>
+          <a class="nav-link ms-3 my-1" href="#spy-nested-3-1">Item 3-1</a>
+          <a class="nav-link ms-3 my-1" href="#spy-nested-3-2">Item 3-2</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+  <div class="col-8">
+    <div
+      [bsScrollspy]="nestedNav"
+      class="overflow-y-auto position-relative"
+      style="height: 280px"
+      tabindex="0"
+      role="region"
+      aria-label="Nested scrollspy content">
+      @for (item of items; track item) {
+        <section [id]="`spy-nested-${item}`">
+          @if (item.includes('-')) {
+            <h4 class="h6">Item {{ item }}</h4>
+          } @else {
+            <h3 class="h5">Item {{ item }}</h3>
+          }
+          <p>
+            This is some placeholder content for the scrollspy page. When a nested link is active,
+            the link above it is active too.
+          </p>
+        </section>
+      }
+    </div>
+  </div>
+</div>

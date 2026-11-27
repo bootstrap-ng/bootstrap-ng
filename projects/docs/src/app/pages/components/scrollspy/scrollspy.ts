@@ -4,6 +4,12 @@ import { ScrollspyBasicExample } from './examples/basic';
 import basicHtml from './examples/basic.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
 import basicTs from './examples/basic.ts' with { loader: 'text' };
+import { ScrollspyNavbarExample } from './examples/navbar';
+import navbarHtml from './examples/navbar.html' with { loader: 'text' };
+import { ScrollspyNestedExample } from './examples/nested';
+import nestedHtml from './examples/nested.html' with { loader: 'text' };
+import { ScrollspyListGroupExample } from './examples/list-group';
+import listGroupHtml from './examples/list-group.html' with { loader: 'text' };
 
 const PAGE: DocsPageData = {
   title: 'Scrollspy',
@@ -18,6 +24,29 @@ const PAGE: DocsPageData = {
       example: ScrollspyBasicExample,
       html: basicHtml,
       ts: basicTs,
+    },
+    {
+      id: 'navbar',
+      title: 'Navbar',
+      description:
+        'Links can sit anywhere in the element you pass, including in a <code>bsMenu</code>. When a link in a menu is active, its menu toggle gets <code>.active</code> too.',
+      example: ScrollspyNavbarExample,
+      html: navbarHtml,
+    },
+    {
+      id: 'nested',
+      title: 'Nested nav',
+      description:
+        'Scrollspy also works with nested navigation. When a nested link is active, the link just before its nav is active too.',
+      example: ScrollspyNestedExample,
+      html: nestedHtml,
+    },
+    {
+      id: 'list-group',
+      title: 'List group',
+      description: 'Scrollspy works with list groups as well.',
+      example: ScrollspyListGroupExample,
+      html: listGroupHtml,
     },
   ],
   api: [
