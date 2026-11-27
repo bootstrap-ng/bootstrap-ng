@@ -117,6 +117,27 @@ describe('BsScrollspy', () => {
     history.replaceState(null, '', href);
   });
 
+  it('leaves modifier clicks, which open a new tab or window, to the browser', async () => {
+    const { content, link } = await setup();
+    const href = location.href;
+    const prevented: boolean[] = [];
+    const record = (event: MouseEvent) => {
+      prevented.push(event.defaultPrevented);
+      // Keep the test page from navigating.
+      event.preventDefault();
+    };
+    document.addEventListener('click', record);
+    for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey'] as const) {
+      link('two').dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, [modifier]: true }),
+      );
+    }
+    document.removeEventListener('click', record);
+    expect(prevented).toEqual([false, false, false, false]);
+    expect(content.scrollTop).toBe(0);
+    expect(location.href).toBe(href);
+  });
+
   it('keeps a pixel top margin in place when the scroll area resizes', async () => {
     const fixture = TestBed.createComponent(PixelHost);
     await fixture.whenStable();
