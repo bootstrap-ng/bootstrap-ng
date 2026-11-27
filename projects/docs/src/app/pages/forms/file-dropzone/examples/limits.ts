@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { BsFileDropzone } from 'bootstrap-ng';
+import { BsFileDropzone, formatFileSize } from 'bootstrap-ng';
 
 @Component({
   selector: 'docs-file-dropzone-limits-example',
@@ -7,6 +7,8 @@ import { BsFileDropzone } from 'bootstrap-ng';
   templateUrl: './limits.html',
 })
 export class FileDropzoneLimitsExample {
+  protected readonly maxFileSize = 2_000_000;
+  protected readonly maxFileSizeText = formatFileSize(this.maxFileSize);
   protected readonly photos = signal<File[]>([]);
   protected readonly rejectedCount = signal(0);
 }

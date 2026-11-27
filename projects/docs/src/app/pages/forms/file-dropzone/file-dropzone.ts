@@ -40,7 +40,7 @@ const PAGE: DocsPageData = {
       id: 'limits',
       title: 'File types and limits',
       description:
-        'Set <code>accept</code> like the native attribute, with MIME types, wildcards such as <code>image/*</code> or extensions. Dropped files are checked against it too. <code>maxFiles</code>, <code>maxFileSize</code> and <code>maxTotalSize</code> (in bytes) and <code>maxNameLength</code> limit the selection. Files that don’t fit are left out, explained under the zone and announced, and <code>(rejected)</code> emits them with the reason. Images get a preview; set <code>[thumbnails]="false"</code> to show a file icon instead.',
+        'Set <code>accept</code> like the native attribute, with MIME types, wildcards such as <code>image/*</code> or extensions. Dropped files are checked against it too. <code>maxFiles</code>, <code>maxFileSize</code> and <code>maxTotalSize</code> (in bytes) and <code>maxNameLength</code> limit the selection. Files that don’t fit are left out, explained under the zone and announced, and <code>(rejected)</code> emits them with the reason. <code>formatFileSize()</code> writes a limit the way the dropzone does, such as “2 MB”. Images get a preview; set <code>[thumbnails]="false"</code> to show a file icon instead.',
       example: FileDropzoneLimitsExample,
       html: limitsHtml,
       ts: limitsTs,
@@ -252,6 +252,18 @@ const PAGE: DocsPageData = {
           name: 'rejections()',
           type: 'readonly BsFileRejection[]',
           description: 'Files left out of the last selection or drop.',
+        },
+      ],
+    },
+    {
+      name: 'File size helper',
+      importFrom: 'bootstrap-ng/file-dropzone',
+      functions: [
+        {
+          name: 'formatFileSize(bytes, locale?)',
+          type: 'string',
+          description:
+            "Formats a number of bytes in decimal units, such as “70 bytes” or “1.5 MB”, in a locale that defaults to 'en-US'. The default for formatSize, which passes Angular’s LOCALE_ID.",
         },
       ],
     },
