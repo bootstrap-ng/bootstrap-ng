@@ -87,7 +87,7 @@ const PAGE: DocsPageData = {
       id: 'min-max-dates',
       title: 'Min and max dates',
       description:
-        'Restrict the selectable dates with <code>min</code> and <code>max</code>, or with a <code>dateDisabled</code> function, such as one that disables weekends.',
+        'Restrict the selectable dates with <code>min</code> and <code>max</code>, or with a <code>dateDisabled</code> function, such as one that disables weekends. The <a href="#api-date-helpers">date helpers</a> turn the ISO dates it receives into <code>Date</code> objects.',
       example: DatepickerMinMaxExample,
       html: min_maxHtml,
       ts: min_maxTs,
@@ -554,6 +554,36 @@ const PAGE: DocsPageData = {
           name: 'isDateDisabled(iso)',
           type: 'boolean',
           description: 'Whether a date is outside min and max or disabled.',
+        },
+      ],
+    },
+    {
+      name: 'Date helpers',
+      importFrom: 'bootstrap-ng/calendar',
+      functions: [
+        {
+          name: 'parseIsoDate(value)',
+          type: 'Date | null',
+          description:
+            'Parses an ISO date (YYYY-MM-DD) as a local date. Returns null for other text and for dates that don’t exist, such as 2026-02-30.',
+        },
+        {
+          name: 'toIsoDate(year, month, day)',
+          type: 'string',
+          description:
+            'Returns the ISO date of a local date. The month counts from 0 like Date, and overflowing months and days roll over.',
+        },
+        {
+          name: 'selectedDates(value)',
+          type: 'string[]',
+          description:
+            'Returns the valid dates of a BsDateValue as an array, for single, multiple and range values alike.',
+        },
+        {
+          name: 'weekNumber(weekStart, firstWeekday?, numbering?)',
+          type: 'number',
+          description:
+            "Returns the week number shown for a week starting on the weekStart date. firstWeekday defaults to 1 (Monday) and numbering to 'iso', like the weekNumbers option.",
         },
       ],
     },

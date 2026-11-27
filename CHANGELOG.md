@@ -2,6 +2,11 @@
 
 Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may include breaking changes.
 
+## Unreleased
+
+- Breaking: `BsTypeaheadPopup`, the typeahead's internal suggestion list, is no longer exported.
+- Docs: the `parseIsoDate`, `toIsoDate`, `selectedDates`, `weekNumber` and `formatFileSize` helpers.
+
 ## 6.0.0-alpha.10 - 2026-11-27
 
 - Datepicker: typed dates are read in the `dateFormat` options' format (and as Japanese era dates with `wareki`), with a `dateParser` input for other formats, a `textInvalid` output, and `invalidBehavior="keep"` to keep rejected text with a `textError` signal and `bsDate` form error.

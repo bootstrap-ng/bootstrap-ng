@@ -120,7 +120,7 @@ function highlight(text: string, term: string): TextPart[] {
     }
   `,
 })
-export class BsTypeaheadPopup {
+class BsTypeaheadPopup {
   readonly typeahead = inject(BsTypeahead);
   protected readonly highlight = highlight;
 }
