@@ -1,5 +1,5 @@
-// Only what Bootstrap's utilities can't express: the grid tracks, the sticky sidebar offset
-// under the header, and the reading width of the main column.
+/* Only what Bootstrap's utilities can't express: the grid tracks, the sticky sidebar offset
+under the header, and the reading width of the main column. */
 .docs-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -9,7 +9,7 @@
   max-width: 52rem;
 }
 
-// Below lg the sidebar is a bottom drawer; give it room for the long nav.
+/* Below lg the sidebar is a bottom drawer; give it room for the long nav. */
 .docs-sidebar .lg\:drawer {
   --bs-drawer-height: 75vh;
 }

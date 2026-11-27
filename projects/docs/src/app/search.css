@@ -1,5 +1,5 @@
-// The dialog width, the button's fixed width and hover state, and the result hover background
-// have no utility equivalents.
+/* The dialog width, the button's fixed width and hover state, and the result hover background
+have no utility equivalents. */
 .docs-search-dialog {
   --bs-dialog-width: 36rem;
 }
