@@ -47,6 +47,40 @@
 </p>
 <docs-code class="mb-5 rounded-5 bg-1" [code]="entryPoints" language="angular-ts" />
 
+<h3 class="mt-9" id="grouped-imports" docsHeading>Grouped imports</h3>
+<p>
+  Components made of several directives also export an array with all of them, so one import covers
+  the whole component:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="grouped" language="angular-ts" />
+<!-- Focusable so keyboard users can scroll the table on narrow screens. -->
+<div class="overflow-auto" tabindex="0" role="region" aria-label="Grouped imports">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Array</th>
+        <th scope="col">Entry point</th>
+        <th scope="col">Contains</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (group of groups; track group.name) {
+        <tr>
+          <td class="text-nowrap">
+            <a [routerLink]="group.path" fragment="api"
+              ><code>{{ group.name }}</code></a
+            >
+          </td>
+          <td class="text-nowrap">
+            <code>{{ group.entryPoint }}</code>
+          </td>
+          <td>{{ group.contains }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
 <h2 class="mt-11" id="accessibility" docsHeading>Accessibility</h2>
 <p>
   Components set the ARIA roles and states that Bootstrap documents, such as
