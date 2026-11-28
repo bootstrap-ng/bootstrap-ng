@@ -62,6 +62,26 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/getting-started/vs-code'),
   },
   {
+    path: 'getting-started/browsers',
+    title: 'Browsers and devices · bootstrap-ng',
+    loadComponent: () => import('./pages/getting-started/browsers'),
+  },
+  {
+    path: 'getting-started/testing',
+    title: 'Testing · bootstrap-ng',
+    loadComponent: () => import('./pages/getting-started/testing'),
+  },
+  {
+    path: 'getting-started/ai',
+    title: 'AI · bootstrap-ng',
+    loadComponent: () => import('./pages/getting-started/ai'),
+  },
+  {
+    path: 'getting-started/changelog',
+    title: 'Changelog · bootstrap-ng',
+    loadComponent: () => import('./pages/getting-started/changelog'),
+  },
+  {
     path: 'components',
     loadChildren: () => import('./pages/components/components.routes'),
   },
