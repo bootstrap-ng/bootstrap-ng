@@ -145,6 +145,37 @@ test('a typeahead suggests values and picks one with the keyboard', async ({ pag
   await expect(demo).toContainText('Value: Iceland');
 });
 
+test('a typeahead waits for its minimum length', async ({ page }) => {
+  await page.goto('forms/typeahead/');
+  const demo = example(page, 'min-length');
+  const input = demo.getByRole('combobox', { name: 'Airport' });
+  await input.fill('a');
+  await expect(page.getByRole('listbox')).toHaveCount(0);
+  await input.fill('an');
+  const listbox = page.getByRole('listbox');
+  await expect(listbox.getByRole('option')).toHaveText([
+    'FRA Frankfurt',
+    'LAX Los Angeles',
+    'SFO San Francisco',
+  ]);
+  await listbox.getByRole('option', { name: 'SFO San Francisco' }).click();
+  await expect(demo).toContainText('Value: SFO San Francisco');
+});
+
+test('a typeahead adds each pick to a list and clears the input', async ({ page }) => {
+  await page.goto('forms/typeahead/');
+  const demo = example(page, 'select');
+  const input = demo.getByRole('combobox', { name: 'Add a team member' });
+  const team = demo.getByRole('list', { name: 'Team' });
+  await expect(team).toContainText('No one yet.');
+  await input.fill('grace');
+  await page.getByRole('listbox').getByRole('option', { name: 'Grace Hopper' }).click();
+  await expect(input).toHaveValue('');
+  await expect(team.getByRole('listitem')).toHaveText(['Grace Hopper']);
+  await input.fill('grace');
+  await expect(page.getByRole('listbox')).toHaveCount(0);
+});
+
 test('a clearable input clears its value and keeps focus', async ({ page }) => {
   await page.goto('forms/form-control/');
   const demo = example(page, 'clearable');

@@ -8,6 +8,14 @@ import { TypeaheadAsyncExample } from './examples/async';
 import asyncHtml from './examples/async.html' with { loader: 'text' };
 // @ts-expect-error The text loader returns the file's source, not the module.
 import asyncTs from './examples/async.ts' with { loader: 'text' };
+import { TypeaheadMinLengthExample } from './examples/min-length';
+import minLengthHtml from './examples/min-length.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import minLengthTs from './examples/min-length.ts' with { loader: 'text' };
+import { TypeaheadSelectExample } from './examples/select';
+import selectHtml from './examples/select.html' with { loader: 'text' };
+// @ts-expect-error The text loader returns the file's source, not the module.
+import selectTs from './examples/select.ts' with { loader: 'text' };
 
 const PAGE: DocsPageData = {
   title: 'Typeahead',
@@ -31,6 +39,24 @@ const PAGE: DocsPageData = {
       example: TypeaheadAsyncExample,
       html: asyncHtml,
       ts: asyncTs,
+    },
+    {
+      id: 'min-length',
+      title: 'Minimum length',
+      description:
+        'By default the search runs from the first letter. Set <code>minLength</code> to wait for more, for example when a single letter matches too much or each search calls a server. Suggestions match anywhere in the text, and the part that matches the term is shown in bold.',
+      example: TypeaheadMinLengthExample,
+      html: minLengthHtml,
+      ts: minLengthTs,
+    },
+    {
+      id: 'select',
+      title: 'Acting on a pick',
+      description:
+        'Without a form binding, use <code>itemSelect</code> to do something with the picked suggestion. Here each pick is added to a list and the input is cleared for the next one, and the search leaves out people already added.',
+      example: TypeaheadSelectExample,
+      html: selectHtml,
+      ts: selectTs,
     },
   ],
   api: [
