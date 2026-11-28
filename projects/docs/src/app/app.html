@@ -111,6 +111,30 @@
                 </ul>
               </div>
             }
+            <div class="py-2">
+              <strong class="d-block fw-bold">Bootstrap</strong>
+              <ul class="nav flex-column mt-1">
+                @for (link of bootstrapDocs; track link.href) {
+                  <li class="nav-item">
+                    <a
+                      class="nav-link justify-content-start gap-1 py-1 ms-4 border-0"
+                      [href]="link.href">
+                      {{ link.title }}<span class="visually-hidden"> (Bootstrap docs)</span>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        aria-hidden="true">
+                        <path
+                          fill-rule="evenodd"
+                          d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z" />
+                      </svg>
+                    </a>
+                  </li>
+                }
+              </ul>
+            </div>
           </nav>
         </div>
       </dialog>

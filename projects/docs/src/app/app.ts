@@ -11,7 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { BsButton, BsCloseButton, BsDialogClose, BsDrawer } from 'bootstrap-ng';
 import { filter, map } from 'rxjs';
-import { NAV } from './nav';
+import { BOOTSTRAP_DOCS, NAV } from './nav';
 import { DocsSearch } from './search';
 import { DocsThemeToggle } from './theme-toggle';
 import { DocsToc } from './toc';
@@ -53,6 +53,7 @@ export class App {
 
   private readonly location = inject(Location);
   protected readonly nav = NAV;
+  protected readonly bootstrapDocs = BOOTSTRAP_DOCS;
   protected readonly menuOpen = signal(false);
 
   constructor() {
