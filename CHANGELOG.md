@@ -19,6 +19,7 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 - Chip input: Shift with an arrow key starts a new selection after the selection was cleared.
 - Typeahead: no highlight on the wrong letters when lowercasing changes the suggestion's length, such as with `İ`.
 - Table: a resize handle's `aria-valuenow` follows the column's width after the data or loading state changes.
+- Table: pinned columns stick in place on the first render instead of after the next frame.
 
 ## 6.0.0-alpha.10 - 2026-11-27
 
