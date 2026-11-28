@@ -528,6 +528,26 @@ const PAGE: DocsPageData = {
           type: 'void',
           description: 'Sets a column width in pixels.',
         },
+        {
+          name: 'isSelected(row)',
+          type: 'boolean',
+          description: 'Whether a row is selected.',
+        },
+        {
+          name: 'isExpanded(row)',
+          type: 'boolean',
+          description: "Whether a row's detail is shown.",
+        },
+        {
+          name: 'allSelected()',
+          type: 'boolean',
+          description: 'Whether every row on the page is selected.',
+        },
+        {
+          name: 'someSelected()',
+          type: 'boolean',
+          description: 'Whether some, but not all, rows on the page are selected.',
+        },
       ],
     },
     {

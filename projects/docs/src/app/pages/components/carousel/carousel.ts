@@ -164,7 +164,21 @@ const PAGE: DocsPageData = {
       name: 'BsCarouselItem',
       selector: '[bsCarouselItem]',
       exportAs: 'bsCarouselItem',
-      inputs: [],
+      inputs: [
+        {
+          name: 'aria-label',
+          type: 'string',
+          default: 'n of total',
+          description: 'Accessible label of the slide.',
+        },
+      ],
+      methods: [
+        {
+          name: 'isActive()',
+          type: 'boolean',
+          description: 'Whether this is the shown slide.',
+        },
+      ],
     },
     {
       name: 'BsCarouselPrev',
