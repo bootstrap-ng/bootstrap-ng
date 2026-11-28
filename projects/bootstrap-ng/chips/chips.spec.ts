@@ -328,6 +328,24 @@ describe('BsChipInput', () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it('starts a new selection with Shift after the selection was cleared', async () => {
+    const { fixture, input, chips, component } = await setup();
+    component.tags.setValue(['A', 'B', 'C', 'D']);
+    await fixture.whenStable();
+    chips()[0].click();
+    await fixture.whenStable();
+    input.focus();
+    await fixture.whenStable();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', shiftKey: true }));
+    await fixture.whenStable();
+    expect(chips().map((chip) => chip.classList.contains('active'))).toEqual([
+      false,
+      false,
+      false,
+      true,
+    ]);
+  });
+
   it('selects every chip with Ctrl+A or Cmd+A', async () => {
     const { fixture, chips, component } = await setup();
     chips()[0].click();

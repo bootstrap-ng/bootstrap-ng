@@ -16,6 +16,7 @@ import {
   output,
   Provider,
   signal,
+  untracked,
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { configToken, provideConfig, uniqueId } from 'bootstrap-ng/util';
@@ -80,12 +81,19 @@ const chunk = <T>(cells: T[], size: number): T[][] =>
     cells.slice(i * size, i * size + size),
   );
 
-const pad = (value: number) => String(value).padStart(2, '0');
+const pad = (value: number, length = 2) => String(value).padStart(length, '0');
+
+/** `new Date(year, month, day)`, without reading years 0 to 99 as 1900 to 1999. */
+function localDate(year: number, month: number, day: number): Date {
+  const date = new Date(2000, 0, 1);
+  date.setFullYear(year, month, day);
+  return date;
+}
 
 /** Returns the ISO date of a local date, normalizing overflowing months and days. */
 export function toIsoDate(year: number, month: number, day: number): string {
-  const date = new Date(year, month, day);
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const date = localDate(year, month, day);
+  return `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 /** Parses an ISO date (`YYYY-MM-DD`) as a local date. Returns null when invalid. */
@@ -95,7 +103,7 @@ export function parseIsoDate(value: string | null | undefined): Date | null {
     return null;
   }
   const [year, month, day] = [Number(match[1]), Number(match[2]) - 1, Number(match[3])];
-  const date = new Date(year, month, day);
+  const date = localDate(year, month, day);
   return date.getMonth() === month && date.getDate() === day ? date : null;
 }
 
@@ -120,8 +128,8 @@ const monthStart = (iso: string) => {
 
 const addMonths = (iso: string, months: number) => {
   const date = requireDate(iso);
-  const target = new Date(date.getFullYear(), date.getMonth() + months, 1);
-  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  const target = localDate(date.getFullYear(), date.getMonth() + months, 1);
+  const lastDay = localDate(target.getFullYear(), target.getMonth() + 1, 0).getDate();
   return toIsoDate(target.getFullYear(), target.getMonth(), Math.min(date.getDate(), lastDay));
 };
 
@@ -145,12 +153,12 @@ export function weekNumber(
 ): number {
   const [year, month, day] = [weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()];
   if (numbering === 'iso') {
-    const thursday = new Date(year, month, day + ((4 - firstWeekday + 7) % 7));
+    const thursday = localDate(year, month, day + ((4 - firstWeekday + 7) % 7));
     return Math.floor(dayOfYear(thursday) / 7) + 1;
   }
   // The week holding 1 January of the year the week ends in is week 1.
-  const end = new Date(year, month, day + 6);
-  const firstWeek = -((new Date(end.getFullYear(), 0, 1).getDay() - firstWeekday + 7) % 7);
+  const end = localDate(year, month, day + 6);
+  const firstWeek = -((localDate(end.getFullYear(), 0, 1).getDay() - firstWeekday + 7) % 7);
   return Math.floor((dayOfYear(weekStart, end.getFullYear()) - firstWeek) / 7) + 1;
 }
 
@@ -571,7 +579,10 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   protected readonly focused = linkedSignal<string[], string>({
     source: this.dates,
     computation: (dates, previous) =>
-      previous && this.isInView(previous.value) ? previous.value : (dates[0] ?? this.today),
+      // Only a change of the dates resets it: `moveView` keeps the day when the view moves.
+      previous && untracked(() => this.isInView(previous.value))
+        ? previous.value
+        : (dates[0] ?? this.today),
   });
   /** Date in the tab order: always a day of the months in view. */
   protected readonly tabStop = computed(() => {
@@ -626,7 +637,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     const target = this.pickerTarget();
     const short = new Intl.DateTimeFormat(this.locale(), { month: 'short' });
     const cells = Array.from({ length: 12 }, (_, month): PickerCell => {
-      const date = new Date(year, month, 1);
+      const date = localDate(year, month, 1);
       return {
         value: month,
         label: short.format(date),
@@ -659,7 +670,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     const long = new Intl.DateTimeFormat(locale, { weekday: 'long' });
     // 2023-01-01 was a Sunday.
     return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(2023, 0, 1 + ((i + this.firstWeekday()) % 7));
+      const date = localDate(2023, 0, 1 + ((i + this.firstWeekday()) % 7));
       return { short: short.format(date), long: long.format(date) };
     });
   });
@@ -674,14 +685,14 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     const count = Math.max(1, this.monthsCount());
     const outside = count === 1 && !this.hideOutsideDays();
     return Array.from({ length: count }, (_, i) => {
-      const year = new Date(start.getFullYear(), start.getMonth() + i, 1).getFullYear();
-      const month = new Date(start.getFullYear(), start.getMonth() + i, 1).getMonth();
-      const offset = (new Date(year, month, 1).getDay() - this.firstWeekday() + 7) % 7;
-      const length = new Date(year, month + 1, 0).getDate();
+      const year = localDate(start.getFullYear(), start.getMonth() + i, 1).getFullYear();
+      const month = localDate(start.getFullYear(), start.getMonth() + i, 1).getMonth();
+      const offset = (localDate(year, month, 1).getDay() - this.firstWeekday() + 7) % 7;
+      const length = localDate(year, month + 1, 0).getDate();
       const cells = Math.ceil((offset + length) / 7) * 7;
       const days = Array.from({ length: cells }, (_, cell): CalendarDay | null => {
         const day = cell - offset + 1;
-        const date = new Date(year, month, day);
+        const date = localDate(year, month, day);
         const kind = day < 1 ? 'prev' : day > length ? 'next' : null;
         if (kind && !outside) {
           return null;
@@ -690,7 +701,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
       });
       const weeks = Array.from({ length: cells / 7 }, (_, w) => ({
         number: weekNumber(
-          new Date(year, month, w * 7 - offset + 1),
+          localDate(year, month, w * 7 - offset + 1),
           this.firstWeekday(),
           this.weekNumbering(),
         ),
@@ -734,7 +745,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
   );
 
   protected monthName(month: { year: number; month: number }): string {
-    return this.monthFormat().format(new Date(month.year, month.month, 1));
+    return this.monthFormat().format(localDate(month.year, month.month, 1));
   }
 
   /** Formats Japanese era years, and whether to use full-width brackets. */
@@ -757,7 +768,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
       return null;
     }
     return {
-      name: era.format.format(new Date(year, month, 1)),
+      name: era.format.format(localDate(year, month, 1)),
       gregorian: era.japanese ? `（${year}）` : `(${year})`,
     };
   }
@@ -1048,7 +1059,7 @@ export class BsCalendar extends BsValueControl<BsDateValue> {
     }
     const shown = requireDate(start);
     const day = requireDate(this.focused()).getDate();
-    const lastDay = new Date(shown.getFullYear(), shown.getMonth() + 1, 0).getDate();
+    const lastDay = localDate(shown.getFullYear(), shown.getMonth() + 1, 0).getDate();
     this.view.set(addMonths(start, -this.pickerColumn));
     this.focused.set(toIsoDate(shown.getFullYear(), shown.getMonth(), Math.min(day, lastDay)));
     this.closePicker();

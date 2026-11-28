@@ -24,7 +24,7 @@ import { Directive, ElementRef, inject, input, signal } from '@angular/core';
     novalidate: '',
     '[attr.data-bs-validate]': "showValid() ? 'valid' : ''",
     '(submit)': 'onSubmit($event)',
-    '(reset)': 'submittedState.set(false)',
+    '(reset)': 'onReset()',
   },
 })
 export class BsValidate {
@@ -37,8 +37,17 @@ export class BsValidate {
   /** True after the user tried to submit the form, until it is reset. */
   readonly submitted = this.submittedState.asReadonly();
 
+  private readonly resetCount = signal(0);
+  /** @internal Changes every time the form is reset, so controls forget they were touched. */
+  readonly resets = this.resetCount.asReadonly();
+
   /** Whether controls show success styles. */
   readonly showValid = () => this.mode() === 'valid';
+
+  protected onReset(): void {
+    this.submittedState.set(false);
+    this.resetCount.update((count) => count + 1);
+  }
 
   protected onSubmit(event: Event): void {
     this.submittedState.set(true);

@@ -9,6 +9,16 @@ Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may 
 - Chip input: arrow keys follow the chips in right-to-left layouts.
 - Breaking: `BsTypeaheadPopup`, the typeahead's internal suggestion list, is no longer exported.
 - Docs: the `parseIsoDate`, `toIsoDate`, `selectedDates`, `weekNumber` and `formatFileSize` helpers.
+- Dialog and drawer: a static `open` attribute opens them as a modal.
+- Toaster: visible toasts stay on the page when the modal dialog holding them is removed while open.
+- Live announcer: a polite announcement no longer drops a pending assertive one.
+- Form controls: a native form reset clears the validation state of controls without an Angular form control.
+- Calendar: the arrow buttons keep the focused day after the value changes; years before 100 are no longer read as 1900 to 1999.
+- Combobox: opening it focuses the first enabled option when the selected option is disabled.
+- OTP input: ArrowLeft moves to the previous slot from a filled slot in left-to-right layouts.
+- Chip input: Shift with an arrow key starts a new selection after the selection was cleared.
+- Typeahead: no highlight on the wrong letters when lowercasing changes the suggestion's length, such as with `İ`.
+- Table: a resize handle's `aria-valuenow` follows the column's width after the data or loading state changes.
 
 ## 6.0.0-alpha.10 - 2026-11-27
 

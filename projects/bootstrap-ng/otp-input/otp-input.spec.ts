@@ -376,6 +376,20 @@ describe('BsOtp', () => {
     expect([input.selectionStart, input.selectionEnd]).toEqual([0, 1]);
   });
 
+  it('moves one slot per arrow key from a filled slot in left-to-right layouts', async () => {
+    const { fixture, input, component } = await setup();
+    component.code.setValue('123456');
+    input.focus();
+    await fixture.whenStable();
+    input.setSelectionRange(5, 6);
+    await press('{ArrowLeft}');
+    expect([input.selectionStart, input.selectionEnd]).toEqual([4, 5]);
+    await press('{ArrowLeft}');
+    expect([input.selectionStart, input.selectionEnd]).toEqual([3, 4]);
+    await press('{ArrowRight}');
+    expect([input.selectionStart, input.selectionEnd]).toEqual([4, 5]);
+  });
+
   it('shows the restored value after a native form reset', async () => {
     @Component({
       imports: [BsOtp, BsOtpInput],

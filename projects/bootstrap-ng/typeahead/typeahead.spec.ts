@@ -163,6 +163,17 @@ describe('BsTypeahead', () => {
     expect(options()[2].querySelector('strong')!.textContent).toBe('ap');
   });
 
+  it('highlights nothing rather than the wrong letters when lowercasing changes the length', async () => {
+    await setup();
+    host.search.set(() => ['İzmir']);
+    await TestBed.inject(ApplicationRef).whenStable();
+    type('zm');
+    await vi.waitFor(() => expect(options().length).toBe(1));
+    // `İ` lowercases to two characters, which would shift the match onto "mi".
+    expect(options()[0].querySelector('strong')).toBeNull();
+    expect(options()[0].textContent.trim()).toBe('İzmir');
+  });
+
   it('moves through suggestions with the arrow keys and picks one with Enter', async () => {
     await setup();
     type('ap');

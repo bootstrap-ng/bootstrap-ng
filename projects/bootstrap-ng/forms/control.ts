@@ -153,6 +153,18 @@ export class BsControl {
       }
     });
 
+    // A native reset fires no `input` event, so forget the state the user left, as
+    // Angular's forms and `:user-invalid` do.
+    let resets = this.validate?.resets() ?? 0;
+    effect(() => {
+      const count = this.validate?.resets() ?? 0;
+      if (count !== resets) {
+        resets = count;
+        this.nativeTouched.set(false);
+        this.nativeStatus.set(null);
+      }
+    });
+
     // Angular's form directives resolve their control during their first change detection,
     // and a composite control's value accessor may still be under construction now, so
     // look the form control up once the view has rendered.

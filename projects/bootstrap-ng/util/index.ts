@@ -8,4 +8,4 @@ export { BsLiveAnnouncer } from './announcer';
 export { configToken, provideConfig } from './config';
 export { autoPosition } from './floating';
 export { adjacentTabbable, tabbables } from './focus';
-export { modalHost } from './modal';
+export { MODAL_GUEST_ATTRIBUTE, modalHost, releaseModalGuests } from './modal';

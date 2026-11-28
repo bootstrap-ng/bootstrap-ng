@@ -303,6 +303,15 @@ describe('BsCombobox keyboard and options', () => {
     expect(document.activeElement).toBe(options()[2]);
   });
 
+  it('focuses the first enabled option on open when the selected one is disabled', async () => {
+    const { fixture, host, toggle, options, key, nextFrame } = await setup();
+    host.value.set({ id: 0 });
+    await fixture.whenStable();
+    await key(toggle, 'ArrowDown');
+    await nextFrame();
+    expect(document.activeElement).toBe(options()[1]);
+  });
+
   it('moves from the search field to the first visible option with Arrow Down', async () => {
     const { fixture, host, root, toggle, options, key, nextFrame } = await setup();
     host.search.set(true);

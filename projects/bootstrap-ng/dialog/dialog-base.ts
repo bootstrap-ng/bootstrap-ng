@@ -10,7 +10,7 @@ import {
   OnDestroy,
   output,
 } from '@angular/core';
-import { waitForTransition } from 'bootstrap-ng/util';
+import { releaseModalGuests, waitForTransition } from 'bootstrap-ng/util';
 import type { BsDialogConfig } from './dialog';
 
 const CLASS_NAME_OPEN = 'dialog-open';
@@ -84,6 +84,9 @@ export abstract class BsDialogBase implements OnDestroy {
   private destroyed = false;
 
   constructor() {
+    // A static `open` attribute would open the native dialog inline before the effect
+    // runs, so it would never open modally. The `open` input opens it instead.
+    this.element.removeAttribute('open');
     afterRenderEffect(() => {
       const open = this.isOpen();
       if (open && (!this.element.open || this.hiding)) {
@@ -176,6 +179,8 @@ export abstract class BsDialogBase implements OnDestroy {
 
   private closeAndCleanup(): void {
     this.element.close();
+    // The dialog may leave the page before its `close` event, which toasts listen for.
+    releaseModalGuests(this.element);
     this.openedAsModal = false;
     this.unlockScroll();
   }

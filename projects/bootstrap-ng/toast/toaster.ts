@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { BS_CLOSE_BUTTON_CONFIG, BsCloseButton } from 'bootstrap-ng/close-button';
-import { BsTheme, modalHost, themeClass } from 'bootstrap-ng/util';
+import { BsTheme, MODAL_GUEST_ATTRIBUTE, modalHost, themeClass } from 'bootstrap-ng/util';
 import { BS_TOAST_CONFIG, BsToast, BsToastClose } from './toast';
 
 /** Where `BsToaster` stacks its toasts on the screen, such as `'bottom-end'`. */
@@ -225,7 +225,9 @@ export class BsToaster {
         environmentInjector: this.injector,
       });
       this.appRef.attachView(container.hostView);
-      this.document.body.appendChild(container.location.nativeElement);
+      const element = container.location.nativeElement as HTMLElement;
+      element.setAttribute(MODAL_GUEST_ATTRIBUTE, '');
+      this.document.body.appendChild(element);
       this.container = container;
       // `toggle` and `close` don't bubble, so listen in the capture phase.
       this.document.addEventListener('toggle', this.onDialogToggle, true);

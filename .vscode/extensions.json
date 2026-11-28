@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "angular.ng-template",
+    "coliff.bootstrap-ng",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "editorconfig.editorconfig",
