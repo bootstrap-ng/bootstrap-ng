@@ -1,0 +1,61 @@
+<h1>Testing</h1>
+<p class="fs-lg fg-2">Tips for unit testing Angular components that use bootstrap-ng.</p>
+
+<h2 class="mt-11" id="test-runner" docsHeading>Run tests in a real browser</h2>
+<p>
+  bootstrap-ng relies on the browser's own elements and APIs, such as <code>&lt;dialog&gt;</code>,
+  <code>ResizeObserver</code> and layout measurements for positioning menus and tooltips. jsdom has
+  no layout engine and lacks some of these APIs, so test components that use bootstrap-ng in a real
+  browser. With the Angular CLI's Vitest runner, set <code>browsers</code> in the
+  <code>test</code> target in <code>angular.json</code> and install Playwright:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="angularJson" language="json" />
+<docs-code
+  class="mb-5 rounded-5 bg-1"
+  code="npm install --save-dev @vitest/browser-playwright playwright"
+  language="shellscript" />
+<p>bootstrap-ng runs its own unit tests this way, in headless Chromium.</p>
+
+<h2 class="mt-11" id="css" docsHeading>Bootstrap's CSS and transitions</h2>
+<p>
+  The test build uses the options of your app's <code>build</code> target, so when Bootstrap's CSS
+  is in its <code>styles</code>, tests have it too. Components wait for Bootstrap's CSS transitions
+  before they emit events such as <code>shown</code> and <code>hidden</code>. Without the CSS,
+  nothing has a transition and these events are emitted right away. With it, wait for the event
+  instead of expecting it at once:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="waitForEvent" language="angular-ts" />
+<p>
+  Alerts, dialogs, drawers, popovers, toasts and tooltips take an <code>animation</code> input. To
+  turn it off in every test, return their
+  <a routerLink="/getting-started/configuration">configuration functions</a> from the file that
+  <code>providersFile</code> names in the <code>test</code> target:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="noAnimation" language="angular-ts" />
+
+<h2 class="mt-11" id="overlays" docsHeading>Find overlays in the document</h2>
+<p>
+  Tooltips, popovers, typeahead suggestions, toasts and dialogs opened with
+  <code>BsDialogService</code> are added to <code>document.body</code>, or to the open dialog that
+  holds their trigger, not inside the component. Look for them in <code>document</code> instead of
+  the fixture's element:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="overlay" language="angular-ts" />
+
+<h2 class="mt-11" id="queries" docsHeading>Query by role and name</h2>
+<p>
+  Components set the ARIA roles, states and labels that Bootstrap documents, so tests can find
+  elements the way users and assistive technology do. Query by role and accessible name, for example
+  with Vitest's browser locators or Testing Library, and check states such as
+  <code>aria-expanded</code> and <code>aria-selected</code> instead of class names.
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="byRole" language="angular-ts" />
+
+<h2 class="mt-11" id="forms" docsHeading>Form controls</h2>
+<p>
+  Form controls such as <a routerLink="/forms/datepicker">datepickers</a>,
+  <a routerLink="/forms/typeahead">typeaheads</a> and <a routerLink="/forms/rating">ratings</a> are
+  Angular form controls. Set and read their values through the form control in the test, as you
+  would with a native input. To test typing, change the input's value and dispatch an
+  <code>input</code> event, or use a user-event library.
+</p>

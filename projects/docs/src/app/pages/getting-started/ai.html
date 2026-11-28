@@ -1,0 +1,50 @@
+<h1>AI</h1>
+<p class="fs-lg fg-2">Give AI assistants and coding agents up-to-date knowledge of bootstrap-ng.</p>
+
+<h2 class="mt-11" id="llms-txt" docsHeading>llms.txt</h2>
+<p>
+  This site publishes its docs in the <a href="https://llmstxt.org">llms.txt</a> format, generated
+  from the pages on every build, so they match the current release:
+</p>
+<ul>
+  <li>
+    <a href="/llms.txt"><code>llms.txt</code></a> lists every page with a short description and a
+    link.
+  </li>
+  <li>
+    <a href="/llms-full.txt"><code>llms-full.txt</code></a> has every page in full, with its example
+    code and API tables, as Markdown.
+  </li>
+</ul>
+<p>Point an assistant at one of them before asking about bootstrap-ng, for example:</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="prompt" language="shellscript" />
+<p>
+  The <strong>For Agents</strong> menu on the <a routerLink="/">home page</a> opens ChatGPT or
+  Claude with this prompt.
+</p>
+
+<h2 class="mt-11" id="agent-skills" docsHeading>Agent skills</h2>
+<p>
+  The bootstrap-ng repository has <a href="https://agentskills.io">agent skills</a> that teach
+  coding agents, such as Claude Code, Codex and GitHub Copilot, how to work with bootstrap-ng. Add
+  them to your project with the Skills CLI:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="skills" language="shellscript" />
+<p>
+  The <code>bootstrap-ng-install</code> skill adds bootstrap-ng to an Angular application: it
+  installs the packages, adds Bootstrap's CSS, imports components and sets up global configuration
+  and icons, then checks the result.
+</p>
+
+<h2 class="mt-11" id="agents-md" docsHeading>Project instructions</h2>
+<p>
+  Agents follow the instructions in files such as <code>AGENTS.md</code> or <code>CLAUDE.md</code>.
+  A few lines there keep them on the right track:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="agentsMd" language="shellscript" />
+
+<h2 class="mt-11" id="editor" docsHeading>Editor support</h2>
+<p>
+  For completions and diagnostics while you or an agent edit templates, install the
+  <a routerLink="/getting-started/vs-code">VS Code extension</a>.
+</p>
