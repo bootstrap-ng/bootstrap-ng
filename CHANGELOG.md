@@ -2,7 +2,7 @@
 
 Notable changes to bootstrap-ng. While Bootstrap 6 is in alpha, any release may include breaking changes.
 
-## Unreleased
+## 6.0.0-alpha.11 - 2026-11-28
 
 - Table: the left and right arrow keys on a column resize handle follow the handle in right-to-left layouts.
 - Scrollspy: Ctrl/Cmd, Shift and Alt clicks on a link open it in a new tab or window again instead of scrolling.
