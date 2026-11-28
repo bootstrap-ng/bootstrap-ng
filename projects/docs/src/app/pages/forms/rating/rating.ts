@@ -187,6 +187,13 @@ const PAGE: DocsPageData = {
           description: 'Emits the rating when it changes.',
         },
       ],
+      methods: [
+        {
+          name: 'interactive()',
+          type: 'boolean',
+          description: 'Whether the rating can be changed: not readonly and not disabled.',
+        },
+      ],
     },
     {
       name: 'BsRatingStar',

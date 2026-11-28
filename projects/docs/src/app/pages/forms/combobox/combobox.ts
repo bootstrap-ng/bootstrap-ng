@@ -209,6 +209,11 @@ const PAGE: DocsPageData = {
           type: 'void',
           description: 'Opens or closes the menu.',
         },
+        {
+          name: 'isOpen()',
+          type: 'boolean',
+          description: 'Whether the menu is open.',
+        },
       ],
     },
     {
@@ -227,6 +232,18 @@ const PAGE: DocsPageData = {
           type: 'BsPlacement',
           default: "'bottom-start'",
           description: 'Where the menu opens.',
+        },
+      ],
+      methods: [
+        {
+          name: 'query()',
+          type: 'string',
+          description: 'Current search text, lowercased and without accents.',
+        },
+        {
+          name: 'noResults()',
+          type: 'boolean',
+          description: 'Whether no option matches the search.',
         },
       ],
     },
@@ -252,6 +269,18 @@ const PAGE: DocsPageData = {
           type: 'boolean',
           default: 'false',
           description: 'Disables the option.',
+        },
+      ],
+      methods: [
+        {
+          name: 'selected()',
+          type: 'boolean',
+          description: 'Whether the option is selected.',
+        },
+        {
+          name: 'displayLabel()',
+          type: 'string',
+          description: 'Text shown in the combobox when the option is selected.',
         },
       ],
     },

@@ -127,6 +127,11 @@ const PAGE: DocsPageData = {
           type: 'void',
           description: 'Goes to a page, clamped to the available pages.',
         },
+        {
+          name: 'current()',
+          type: 'number',
+          description: 'Current page, clamped to the available pages.',
+        },
       ],
     },
   ],
