@@ -89,3 +89,12 @@ export const NAV: DocsNavSection[] = [
   { title: 'Components', items: COMPONENT_PAGES },
   { title: 'Forms', items: FORM_PAGES },
 ];
+
+/** Bootstrap's own docs for the CSS-only parts that need no Angular, linked from the sidebar. */
+export const BOOTSTRAP_DOCS: { title: string; href: string }[] = [
+  { title: 'Content', href: 'https://getbootstrap.com/docs/6.0/content/reboot/' },
+  { title: 'Customize', href: 'https://getbootstrap.com/docs/6.0/customize/overview/' },
+  { title: 'Helpers', href: 'https://getbootstrap.com/docs/6.0/helpers/focus-ring/' },
+  { title: 'Layout', href: 'https://getbootstrap.com/docs/6.0/layout/breakpoints/' },
+  { title: 'Utilities', href: 'https://getbootstrap.com/docs/6.0/utilities/api/' },
+];
