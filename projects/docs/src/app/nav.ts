@@ -56,6 +56,7 @@ export const FORM_PAGES: DocsNavItem[] = [
   { title: 'Chips', path: 'forms/chips' },
   { title: 'Combobox', path: 'forms/combobox' },
   { title: 'Typeahead', path: 'forms/typeahead' },
+  { title: 'Calendar', path: 'forms/calendar' },
   { title: 'Datepicker', path: 'forms/datepicker' },
   { title: 'OTP input', path: 'forms/otp-input' },
   { title: 'Password strength', path: 'forms/password-strength' },

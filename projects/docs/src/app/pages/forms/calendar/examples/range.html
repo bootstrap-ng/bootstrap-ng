@@ -1,0 +1,13 @@
+<div
+  bsCalendar
+  selectionMode="range"
+  monthsCount="2"
+  [(value)]="stay"
+  (selectionComplete)="nights.set(countNights($event))"></div>
+<p class="mt-3 mb-0 fg-3">
+  @if (nights(); as count) {
+    {{ count }} {{ count === 1 ? 'night' : 'nights' }}
+  } @else {
+    Pick a check-in and a check-out date.
+  }
+</p>

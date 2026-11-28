@@ -133,7 +133,7 @@ export const appConfig: ApplicationConfig = {
     },
     {
       fn: 'provideBsCalendarConfig',
-      path: '/forms/datepicker',
+      path: '/forms/calendar',
       inputs:
         'firstWeekday, monthsCount, locale, prevLabel, nextLabel, hideOutsideDays, weekNumbers, weekNumbering, weekLabel, monthSelection, yearSelection, monthSelectionLabel, yearSelectionLabel, prevYearsLabel, nextYearsLabel, wareki',
     },

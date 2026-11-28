@@ -67,6 +67,11 @@ export default [
     loadComponent: () => import('./typeahead/typeahead'),
   },
   {
+    path: 'calendar',
+    title: 'Calendar · bootstrap-ng',
+    loadComponent: () => import('./calendar/calendar'),
+  },
+  {
     path: 'datepicker',
     title: 'Datepicker · bootstrap-ng',
     loadComponent: () => import('./datepicker/datepicker'),
