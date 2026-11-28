@@ -1,0 +1,93 @@
+<h1>Browsers and devices</h1>
+<p class="fs-lg fg-2">The browsers bootstrap-ng supports, on desktop and mobile.</p>
+
+<h2 class="mt-11" id="supported-browsers" docsHeading>Supported browsers</h2>
+<p>
+  bootstrap-ng supports the browsers that both
+  <a href="https://getbootstrap.com/docs/6.0/getting-started/browsers-devices/">Bootstrap 6</a> and
+  <a href="https://angular.dev/reference/versions#browser-support">Angular</a> support: the latest
+  versions of the major browsers, down to these minimum versions.
+</p>
+<!-- Focusable so keyboard users can scroll the table on narrow screens. -->
+<div class="overflow-auto" tabindex="0" role="region" aria-label="Supported browsers">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Browser</th>
+        <th scope="col">Desktop</th>
+        <th scope="col">Mobile</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">Chrome</th>
+        <td>138 and later</td>
+        <td>Latest on Android</td>
+      </tr>
+      <tr>
+        <th scope="row">Edge</th>
+        <td>138 and later</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <th scope="row">Firefox</th>
+        <td>147 and later</td>
+        <td>Latest on Android</td>
+      </tr>
+      <tr>
+        <th scope="row">Safari</th>
+        <td>18 and later on macOS</td>
+        <td>18 and later on iOS and iPadOS</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  Other browsers built on Chromium, WebKit or Gecko, such as Opera, Samsung Internet and the
+  browsers in iOS apps, generally work when they are based on one of these versions. Internet
+  Explorer and the old, non-Chromium Edge are not supported.
+</p>
+
+<h2 class="mt-11" id="browserslist" docsHeading>Browserslist</h2>
+<p>
+  The Angular CLI reads a <code>.browserslistrc</code> file to decide which browsers to build for.
+  This site builds with Angular's default, Baseline Widely available, raised to Bootstrap 6's
+  minimum versions:
+</p>
+<docs-code class="mb-5 rounded-5 bg-1" [code]="browserslist" language="shellscript" />
+<p>Run <code>npx browserslist</code> in your project to see the list of browsers this gives.</p>
+
+<h2 class="mt-11" id="platform-features" docsHeading>Platform features</h2>
+<p>
+  bootstrap-ng uses the browser's own elements and APIs instead of polyfills or extra libraries, so
+  it needs browsers that support them:
+</p>
+<ul>
+  <li>
+    <code>&lt;dialog&gt;</code> for <a routerLink="/components/dialog">dialogs</a> and
+    <a routerLink="/components/drawer">drawers</a>, with focus trapping and <kbd>Escape</kbd> from
+    the browser.
+  </li>
+  <li>
+    <code>&lt;details&gt;</code> for <a routerLink="/components/accordion">accordions</a>, so their
+    content is found by the browser's find in page.
+  </li>
+  <li>
+    <code>ResizeObserver</code> and <code>IntersectionObserver</code> for components that follow
+    their size or position, such as <a routerLink="/components/nav-overflow">nav overflow</a>,
+    <a routerLink="/components/scrollspy">scrollspy</a> and
+    <a routerLink="/components/table">tables</a>.
+  </li>
+  <li>
+    <code>Intl</code> for dates, numbers and plural forms in the
+    <a routerLink="/getting-started/internationalization">locale</a> you set.
+  </li>
+</ul>
+
+<h2 class="mt-11" id="mobile" docsHeading>Mobile devices</h2>
+<p>
+  Components work with touch, mouse and keyboard, and follow Bootstrap's responsive breakpoints. For
+  mobile layouts, a <a routerLink="/components/drawer">drawer</a> can open from the bottom of the
+  screen as a sheet. Test on real devices or simulators as well as in your desktop browser's device
+  emulation, which doesn't reproduce on-screen keyboards or touch scrolling.
+</p>

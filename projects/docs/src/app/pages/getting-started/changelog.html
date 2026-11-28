@@ -1,0 +1,20 @@
+<h1>Changelog</h1>
+<p class="fs-lg fg-2">
+  Notable changes in each release. While Bootstrap 6 is in alpha, any release may include breaking
+  changes.
+</p>
+
+@for (release of releases; track release.id) {
+  <h2 class="mt-11" [id]="release.id" docsHeading>{{ release.title }}</h2>
+  @if (release.items.length) {
+    <ul>
+      @for (item of release.items; track $index) {
+        <!-- Bound as HTML so no whitespace gets in around the <code> parts. -->
+        <li [innerHTML]="item"></li>
+      }
+    </ul>
+  }
+  @for (paragraph of release.paragraphs; track $index) {
+    <p>{{ paragraph }}</p>
+  }
+}
