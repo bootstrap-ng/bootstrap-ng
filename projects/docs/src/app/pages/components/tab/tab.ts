@@ -65,6 +65,13 @@ const PAGE: DocsPageData = {
           description: 'Element id, used to build tab and pane ids.',
         },
       ],
+      outputs: [
+        {
+          name: 'activeChange',
+          type: 'string | undefined',
+          description: 'Emits the key of the newly shown tab.',
+        },
+      ],
       methods: [
         { name: 'select(key)', type: 'void', description: 'Shows the tab with the given key.' },
         {
@@ -86,6 +93,18 @@ const PAGE: DocsPageData = {
           default: 'false',
           description:
             'Disables the tab (disabled on buttons, aria-disabled and .disabled on links). A disabled active tab falls back to the first enabled tab.',
+        },
+      ],
+      methods: [
+        {
+          name: 'isActive()',
+          type: 'boolean',
+          description: 'Whether this tab is shown.',
+        },
+        {
+          name: 'isDisabled()',
+          type: 'boolean',
+          description: 'Whether this tab is disabled.',
         },
       ],
     },
@@ -113,6 +132,13 @@ const PAGE: DocsPageData = {
           type: 'string',
           default: 'required',
           description: 'Key of the tab that shows this pane.',
+        },
+      ],
+      methods: [
+        {
+          name: 'isActive()',
+          type: 'boolean',
+          description: 'Whether this pane is shown.',
         },
       ],
     },

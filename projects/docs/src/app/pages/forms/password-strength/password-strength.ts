@@ -154,6 +154,11 @@ const PAGE: DocsPageData = {
           type: 'Signal<string>',
           description: 'The message for the level.',
         },
+        {
+          name: 'value()',
+          type: 'string',
+          description: 'The scored password.',
+        },
       ],
     },
     {
