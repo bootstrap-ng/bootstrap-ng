@@ -176,6 +176,26 @@ test('an async typeahead renders custom items and binds the picked object', asyn
   await expect(input).not.toHaveAttribute('aria-invalid');
 });
 
+test('a calendar counts the nights of a range and toggles multiple dates', async ({ page }) => {
+  // The calendars open on the current month.
+  await page.clock.setFixedTime(new Date(2026, 10, 15));
+  await page.goto('forms/calendar/');
+  const range = example(page, 'range');
+  await range.getByRole('gridcell', { name: /December 7, 2026/ }).click();
+  await range.getByRole('gridcell', { name: /December 10, 2026/ }).click();
+  await expect(range).toContainText('3 nights');
+  const multiple = example(page, 'multiple');
+  const day = multiple.getByRole('gridcell', { name: /November 30, 2026/ });
+  await day.click();
+  await multiple
+    .getByRole('gridcell', { name: /November 27, 2026/ })
+    .first()
+    .click();
+  await expect(multiple).toContainText('2 dates picked');
+  await day.click();
+  await expect(multiple).toContainText('1 date picked');
+});
+
 test('a datepicker follows the page color mode, not the system one', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.addInitScript(() => {

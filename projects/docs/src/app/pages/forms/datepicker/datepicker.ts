@@ -87,7 +87,7 @@ const PAGE: DocsPageData = {
       id: 'min-max-dates',
       title: 'Min and max dates',
       description:
-        'Restrict the selectable dates with <code>min</code> and <code>max</code>, or with a <code>dateDisabled</code> function, such as one that disables weekends. The <a href="#api-date-helpers">date helpers</a> turn the ISO dates it receives into <code>Date</code> objects.',
+        'Restrict the selectable dates with <code>min</code> and <code>max</code>, or with a <code>dateDisabled</code> function, such as one that disables weekends. The <a href="forms/calendar#api-date-helpers">date helpers</a> turn the ISO dates it receives into <code>Date</code> objects.',
       example: DatepickerMinMaxExample,
       html: min_maxHtml,
       ts: min_maxTs,
@@ -182,7 +182,7 @@ const PAGE: DocsPageData = {
       id: 'inline-mode',
       title: 'Inline mode',
       description:
-        'Use <code>bsCalendar</code> for an always-visible calendar. It takes the same options and binds to forms the same way.',
+        'Use <code>bsCalendar</code> for an always-visible calendar. It takes the same options and binds to forms the same way. See <a href="forms/calendar">Calendar</a> for more examples and its API.',
       example: DatepickerInlineExample,
       html: inlineHtml,
       ts: inlineTs,
@@ -386,206 +386,6 @@ const PAGE: DocsPageData = {
       name: 'BsDatepickerDisplay',
       selector: '[bsDatepickerDisplay]',
       inputs: [],
-    },
-    {
-      name: 'BsCalendar',
-      selector: '[bsCalendar]',
-      exportAs: 'bsCalendar',
-      inputs: [
-        {
-          name: 'value',
-          type: 'BsDateValue',
-          default: 'null',
-          description: 'ISO date, or an array of them with multiple and range. Supports [(value)].',
-        },
-        {
-          name: 'selectionMode',
-          type: "'single' | 'multiple' | 'range'",
-          default: "'single'",
-          description: 'How dates are selected.',
-        },
-        {
-          name: 'min',
-          type: 'string | null',
-          default: 'null',
-          description: 'Earliest selectable date, as YYYY-MM-DD.',
-        },
-        {
-          name: 'max',
-          type: 'string | null',
-          default: 'null',
-          description: 'Latest selectable date, as YYYY-MM-DD.',
-        },
-        {
-          name: 'dateDisabled',
-          type: '((iso: string) => boolean) | null',
-          default: 'null',
-          description: 'Returns true for dates that can’t be selected.',
-        },
-        {
-          name: 'firstWeekday',
-          type: 'number',
-          default: '1',
-          description: 'First day of the week: 0 for Sunday, 1 for Monday.',
-        },
-        {
-          name: 'monthsCount',
-          type: 'number',
-          default: '1',
-          description: 'Number of months shown side by side.',
-        },
-        {
-          name: 'weekNumbers',
-          type: 'boolean',
-          default: 'false',
-          description: 'Shows the week numbers before each week.',
-        },
-        {
-          name: 'weekNumbering',
-          type: "'iso' | 'simple'",
-          default: "'iso'",
-          description: 'How weeks are numbered: ISO 8601, or from the week holding 1 January.',
-        },
-        {
-          name: 'wareki',
-          type: 'boolean',
-          default: 'false',
-          description: 'Shows years as Japanese era years, such as 令和8年（2026）.',
-        },
-        {
-          name: 'locale',
-          type: 'string | undefined',
-          default: 'LOCALE_ID',
-          description:
-            'Locale for dates and month and day names. Set undefined to use the browser’s language.',
-        },
-        {
-          name: 'colorMode',
-          type: "'light' | 'dark' | null",
-          default: 'null',
-          description: 'Forces a color mode for the calendar.',
-        },
-        {
-          name: 'prevLabel',
-          type: 'string',
-          default: "'Previous month'",
-          description: 'Accessible name of the previous month button.',
-        },
-        {
-          name: 'nextLabel',
-          type: 'string',
-          default: "'Next month'",
-          description: 'Accessible name of the next month button.',
-        },
-        {
-          name: 'hideOutsideDays',
-          type: 'boolean',
-          default: 'false',
-          description: 'Hides the neighboring months’ days. Always hidden with several months.',
-        },
-        {
-          name: 'weekLabel',
-          type: 'string',
-          default: "'Week'",
-          description: 'Accessible name of the week numbers column.',
-        },
-        {
-          name: 'monthSelection',
-          type: 'boolean',
-          default: 'true',
-          description: 'Makes the month in the header a button that shows the months to pick from.',
-        },
-        {
-          name: 'yearSelection',
-          type: 'boolean',
-          default: 'true',
-          description: 'Makes the year in the header a button that shows the years to pick from.',
-        },
-        {
-          name: 'monthSelectionLabel',
-          type: 'string',
-          default: "'Choose month'",
-          description: 'Description of the month button in the header.',
-        },
-        {
-          name: 'yearSelectionLabel',
-          type: 'string',
-          default: "'Choose year'",
-          description: 'Description of the year button in the header.',
-        },
-        {
-          name: 'prevYearsLabel',
-          type: 'string',
-          default: "'Previous years'",
-          description: 'Accessible name of the previous button while years are shown.',
-        },
-        {
-          name: 'nextYearsLabel',
-          type: 'string',
-          default: "'Next years'",
-          description: 'Accessible name of the next button while years are shown.',
-        },
-        {
-          name: 'disabled',
-          type: 'boolean',
-          default: 'false',
-          description: 'Disables the control. Forms also disable it through the form control.',
-        },
-      ],
-      outputs: [
-        {
-          name: 'valueChange',
-          type: 'BsDateValue',
-          description: 'Emits the value when the user picks a date.',
-        },
-        {
-          name: 'selectionComplete',
-          type: 'BsDateValue',
-          description: 'Emits when a date, or a range’s end date, is picked.',
-        },
-      ],
-      methods: [
-        {
-          name: 'focus()',
-          type: 'void',
-          description: 'Moves focus to the selected date or today.',
-        },
-        {
-          name: 'isDateDisabled(iso)',
-          type: 'boolean',
-          description: 'Whether a date is outside min and max or disabled.',
-        },
-      ],
-    },
-    {
-      name: 'Date helpers',
-      importFrom: 'bootstrap-ng/calendar',
-      functions: [
-        {
-          name: 'parseIsoDate(value)',
-          type: 'Date | null',
-          description:
-            'Parses an ISO date (YYYY-MM-DD) as a local date. Returns null for other text and for dates that don’t exist, such as 2026-02-30.',
-        },
-        {
-          name: 'toIsoDate(year, month, day)',
-          type: 'string',
-          description:
-            'Returns the ISO date of a local date. The month counts from 0 like Date, and overflowing months and days roll over.',
-        },
-        {
-          name: 'selectedDates(value)',
-          type: 'string[]',
-          description:
-            'Returns the valid dates of a BsDateValue as an array, for single, multiple and range values alike.',
-        },
-        {
-          name: 'weekNumber(weekStart, firstWeekday?, numbering?)',
-          type: 'number',
-          description:
-            "Returns the week number shown for a week starting on the weekStart date. firstWeekday defaults to 1 (Monday) and numbering to 'iso', like the weekNumbers option.",
-        },
-      ],
     },
   ],
 };
