@@ -824,6 +824,9 @@ export class BsTable<T> {
         }
         this.pins.set(pins);
       };
+      // Measure now so the pinned classes don't wait for the observer's first callback,
+      // which comes only once the browser renders a frame.
+      untracked(measure);
       const observer = new ResizeObserver(measure);
       cells.forEach((cell) => observer.observe(cell));
       onCleanup(() => observer.disconnect());
