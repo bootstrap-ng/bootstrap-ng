@@ -269,24 +269,21 @@ export class BsOtpInput {
     }
   }
 
-  /** In right-to-left layouts the slots run right to left, so the arrow keys follow them. */
+  /**
+   * Moves one slot with the arrow keys. A filled slot is a one-character selection, which
+   * the browser would only collapse. In right-to-left layouts the slots run right to left,
+   * so the arrow keys follow them.
+   */
   protected onKeydown(event: KeyboardEvent): void {
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
-    if (
-      (key !== 'ArrowLeft' && key !== 'ArrowRight') ||
-      altKey ||
-      ctrlKey ||
-      metaKey ||
-      shiftKey ||
-      !this.isRtl()
-    ) {
+    if ((key !== 'ArrowLeft' && key !== 'ArrowRight') || altKey || ctrlKey || metaKey || shiftKey) {
       return;
     }
     event.preventDefault();
     const start = this.element.selectionStart ?? 0;
     const end = this.element.selectionEnd ?? start;
-    const right = key === 'ArrowRight';
-    const index = end - start > 1 ? (right ? start : end) : start + (right ? -1 : 1);
+    const forward = (key === 'ArrowRight') !== this.isRtl();
+    const index = end - start > 1 ? (forward ? end : start) : start + (forward ? 1 : -1);
     this.selectSlot(Math.min(index, this.firstEmptyIndex()));
   }
 

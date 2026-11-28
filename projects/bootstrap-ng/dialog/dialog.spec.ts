@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
+import { BsToaster } from 'bootstrap-ng/toast';
 import { BsDialog, BsDialogClose } from './dialog';
 
 @Component({
@@ -291,5 +292,41 @@ describe('BsDialog', () => {
     await new Promise((resolve) => setTimeout(resolve, 400));
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
+  });
+});
+
+describe('BsDialog with a static open attribute', () => {
+  @Component({
+    imports: [BsDialog],
+    template: `
+      @if (shown()) {
+        <dialog bsDialog open aria-label="Static"><p>Content</p></dialog>
+      }
+    `,
+  })
+  class StaticHost {
+    readonly shown = signal(true);
+  }
+
+  afterEach(() => document.documentElement.classList.remove('dialog-open'));
+
+  it('opens as a modal, and leaves toasts on the page when it is removed', async () => {
+    const fixture = TestBed.createComponent(StaticHost);
+    document.body.append(fixture.nativeElement as HTMLElement);
+    await fixture.whenStable();
+    const dialog = (fixture.nativeElement as HTMLElement).querySelector('dialog')!;
+    expect(dialog.matches(':modal')).toBe(true);
+
+    const toaster = TestBed.inject(BsToaster);
+    const ref = toaster.show({ body: 'Saved', autohide: false });
+    const container = () => document.querySelector<HTMLElement>('.toast-container');
+    await vi.waitFor(() => expect(container()?.parentElement).toBe(dialog));
+
+    // Removed while open, before its `close` event can fire.
+    fixture.componentInstance.shown.set(false);
+    await fixture.whenStable();
+    expect(container()!.parentElement).toBe(document.body);
+    ref.hide();
+    await ref.afterHidden;
   });
 });

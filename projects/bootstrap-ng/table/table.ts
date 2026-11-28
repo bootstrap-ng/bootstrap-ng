@@ -855,6 +855,9 @@ export class BsTable<T> {
       const keys = this.visibleColumns()
         .filter((column) => this.isResizable(column) && column.width === undefined)
         .map((column) => column.key);
+      // New rows and the loading state change the widths of columns that have none set.
+      this.rows();
+      this.loading();
       untracked(() => {
         const cells = this.headerCells();
         const next: Record<string, number> = {};

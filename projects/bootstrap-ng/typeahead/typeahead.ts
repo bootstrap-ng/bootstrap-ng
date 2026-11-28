@@ -70,6 +70,11 @@ function highlight(text: string, term: string): TextPart[] {
   }
   const parts: TextPart[] = [];
   const lower = text.toLowerCase();
+  // Lowercasing can change the length (`İ` becomes `i̇`), so positions in `lower` would
+  // point at the wrong characters of `text`.
+  if (lower.length !== text.length) {
+    return [{ text, match: false }];
+  }
   let index = 0;
   for (let found = lower.indexOf(query); found !== -1; found = lower.indexOf(query, index)) {
     if (found > index) {

@@ -26,9 +26,21 @@ describe('BsLiveAnnouncer', () => {
     expect(region('assertive')!.textContent).toBe('');
   });
 
+  it('keeps a pending assertive message when a polite one follows', async () => {
+    const announcer = TestBed.inject(BsLiveAnnouncer);
+    announcer.announce('Failed', 'assertive');
+    announcer.announce('First saved');
+    announcer.announce('Second saved');
+    await vi.waitFor(() => {
+      expect(region('assertive')!.textContent).toBe('Failed');
+      expect(region('polite')!.textContent).toBe('Second saved');
+    });
+  });
+
   it('recreates a region that was removed from the page', async () => {
     const announcer = TestBed.inject(BsLiveAnnouncer);
     announcer.announce('One');
+    await vi.waitFor(() => expect(region('polite')!.textContent).toBe('One'));
     region('polite')!.remove();
     announcer.announce('Two');
     await vi.waitFor(() => expect(region('polite')!.textContent).toBe('Two'));

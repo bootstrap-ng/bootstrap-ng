@@ -22,6 +22,11 @@ describe('calendar date helpers', () => {
     expect(parseIsoDate('nope')).toBeNull();
   });
 
+  it('keeps years before 100 instead of reading them as 1900 to 1999', () => {
+    expect(toIsoDate(26, 10, 27)).toBe('0026-11-27');
+    expect(parseIsoDate('0026-11-27')?.getFullYear()).toBe(26);
+  });
+
   it('numbers ISO 8601 weeks', () => {
     // 2026 starts on a Thursday, so its week 1 starts on 29 December 2025.
     expect(weekNumber(new Date(2025, 11, 29))).toBe(1);
@@ -432,6 +437,16 @@ describe('BsCalendar', () => {
     expect(months).toEqual(['July', 'August']);
     // Days of neighboring months are hidden when several months are shown.
     expect(host.querySelector('[data-vc-date-month]')).toBeNull();
+  });
+
+  it('keeps the focused day when the arrow buttons change month after a value change', async () => {
+    const { fixture, host, button, component } = await setup();
+    component.date.setValue('2026-06-12');
+    await fixture.whenStable();
+    expect(button('2026-06-10').tabIndex).toBe(0);
+    host.querySelector<HTMLButtonElement>('[data-vc-arrow="next"]')!.click();
+    await fixture.whenStable();
+    expect(button('2026-07-10').tabIndex).toBe(0);
   });
 
   it('keeps focus on the arrow buttons after a key that stays on the same date', async () => {

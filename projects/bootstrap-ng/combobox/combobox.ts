@@ -473,7 +473,9 @@ export class BsCombobox extends BsValueControl<unknown> {
       ) {
         return;
       }
-      const option = this.selectedOptions()[0] ?? menu.options().find((o) => !o.disabled());
+      const option =
+        this.selectedOptions().find((o) => !o.disabled()) ??
+        menu.options().find((o) => !o.disabled());
       option?.focus();
     });
   }

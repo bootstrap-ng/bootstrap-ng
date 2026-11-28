@@ -169,7 +169,7 @@ export function provideBsChipInputConfig(config: Partial<BsChipInputConfig>): Pr
       [readOnly]="full()"
       (input)="onInput()"
       (keydown)="onInputKeydown($event)"
-      (focus)="selected.set(emptySet)"
+      (focus)="clearSelection()"
       (blur)="onBlur()"
       (paste)="onPaste($event)" />
   `,
@@ -215,7 +215,7 @@ export class BsChipInput extends BsValueControl<string[]> {
   /** Validation styles of the input. See `BsControl`. */
   readonly validation = input<'auto' | 'valid' | 'invalid' | 'none'>('auto');
 
-  protected readonly emptySet = new Set<number>();
+  private readonly emptySet = new Set<number>();
   /** Indexes of the selected chips. */
   readonly selected = signal<ReadonlySet<number>>(this.emptySet);
   protected readonly full = computed(() => {
@@ -258,7 +258,7 @@ export class BsChipInput extends BsValueControl<string[]> {
   /** Removes every chip. */
   clear(): void {
     this.updateValue([]);
-    this.selected.set(this.emptySet);
+    this.clearSelection();
   }
 
   /** Focuses the input. */
@@ -273,7 +273,7 @@ export class BsChipInput extends BsValueControl<string[]> {
     const value = this.value();
     const removed = value.filter((_, i) => indexes.includes(i));
     this.updateValue(value.filter((_, i) => !indexes.includes(i)));
-    this.selected.set(this.emptySet);
+    this.clearSelection();
     this.announcer.announce(`Removed ${removed.join(', ')}`);
 
     // Focus the chip that took the place of the first removed one, or the input.
@@ -348,7 +348,7 @@ export class BsChipInput extends BsValueControl<string[]> {
         break;
       case 'Escape':
         input.value = '';
-        this.selected.set(this.emptySet);
+        this.clearSelection();
         break;
     }
   }
@@ -359,7 +359,7 @@ export class BsChipInput extends BsValueControl<string[]> {
     const move = (to: number) => {
       event.preventDefault();
       if (to > last) {
-        this.selected.set(this.emptySet);
+        this.clearSelection();
         this.focus();
         return;
       }
@@ -431,6 +431,12 @@ export class BsChipInput extends BsValueControl<string[]> {
     // Keep the parts that weren't added, such as duplicates, so they can be edited.
     const rejected = parts.filter((part) => !this.add(part) && part.trim());
     this.input().nativeElement.value = rejected.map((part) => part.trim()).join(separator ?? '');
+  }
+
+  /** Deselects every chip, so Shift with an arrow key starts a new selection. */
+  protected clearSelection(): void {
+    this.anchor = null;
+    this.selected.set(this.emptySet);
   }
 
   private select(index: number, extend = false): void {

@@ -423,4 +423,24 @@ describe('BsValidate', () => {
     await fixture.whenStable();
     expect(input.classList).not.toContain('is-invalid');
   });
+
+  it('forgets that a control was touched when the form is reset', async () => {
+    @Component({
+      imports: [BsValidate, BsFormControl],
+      template: `<form bsValidate><input bsFormControl required aria-label="Name" /></form>`,
+    })
+    class ResetHost {}
+    const fixture = TestBed.createComponent(ResetHost);
+    await fixture.whenStable();
+    const form: HTMLFormElement = fixture.nativeElement.querySelector('form');
+    const input: HTMLInputElement = form.querySelector('input')!;
+    input.dispatchEvent(new FocusEvent('focusout'));
+    await fixture.whenStable();
+    expect(input.classList).toContain('is-invalid');
+
+    form.reset();
+    await fixture.whenStable();
+    expect(input.classList).not.toContain('is-invalid');
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+  });
 });
